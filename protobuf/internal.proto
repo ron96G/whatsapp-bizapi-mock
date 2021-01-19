@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package model;
+
+option java_package         = "de.telekom.whatsapp.mock";
+option java_outer_classname = "Message";
+option go_package = "./model";
+
+message InternalContact {
+    string id = 1;
+    string name = 2;
+}
+
+message InternalConfig {
+    string version = 1;
+    string status = 2;
+    repeated InternalContact contacts = 3;
+    string uploadDir = 4;
+    string webhookUrl = 5;
+    map<string,string> users = 6;
+    map<string,string> inboundMedia = 7;
+}

@@ -1,0 +1,38 @@
+{
+  "version": "3.31.5",
+  "status": "stable",
+  "contacts": [
+    {
+      "id": "491701223123",
+      "name": "Peter L."
+    },
+    {
+      "id": "491701223124",
+      "name": "Markus M."
+    },
+    {
+      "id": "491701223125",
+      "name": "Olaf"
+    },
+    {
+      "id": "491701223126",
+      "name": "Gerald R."
+    },
+    {
+      "id": "491701223127",
+      "name": "Michel"
+    }
+  ],
+  "uploadDir": "/mnt/d/PROJECTS/whatsapp-mock/uploads/",
+  "webhookUrl": "http://localhost:9000/webhook",
+  "users": {
+    "admin": "secret",
+    "systemUser": "secret"
+  },
+  "inboundMedia": {
+    "image": "image",
+    "video": "video",
+    "document": "document",
+    "audio": "audio"
+  }
+}

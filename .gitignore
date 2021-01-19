@@ -1,0 +1,6 @@
+uploads/
+tmp/
+__pycache__
+*.exe
+app
+main
