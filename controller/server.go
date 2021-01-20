@@ -1,15 +1,53 @@
 package controller
 
 import (
+	"sync"
 	"time"
 
 	"github.com/fasthttp/router"
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/valyala/fasthttp"
 )
+
+var (
+	ApiVersion         = "3.31.5"
+	UploadDir          = ""
+	TokenValidDuration = 7 * 24 * time.Hour
+	marsheler          = jsonpb.Marshaler{
+		EmitDefaults: false,
+		EnumsAsInts:  false,
+		OrigName:     true,
+	}
+	responsePool = sync.Pool{
+		New: func() interface{} {
+			return new(model.APIResponse)
+		},
+	}
+
+	SigningKey []byte
+	Users      = map[string]string{}
+	Tokens     = []string{}
+
+	Webhook *WebhookConfig
+
+	cancel             = make(chan int, 1)
+	MaxWebhookPayload  = 100
+	MinWebhookInterval = 5
+)
+
+func AcquireResponse() *model.APIResponse {
+	return responsePool.Get().(*model.APIResponse)
+}
+
+func ReleaseResponse(s *model.APIResponse) {
+	responsePool.Put(s)
+}
 
 func NewServer(apiPrefix string) *fasthttp.Server {
 	r := router.New()
 
+	// general resources
 	r.POST(apiPrefix+"/generate", Limiter(Log(GenerateWebhookRequests), 2))
 	r.POST(apiPrefix+"/generate/cancel", Log(CancelGenerateWebhookRquests))
 	r.POST(apiPrefix+"/messages", Limiter(SetConnID(Log(Authorize(SendMessages))), 20))
@@ -25,8 +63,26 @@ func NewServer(apiPrefix string) *fasthttp.Server {
 	r.POST(apiPrefix+"/media", Log(Authorize(SaveMedia)))
 	r.GET(apiPrefix+"/media/{id}", Log(Authorize(RetrieveMedia)))
 	r.DELETE(apiPrefix+"/media/{id}", Log(Authorize(DeleteMedia)))
-	r.PanicHandler = PanicHandler
 
+	// settings resources
+	r.PATCH(apiPrefix+"/settings/application", Log(Authorize(SetApplicationSettings)))
+	r.GET(apiPrefix+"/settings/application", Log(Authorize(GetApplicationSettings)))
+	r.DELETE(apiPrefix+"/settings/application", Log(Authorize(ResetApplicationSettings)))
+	r.POST(apiPrefix+"/certificates/webhooks/ca", Log(Authorize(UploadWebhookCA)))
+
+	// registration resources
+	r.POST(apiPrefix+"/account/verify", Log(Authorize(VerifyAccount)))
+	r.POST(apiPrefix+"/account", Log(Authorize(RegisterAccount)))
+
+	// profile resources
+	r.PATCH(apiPrefix+"/settings/profile/about", Log(Authorize(SetProfileAbout)))
+	r.GET(apiPrefix+"/settings/profile/about", Log(Authorize(GetProfileAbout)))
+	r.POST(apiPrefix+"/settings/profile/photo", Log(Authorize(SetProfilePhoto)))
+	r.GET(apiPrefix+"/settings/profile/photo", Log(Authorize(GetProfilePhoto)))
+	r.POST(apiPrefix+"/settings/business/profile", Log(Authorize(SetBusinessProfile)))
+	r.GET(apiPrefix+"/settings/business/profile", Log(Authorize(GetBusinessProfile)))
+
+	r.PanicHandler = PanicHandler
 	server := &fasthttp.Server{
 		Handler:                       r.Handler,
 		Name:                          "WhatsApp Mockserver",

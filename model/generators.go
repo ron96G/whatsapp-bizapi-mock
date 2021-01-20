@@ -45,7 +45,7 @@ func NewGenerators(uploadDir string, c []*Contact, m map[string]string) *Generat
 	}
 }
 
-func AcquireStatuse() *Status {
+func AcquireStatus() *Status {
 	return statusPool.Get().(*Status)
 }
 
@@ -180,7 +180,7 @@ func (g *Generators) GenerateSatiForMessage(msg *Message) []*Status {
 }
 
 func (g *Generators) generateStatus(recipient string, msgID string, status string) *Status {
-	stat := AcquireStatuse()
+	stat := AcquireStatus()
 	stat = &Status{
 		Id:          msgID,
 		RecipientId: recipient,

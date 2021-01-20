@@ -27,8 +27,28 @@ It is used to perform integration-, system- and load-testing.
 | XXX /v1/account/verify | registration functionality | ⬜️ |
 
 ## Functionaliy
+The following list shows the core functionality that is currently supported.
 
 1. Generate inbound traffic with different messages and media
 2. Generate stati for outbound traffic
-3. Validate outbound traffic 
+3. (TBD) Validate outbound traffic 
 4. Rate limiting
+
+
+## Supported Messages
+The following message types are currently supported.
+Inbound types are generated and sent via the webhook.
+Outbound types are accepted by the messages resource and validated.
+
+| Type | Inbound | Outbound |
+| :--- | :---| :--- |
+| Text | ✅ | ✅ |
+| Image | ✅ | ✅ |
+| Audio | ✅ | ✅ |
+| Video | ✅ | ✅ |
+| Document | ✅ | ✅ |
+| Voice | ⬜️ | ⬜️ |
+| Location | ⬜️ | ✅ |
+| Contact | ⬜️ | ⬜️ |
+| Hsm | ⬜️ | ⬜️ |
+| System | ⬜️ | ⬜️ |
