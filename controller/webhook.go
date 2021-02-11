@@ -124,6 +124,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				marsheler.Marshal(req.BodyWriter(), whReq)
 				req.SetRequestURI(wc.URL)
 				req.Header.Set("User-Agent", "WhatsApp Mockserver")
+				req.Header.SetMethod("POST")
 				resp, err := wc.Send(req)
 				defer fasthttp.ReleaseRequest(req)
 				defer fasthttp.ReleaseResponse(resp)
@@ -135,6 +136,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 					continue
 				}
 				if resp.StatusCode() >= 300 || resp.StatusCode() < 200 {
+					wc.WaitInterval = wc.WaitInterval + 3*time.Second
 					errors <- fmt.Errorf("Webook-request to %s failed with status %d", wc.URL, resp.StatusCode())
 					wc.Queue <- whReq
 					continue
