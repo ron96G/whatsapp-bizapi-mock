@@ -10,7 +10,6 @@ import (
 	"github.com/valyala/fasthttp/reuseport"
 
 	"github.com/rgumi/whatsapp-mock/controller"
-	c "github.com/rgumi/whatsapp-mock/controller"
 	"github.com/rgumi/whatsapp-mock/model"
 )
 
@@ -47,9 +46,9 @@ func main() {
 		config.WebhookUrl = *webhookURL
 	}
 
-	c.Users = config.Users
-	c.UploadDir = config.UploadDir
-	c.SigningKey = signingKey
+	controller.Users = config.Users
+	controller.UploadDir = config.UploadDir
+	controller.SigningKey = signingKey
 
 	contacts := make([]*model.Contact, len(config.Contacts))
 	for i, c := range config.Contacts {
@@ -61,7 +60,7 @@ func main() {
 		}
 	}
 
-	server := c.NewServer(*apiPrefix)
+	server := controller.NewServer(*apiPrefix)
 	generators := model.NewGenerators(config.UploadDir, contacts, config.InboundMedia)
 	webhook := controller.NewWebhookConfig(config.WebhookUrl, generators)
 
