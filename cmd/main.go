@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"log"
 	"os"
@@ -14,11 +15,12 @@ import (
 )
 
 var (
-	apiPrefix  = "/v1"
+	apiPrefix  = flag.String("apiprefix", "/v1", "the prefix for the API")
 	configFile = flag.String("configfile", "/home/app/config.json", "the application config")
-	addr       = flag.String("addr", "0.0.0.0:8080", "port the webserver listens on")
+	addr       = flag.String("addr", "0.0.0.0:9090", "port the webserver listens on")
 	signingKey = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
 	webhookURL = flag.String("webhook", "", "URL of the webhook")
+	enableTLS  = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
 )
 
 func readConfig(path string) *model.InternalConfig {
@@ -59,7 +61,7 @@ func main() {
 		}
 	}
 
-	server := c.NewServer(apiPrefix)
+	server := c.NewServer(*apiPrefix)
 	generators := model.NewGenerators(config.UploadDir, contacts, config.InboundMedia)
 	webhook := controller.NewWebhookConfig(config.WebhookUrl, generators)
 
@@ -74,10 +76,19 @@ func main() {
 		}
 	}()
 
-	log.Printf("Starting webserver with addr %v\n", *addr)
+	log.Printf("Starting webserver with addr %v", *addr)
 	ln, err := reuseport.Listen("tcp4", *addr)
 	if err != nil {
-		log.Fatalf("Reuseport listener failed with %v\n", err)
+		log.Fatalf("Reuseport listener failed with %v", err)
+	}
+
+	if *enableTLS {
+		log.Println("Creating new Server TLS config as TLS is enabled")
+		tlsCfg, err := controller.GenerateServerTLS()
+		if err != nil {
+			log.Fatalf("Unable to generate Server TLS config due to %v", err)
+		}
+		ln = tls.NewListener(ln, tlsCfg)
 	}
 
 	if err := server.Serve(ln); err != nil {

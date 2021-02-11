@@ -31,9 +31,9 @@ The following list shows the core functionality that is currently supported.
 
 1. Generate inbound traffic with different messages and media
 2. Generate stati for outbound traffic
-3. (TBD) Validate outbound traffic 
-4. Rate limiting
-
+3. Rate limiting
+4. (TBD) Validate outbound traffic 
+5. (TBD) strict validation (only allow outbound messages to users that have sent a inbound message)
 
 ## Supported Messages
 The following message types are currently supported.
