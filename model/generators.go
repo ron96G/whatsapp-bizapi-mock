@@ -77,8 +77,9 @@ func (g *Generators) generateBaseMessage() *Message {
 	contact := g.selectRndContact()
 	msg := AcquireMessage()
 	msg = &Message{
-		From: contact.GetWaId(),
-		Id:   uuid.New().String(),
+		From:      contact.GetWaId(),
+		Id:        uuid.New().String(),
+		Timestamp: time.Now().Unix(),
 	}
 	return msg
 }

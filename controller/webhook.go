@@ -124,6 +124,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				marsheler.Marshal(req.BodyWriter(), whReq)
 				req.SetRequestURI(wc.URL)
 				req.Header.Set("User-Agent", "WhatsApp Mockserver")
+				req.Header.Set("Content-Type", "application/json")
 				req.Header.SetMethod("POST")
 				resp, err := wc.Send(req)
 				defer fasthttp.ReleaseRequest(req)
