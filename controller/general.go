@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -40,22 +39,15 @@ func Contacts(ctx *fasthttp.RequestCtx) {
 }
 
 func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
-	n, ok := getQueryArgInt(ctx, "n")
+	// number of messages that are generated
+	n, ok := getQueryArgInt(ctx, "volume")
 	if !ok {
 		return
 	}
-	r, ok := getQueryArgInt(ctx, "r")
+	// interval between the generation of messages
+	// if 0, messages are just generated once
+	r, ok := getQueryArgInt(ctx, "interval")
 	if !ok {
-		return
-	}
-
-	if n > MaxWebhookPayload || r < MinWebhookInterval {
-		err := fmt.Errorf("Interval too low or payload too large")
-		returnError(ctx, 400, model.Error{
-			Code:    400,
-			Details: err.Error(),
-			Title:   "Client Error",
-		})
 		return
 	}
 

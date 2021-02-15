@@ -29,10 +29,10 @@ func SaveMedia(ctx *fasthttp.RequestCtx) {
 	filename := fileID
 	f, err := os.OpenFile(UploadDir+filename, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
-		returnError(ctx, 400, model.Error{
-			Code:    400,
+		returnError(ctx, 500, model.Error{
+			Code:    500,
 			Details: err.Error(),
-			Title:   "Client Error",
+			Title:   "Server Error",
 			Href:    "",
 		})
 		return
@@ -61,15 +61,20 @@ func RetrieveMedia(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	filename := filepath.Base(id)
 	f, err := os.OpenFile(UploadDir+filename, os.O_RDONLY, 0777)
-	if err != nil {
-		returnError(ctx, 400, model.Error{
-			Code:    400,
+	if err != nil && os.IsNotExist(err) {
+		ctx.SetStatusCode(404)
+		return
+
+	} else if err != nil {
+		returnError(ctx, 500, model.Error{
+			Code:    500,
 			Details: err.Error(),
-			Title:   "Client Error",
+			Title:   "Server Error",
 			Href:    "",
 		})
 		return
 	}
+
 	defer f.Close()
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
@@ -92,7 +97,15 @@ func DeleteMedia(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	filename := filepath.Base(id)
 	err := os.Remove(UploadDir + filename)
-	if err != nil {
+	if err == nil {
+		ctx.SetStatusCode(200)
+		return
+
+	} else if os.IsNotExist(err) {
+		ctx.SetStatusCode(404)
+		return
+
+	} else {
 		returnError(ctx, 500, model.Error{
 			Code:    500,
 			Details: err.Error(),

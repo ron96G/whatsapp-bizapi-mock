@@ -1,10 +1,7 @@
 syntax = "proto3";
-
-package model;
-
-option java_package         = "de.telekom.whatsapp.mock";
-option java_outer_classname = "Message";
-option go_package = "./model";
+package internal;
+import "whatsapp.proto";
+option go_package = "../model";
 
 message InternalContact {
     string id = 1;
@@ -19,4 +16,12 @@ message InternalConfig {
     string webhookUrl = 5;
     map<string,string> users = 6;
     map<string,string> inboundMedia = 7;
+}
+
+message WebhookRequest {
+    repeated whatsapp.Contact contacts = 1;
+    repeated whatsapp.Message messages = 2;
+    repeated whatsapp.Status statuses = 3;
+    repeated whatsapp.Error errors = 4;
+    int32 errorCounter = 5;
 }

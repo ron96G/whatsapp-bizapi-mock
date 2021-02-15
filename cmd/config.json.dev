@@ -23,7 +23,7 @@
       "name": "Michel"
     }
   ],
-  "uploadDir": "/mnt/d/PROJECTS/whatsapp-mock/uploads/",
+  "uploadDir": "./uploads/",
   "webhookUrl": "http://localhost:9000/webhook",
   "users": {
     "admin": "secret",

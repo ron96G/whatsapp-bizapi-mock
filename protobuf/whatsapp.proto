@@ -1,17 +1,80 @@
 syntax = "proto3";
+package whatsapp;
+option go_package = "../model";
 
-package model;
+message Contact {
+    string wa_id = 1;
 
-option java_package         = "de.telekom.whatsapp.mock";
-option java_outer_classname = "Message";
-option go_package = "./model";
+    message Profile {
+        string name = 1;
+    }
+    Profile profile = 2;
 
+    enum ContactStatus {
+        unknown = 0;
+        valid = 1;
+        invalid = 2;
+    }
+    ContactStatus status = 3;
+    string input = 4;
+}
+
+message Meta {
+    string version = 1;
+
+    enum APIStatus {
+        unknown = 0;
+        deprecated = 1;
+        experimental = 2;
+        stable = 3;
+    }
+    APIStatus api_status = 2;
+}
+
+message Id {
+    string id = 1;
+}
+
+message TokenResponse {
+    string token = 1;
+    string expires_after = 2;
+}
+
+message APIResponse {
+    Meta meta = 1;
+    repeated Error errors = 2;
+    repeated Id messages = 3;
+    repeated Contact contacts = 4;
+    repeated TokenResponse users = 5;
+}
+
+message ChangePwdRequest {
+    string new_password = 1;
+}
+
+message User {
+    string username = 1;
+    string password = 2;
+}
 message Context {
     string from = 1;
     string id = 2;
     repeated string mentions = 3;
     bool forwarded = 4;
     bool frequently_forwarded = 5;
+}
+
+message Status {
+    string id = 1;  
+    enum StatusEnum {
+        unknown = 0;
+        sent = 1;
+        delivered = 2;
+        read = 3;
+    }
+    StatusEnum status = 2;
+    string recipient_id = 3;
+    int64 timestamp = 4;
 }
 
 enum MessageType {
@@ -115,7 +178,6 @@ message Message {
     Context context = 4;
     MessageType type = 5;
     int64 timestamp = 6;
-
     repeated Error errors = 7;
     TextMessage text = 8;
     ImageMessage image = 9;
@@ -135,79 +197,4 @@ message Message {
 
     RecipientType recipient_type = 17;
     bool preview_url = 18;
-}
-
-message Contact {
-    string wa_id = 1;
-
-    message Profile {
-        string name = 1;
-    }
-    Profile profile = 2;
-
-    enum ContactStatus {
-        unknown = 0;
-        valid = 1;
-        invalid = 2;
-    }
-    ContactStatus status = 3;
-    string input = 4;
-}
-
-message Status {
-    string id = 1;  
-    enum StatusEnum {
-        unknown = 0;
-        sent = 1;
-        delivered = 2;
-        read = 3;
-    }
-    StatusEnum status = 2;
-    string recipient_id = 3;
-    int64 timestamp = 4;
-}
-
-message WebhookRequest {
-    repeated Contact contacts = 1;
-    repeated Message messages = 2;
-    repeated Status statuses = 3;
-    repeated Error errors = 4;
-}
-
-message Meta {
-    string version = 1;
-
-    enum APIStatus {
-        unknown = 0;
-        deprecated = 1;
-        experimental = 2;
-        stable = 3;
-    }
-    APIStatus api_status = 2;
-}
-
-message Id {
-    string id = 1;
-}
-
-message TokenResponse {
-    string token = 1;
-    string expires_after = 2;
-}
-
-message APIResponse {
-    Meta meta = 1;
-    repeated Error errors = 2;
-    repeated Id messages = 3;
-    repeated Contact contacts = 4;
-    repeated TokenResponse users = 5;
-}
-
-message ChangePwdRequest {
-    string new_password = 1;
-}
-
-message User {
-    string username = 1;
-    string password = 2;
 }

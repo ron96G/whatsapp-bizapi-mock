@@ -31,9 +31,7 @@ var (
 
 	Webhook *WebhookConfig
 
-	cancel             = make(chan int, 1)
-	MaxWebhookPayload  = 100
-	MinWebhookInterval = 5
+	cancel = make(chan int, 1)
 )
 
 func AcquireResponse() *model.APIResponse {

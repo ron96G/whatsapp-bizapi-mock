@@ -60,6 +60,7 @@ func main() {
 		}
 	}
 
+	log.Printf("Creating new webserver with prefix %v", *apiPrefix)
 	server := controller.NewServer(*apiPrefix)
 	generators := model.NewGenerators(config.UploadDir, contacts, config.InboundMedia)
 	webhook := controller.NewWebhookConfig(config.WebhookUrl, generators)
