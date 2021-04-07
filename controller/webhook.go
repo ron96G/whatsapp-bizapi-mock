@@ -72,9 +72,9 @@ func (wc *WebhookConfig) statusRunner() (stop chan int) {
 	go func() {
 		for {
 			select {
-			case _ = <-stop:
+			case <-stop:
 				return
-			case _ = <-time.After(10 * time.Second):
+			case <-time.After(10 * time.Second):
 				if len(wc.StatusQueue) == 0 {
 					continue
 				}
@@ -114,7 +114,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 	go func() {
 		for {
 			select {
-			case _ = <-stop:
+			case <-stop:
 				stopStatus <- 1
 				return
 
@@ -138,7 +138,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				}
 				if resp.StatusCode() >= 300 || resp.StatusCode() < 200 {
 					wc.WaitInterval = wc.WaitInterval + 3*time.Second
-					errors <- fmt.Errorf("Webook-request to %s failed with status %d", wc.URL, resp.StatusCode())
+					errors <- fmt.Errorf("webook-request to %s failed with status %d", wc.URL, resp.StatusCode())
 					wc.Queue <- whReq
 					continue
 				}

@@ -4,3 +4,5 @@ __pycache__
 *.exe
 app
 main
+cmd
+cmd.exe

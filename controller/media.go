@@ -3,7 +3,6 @@ package controller
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"os"
@@ -76,21 +75,23 @@ func RetrieveMedia(ctx *fasthttp.RequestCtx) {
 	}
 
 	defer f.Close()
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		returnError(ctx, 500, model.Error{
-			Code:    500,
-			Details: err.Error(),
-			Title:   "Server Error",
-			Href:    "",
-		})
-		return
+	contentType, err := getFileContentType(f)
+	if err == nil {
+		_, err := f.Seek(0, io.SeekStart)
+		if err == nil {
+			ctx.SetContentType(contentType)
+			ctx.SetStatusCode(200)
+			io.Copy(ctx, f)
+			return
+		}
 	}
-	contentType := http.DetectContentType(b)
 
-	ctx.SetContentType(contentType)
-	ctx.SetStatusCode(200)
-	ctx.Write(b)
+	returnError(ctx, 500, model.Error{
+		Code:    500,
+		Details: err.Error(),
+		Title:   "Server Error",
+		Href:    "",
+	})
 }
 
 func DeleteMedia(ctx *fasthttp.RequestCtx) {
@@ -114,4 +115,21 @@ func DeleteMedia(ctx *fasthttp.RequestCtx) {
 		})
 		return
 	}
+}
+
+func getFileContentType(out *os.File) (string, error) {
+
+	// Only the first 512 bytes are used to sniff the content type.
+	buffer := make([]byte, 512)
+
+	_, err := out.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+
+	// Use the net/http package's handy DectectContentType function. Always returns a valid
+	// content-type by returning "application/octet-stream" if no others seemed to match.
+	contentType := http.DetectContentType(buffer)
+
+	return contentType, nil
 }

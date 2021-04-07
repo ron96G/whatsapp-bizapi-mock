@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -53,7 +54,7 @@ func basicAuth(ctx *fasthttp.RequestCtx) (string, string, error) {
 		splittedAuth := strings.Split(string(auth), ":")
 		return splittedAuth[0], splittedAuth[1], nil
 	} else {
-		return "", "", fmt.Errorf("Unable to find Authorization header")
+		return "", "", fmt.Errorf("unable to find Authorization header")
 	}
 }
 
@@ -149,4 +150,11 @@ func getQueryArgInt(ctx *fasthttp.RequestCtx, key string) (n int, ok bool) {
 		return 0, false
 	}
 	return n, true
+}
+
+func generateRandomCode(n int) (numbers string) {
+	for i := 0; i < n; i++ {
+		numbers += fmt.Sprintf("%d", rand.Intn(9))
+	}
+	return
 }

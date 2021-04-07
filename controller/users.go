@@ -71,11 +71,10 @@ func Logout(ctx *fasthttp.RequestCtx) {
 }
 
 func CreateUser(ctx *fasthttp.RequestCtx) {
-	msg := &model.User{}
-	if !unmarshalPayload(ctx, msg) {
+	user := &model.User{}
+	if !unmarshalPayload(ctx, user) {
 		return
 	}
-
 	response := AcquireResponse()
 	response.Reset()
 	defer ReleaseResponse(response)
@@ -84,7 +83,18 @@ func CreateUser(ctx *fasthttp.RequestCtx) {
 		ApiStatus: model.Meta_stable,
 		Version:   ApiVersion,
 	}
-	returnJSON(ctx, 200, response)
+
+	if _, exists := Users[user.Username]; exists {
+		response.Errors = append(response.Errors, &model.Error{
+			Code:    401,
+			Title:   "User  already  exists",
+			Details: fmt.Sprintf("The requested user %s already exists", user.Username),
+		})
+		returnJSON(ctx, 401, response)
+		return
+	}
+	Users[user.Username] = user.Password
+	returnJSON(ctx, 201, response)
 }
 
 func DeleteUser(ctx *fasthttp.RequestCtx) {

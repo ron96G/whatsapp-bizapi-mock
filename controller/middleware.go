@@ -43,7 +43,7 @@ func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 func Limiter(h fasthttp.RequestHandler, concurrencyLimit int) fasthttp.RequestHandler {
 	limiter := rate.NewLimiter(rate.Limit(concurrencyLimit), concurrencyLimit)
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		if limiter.Allow() == false {
+		if !limiter.Allow() {
 			ctx.SetStatusCode(429)
 			return
 		}

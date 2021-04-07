@@ -104,11 +104,9 @@ func (g *Generators) generateMedia(t string) string {
 func (g *Generators) generateBaseMessage() *Message {
 	contact := g.selectRndContact()
 	msg := AcquireMessage()
-	msg = &Message{
-		From:      contact.GetWaId(),
-		Id:        uuid.New().String(),
-		Timestamp: time.Now().Unix(),
-	}
+	msg.From = contact.GetWaId()
+	msg.Id = uuid.New().String()
+	msg.Timestamp = time.Now().Unix()
 	return msg
 }
 
@@ -219,11 +217,9 @@ func (g *Generators) GenerateSatiForMessage(msg *Message) []*Status {
 
 func (g *Generators) generateStatus(recipient string, msgID string, status string) *Status {
 	stat := AcquireStatus()
-	stat = &Status{
-		Id:          msgID,
-		RecipientId: recipient,
-		Timestamp:   time.Now().Unix(),
-		Status:      Status_StatusEnum(Status_StatusEnum_value[status]),
-	}
+	stat.Id = msgID
+	stat.RecipientId = recipient
+	stat.Timestamp = time.Now().Unix()
+	stat.Status = Status_StatusEnum(Status_StatusEnum_value[status])
 	return stat
 }

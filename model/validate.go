@@ -3,10 +3,7 @@ package model
 type ValidationStatus []Error
 
 func (v ValidationStatus) IsValid() bool {
-	if len(v) == 0 {
-		return true
-	}
-	return false
+	return len(v) == 0
 }
 
 func (m *Message) Validate() ValidationStatus {
@@ -15,25 +12,22 @@ func (m *Message) Validate() ValidationStatus {
 	return v
 }
 
+func (r *RegistrationRequest) Validate() ValidationStatus {
+	v := ValidationStatus{}
+
+	return v
+}
+
 // helper functions
 
 func notNull(s interface{}) bool {
-	if s == nil {
-		return false
-	}
-	return true
+	return s == nil
 }
 
 func notEmpty(s string) bool {
-	if len(s) == 0 {
-		return false
-	}
-	return true
+	return len(s) == 0
 }
 
 func notZero(s int) bool {
-	if s == 0 {
-		return false
-	}
-	return true
+	return s == 0
 }

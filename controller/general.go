@@ -55,10 +55,10 @@ func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
 		go func() {
 			for {
 				select {
-				case _ = <-cancel:
+				case <-cancel:
 					return
 
-				case _ = <-time.After(time.Duration(r) * time.Second):
+				case <-time.After(time.Duration(r) * time.Second):
 					Webhook.GenerateWebhookRequests(n)
 				}
 			}
@@ -81,5 +81,4 @@ func PanicHandler(ctx *fasthttp.RequestCtx, in interface{}) {
 		Title:   "Unexpected Error",
 		Href:    "",
 	})
-	return
 }

@@ -289,6 +289,55 @@ func (Message_RecipientType) EnumDescriptor() ([]byte, []int) {
 	return file_whatsapp_proto_rawDescGZIP(), []int{21, 0}
 }
 
+type RegistrationRequest_ContactMethod int32
+
+const (
+	RegistrationRequest_unknown RegistrationRequest_ContactMethod = 0
+	RegistrationRequest_sms     RegistrationRequest_ContactMethod = 1
+	RegistrationRequest_voice   RegistrationRequest_ContactMethod = 2
+)
+
+// Enum value maps for RegistrationRequest_ContactMethod.
+var (
+	RegistrationRequest_ContactMethod_name = map[int32]string{
+		0: "unknown",
+		1: "sms",
+		2: "voice",
+	}
+	RegistrationRequest_ContactMethod_value = map[string]int32{
+		"unknown": 0,
+		"sms":     1,
+		"voice":   2,
+	}
+)
+
+func (x RegistrationRequest_ContactMethod) Enum() *RegistrationRequest_ContactMethod {
+	p := new(RegistrationRequest_ContactMethod)
+	*p = x
+	return p
+}
+
+func (x RegistrationRequest_ContactMethod) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RegistrationRequest_ContactMethod) Descriptor() protoreflect.EnumDescriptor {
+	return file_whatsapp_proto_enumTypes[5].Descriptor()
+}
+
+func (RegistrationRequest_ContactMethod) Type() protoreflect.EnumType {
+	return &file_whatsapp_proto_enumTypes[5]
+}
+
+func (x RegistrationRequest_ContactMethod) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RegistrationRequest_ContactMethod.Descriptor instead.
+func (RegistrationRequest_ContactMethod) EnumDescriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{22, 0}
+}
+
 type Contact struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1867,6 +1916,361 @@ func (x *Message) GetPreviewUrl() bool {
 	return false
 }
 
+type RegistrationRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Cc          string                            `protobuf:"bytes,1,opt,name=cc,proto3" json:"cc,omitempty"`
+	PhoneNumber string                            `protobuf:"bytes,2,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
+	Method      RegistrationRequest_ContactMethod `protobuf:"varint,3,opt,name=method,proto3,enum=whatsapp.RegistrationRequest_ContactMethod" json:"method,omitempty"`
+	Cert        string                            `protobuf:"bytes,4,opt,name=cert,proto3" json:"cert,omitempty"`
+	Pin         string                            `protobuf:"bytes,5,opt,name=pin,proto3" json:"pin,omitempty"`
+}
+
+func (x *RegistrationRequest) Reset() {
+	*x = RegistrationRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_whatsapp_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RegistrationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegistrationRequest) ProtoMessage() {}
+
+func (x *RegistrationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_whatsapp_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegistrationRequest.ProtoReflect.Descriptor instead.
+func (*RegistrationRequest) Descriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *RegistrationRequest) GetCc() string {
+	if x != nil {
+		return x.Cc
+	}
+	return ""
+}
+
+func (x *RegistrationRequest) GetPhoneNumber() string {
+	if x != nil {
+		return x.PhoneNumber
+	}
+	return ""
+}
+
+func (x *RegistrationRequest) GetMethod() RegistrationRequest_ContactMethod {
+	if x != nil {
+		return x.Method
+	}
+	return RegistrationRequest_unknown
+}
+
+func (x *RegistrationRequest) GetCert() string {
+	if x != nil {
+		return x.Cert
+	}
+	return ""
+}
+
+func (x *RegistrationRequest) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
+}
+
+type VerifyRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Code string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+}
+
+func (x *VerifyRequest) Reset() {
+	*x = VerifyRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_whatsapp_proto_msgTypes[23]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *VerifyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyRequest) ProtoMessage() {}
+
+func (x *VerifyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_whatsapp_proto_msgTypes[23]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyRequest.ProtoReflect.Descriptor instead.
+func (*VerifyRequest) Descriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *VerifyRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+type ApplicationSettings struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CallbackBackoffDelayMs    string                        `protobuf:"bytes,1,opt,name=callback_backoff_delay_ms,json=callbackBackoffDelayMs,proto3" json:"callback_backoff_delay_ms,omitempty"`
+	MaxCallbackBackoffDelayMs string                        `protobuf:"bytes,2,opt,name=max_callback_backoff_delay_ms,json=maxCallbackBackoffDelayMs,proto3" json:"max_callback_backoff_delay_ms,omitempty"`
+	CallbackPersist           bool                          `protobuf:"varint,3,opt,name=callback_persist,json=callbackPersist,proto3" json:"callback_persist,omitempty"`
+	Media                     *ApplicationSettings_Media    `protobuf:"bytes,4,opt,name=media,proto3" json:"media,omitempty"`
+	Webhook                   *ApplicationSettings_Webhooks `protobuf:"bytes,5,opt,name=webhook,proto3" json:"webhook,omitempty"`
+	PassThrough               bool                          `protobuf:"varint,6,opt,name=pass_through,json=passThrough,proto3" json:"pass_through,omitempty"`
+	SentStatus                bool                          `protobuf:"varint,7,opt,name=sent_status,json=sentStatus,proto3" json:"sent_status,omitempty"`
+	DbGarbagecollectorEnable  bool                          `protobuf:"varint,8,opt,name=db_garbagecollector_enable,json=dbGarbagecollectorEnable,proto3" json:"db_garbagecollector_enable,omitempty"`
+}
+
+func (x *ApplicationSettings) Reset() {
+	*x = ApplicationSettings{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_whatsapp_proto_msgTypes[24]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ApplicationSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApplicationSettings) ProtoMessage() {}
+
+func (x *ApplicationSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_whatsapp_proto_msgTypes[24]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApplicationSettings.ProtoReflect.Descriptor instead.
+func (*ApplicationSettings) Descriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ApplicationSettings) GetCallbackBackoffDelayMs() string {
+	if x != nil {
+		return x.CallbackBackoffDelayMs
+	}
+	return ""
+}
+
+func (x *ApplicationSettings) GetMaxCallbackBackoffDelayMs() string {
+	if x != nil {
+		return x.MaxCallbackBackoffDelayMs
+	}
+	return ""
+}
+
+func (x *ApplicationSettings) GetCallbackPersist() bool {
+	if x != nil {
+		return x.CallbackPersist
+	}
+	return false
+}
+
+func (x *ApplicationSettings) GetMedia() *ApplicationSettings_Media {
+	if x != nil {
+		return x.Media
+	}
+	return nil
+}
+
+func (x *ApplicationSettings) GetWebhook() *ApplicationSettings_Webhooks {
+	if x != nil {
+		return x.Webhook
+	}
+	return nil
+}
+
+func (x *ApplicationSettings) GetPassThrough() bool {
+	if x != nil {
+		return x.PassThrough
+	}
+	return false
+}
+
+func (x *ApplicationSettings) GetSentStatus() bool {
+	if x != nil {
+		return x.SentStatus
+	}
+	return false
+}
+
+func (x *ApplicationSettings) GetDbGarbagecollectorEnable() bool {
+	if x != nil {
+		return x.DbGarbagecollectorEnable
+	}
+	return false
+}
+
+type ProfileAbout struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+}
+
+func (x *ProfileAbout) Reset() {
+	*x = ProfileAbout{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_whatsapp_proto_msgTypes[25]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProfileAbout) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProfileAbout) ProtoMessage() {}
+
+func (x *ProfileAbout) ProtoReflect() protoreflect.Message {
+	mi := &file_whatsapp_proto_msgTypes[25]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProfileAbout.ProtoReflect.Descriptor instead.
+func (*ProfileAbout) Descriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ProfileAbout) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+type BusinessProfile struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Address     string   `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Description string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Email       string   `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Vertical    string   `protobuf:"bytes,4,opt,name=vertical,proto3" json:"vertical,omitempty"`
+	Websites    []string `protobuf:"bytes,5,rep,name=websites,proto3" json:"websites,omitempty"`
+}
+
+func (x *BusinessProfile) Reset() {
+	*x = BusinessProfile{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_whatsapp_proto_msgTypes[26]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *BusinessProfile) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BusinessProfile) ProtoMessage() {}
+
+func (x *BusinessProfile) ProtoReflect() protoreflect.Message {
+	mi := &file_whatsapp_proto_msgTypes[26]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BusinessProfile.ProtoReflect.Descriptor instead.
+func (*BusinessProfile) Descriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *BusinessProfile) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *BusinessProfile) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *BusinessProfile) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *BusinessProfile) GetVertical() string {
+	if x != nil {
+		return x.Vertical
+	}
+	return ""
+}
+
+func (x *BusinessProfile) GetWebsites() []string {
+	if x != nil {
+		return x.Websites
+	}
+	return nil
+}
+
 type Contact_Profile struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1878,7 +2282,7 @@ type Contact_Profile struct {
 func (x *Contact_Profile) Reset() {
 	*x = Contact_Profile{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_whatsapp_proto_msgTypes[22]
+		mi := &file_whatsapp_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1891,7 +2295,7 @@ func (x *Contact_Profile) String() string {
 func (*Contact_Profile) ProtoMessage() {}
 
 func (x *Contact_Profile) ProtoReflect() protoreflect.Message {
-	mi := &file_whatsapp_proto_msgTypes[22]
+	mi := &file_whatsapp_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1910,6 +2314,108 @@ func (*Contact_Profile) Descriptor() ([]byte, []int) {
 func (x *Contact_Profile) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+type ApplicationSettings_Media struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	AutoDownload []string `protobuf:"bytes,1,rep,name=auto_download,json=autoDownload,proto3" json:"auto_download,omitempty"`
+}
+
+func (x *ApplicationSettings_Media) Reset() {
+	*x = ApplicationSettings_Media{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_whatsapp_proto_msgTypes[28]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ApplicationSettings_Media) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApplicationSettings_Media) ProtoMessage() {}
+
+func (x *ApplicationSettings_Media) ProtoReflect() protoreflect.Message {
+	mi := &file_whatsapp_proto_msgTypes[28]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApplicationSettings_Media.ProtoReflect.Descriptor instead.
+func (*ApplicationSettings_Media) Descriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{24, 0}
+}
+
+func (x *ApplicationSettings_Media) GetAutoDownload() []string {
+	if x != nil {
+		return x.AutoDownload
+	}
+	return nil
+}
+
+type ApplicationSettings_Webhooks struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Url                   string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	MaxConcurrentRequests string `protobuf:"bytes,2,opt,name=max_concurrent_requests,json=maxConcurrentRequests,proto3" json:"max_concurrent_requests,omitempty"`
+}
+
+func (x *ApplicationSettings_Webhooks) Reset() {
+	*x = ApplicationSettings_Webhooks{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_whatsapp_proto_msgTypes[29]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ApplicationSettings_Webhooks) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApplicationSettings_Webhooks) ProtoMessage() {}
+
+func (x *ApplicationSettings_Webhooks) ProtoReflect() protoreflect.Message {
+	mi := &file_whatsapp_proto_msgTypes[29]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApplicationSettings_Webhooks.ProtoReflect.Descriptor instead.
+func (*ApplicationSettings_Webhooks) Descriptor() ([]byte, []int) {
+	return file_whatsapp_proto_rawDescGZIP(), []int{24, 1}
+}
+
+func (x *ApplicationSettings_Webhooks) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *ApplicationSettings_Webhooks) GetMaxConcurrentRequests() string {
+	if x != nil {
+		return x.MaxConcurrentRequests
 	}
 	return ""
 }
@@ -2130,16 +2636,81 @@ var file_whatsapp_proto_rawDesc = []byte{
 	0x72, 0x6c, 0x22, 0x37, 0x0a, 0x0d, 0x52, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65, 0x6e, 0x74, 0x54,
 	0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x75, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x10, 0x00,
 	0x12, 0x0e, 0x0a, 0x0a, 0x69, 0x6e, 0x64, 0x69, 0x76, 0x69, 0x64, 0x75, 0x61, 0x6c, 0x10, 0x01,
-	0x12, 0x09, 0x0a, 0x05, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x10, 0x02, 0x2a, 0x78, 0x0a, 0x0b, 0x4d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x54, 0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x75, 0x6e,
-	0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x10, 0x00, 0x12, 0x0c, 0x0a, 0x08, 0x64, 0x6f, 0x63, 0x75, 0x6d,
-	0x65, 0x6e, 0x74, 0x10, 0x01, 0x12, 0x09, 0x0a, 0x05, 0x69, 0x6d, 0x61, 0x67, 0x65, 0x10, 0x02,
-	0x12, 0x0c, 0x0a, 0x08, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x10, 0x03, 0x12, 0x0a,
-	0x0a, 0x06, 0x73, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x10, 0x04, 0x12, 0x08, 0x0a, 0x04, 0x74, 0x65,
-	0x78, 0x74, 0x10, 0x05, 0x12, 0x09, 0x0a, 0x05, 0x76, 0x69, 0x64, 0x65, 0x6f, 0x10, 0x06, 0x12,
-	0x09, 0x0a, 0x05, 0x76, 0x6f, 0x69, 0x63, 0x65, 0x10, 0x07, 0x12, 0x09, 0x0a, 0x05, 0x61, 0x75,
-	0x64, 0x69, 0x6f, 0x10, 0x08, 0x42, 0x0a, 0x5a, 0x08, 0x2e, 0x2e, 0x2f, 0x6d, 0x6f, 0x64, 0x65,
-	0x6c, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x12, 0x09, 0x0a, 0x05, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x10, 0x02, 0x22, 0xe5, 0x01, 0x0a, 0x13,
+	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x63, 0x63, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x02, 0x63, 0x63, 0x12, 0x21, 0x0a, 0x0c, 0x70, 0x68, 0x6f, 0x6e, 0x65, 0x5f, 0x6e, 0x75, 0x6d,
+	0x62, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x70, 0x68, 0x6f, 0x6e, 0x65,
+	0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x43, 0x0a, 0x06, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x2b, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73, 0x61, 0x70,
+	0x70, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x4d, 0x65, 0x74,
+	0x68, 0x6f, 0x64, 0x52, 0x06, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x63,
+	0x65, 0x72, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x63, 0x65, 0x72, 0x74, 0x12,
+	0x10, 0x0a, 0x03, 0x70, 0x69, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x70, 0x69,
+	0x6e, 0x22, 0x30, 0x0a, 0x0d, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x4d, 0x65, 0x74, 0x68,
+	0x6f, 0x64, 0x12, 0x0b, 0x0a, 0x07, 0x75, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x10, 0x00, 0x12,
+	0x07, 0x0a, 0x03, 0x73, 0x6d, 0x73, 0x10, 0x01, 0x12, 0x09, 0x0a, 0x05, 0x76, 0x6f, 0x69, 0x63,
+	0x65, 0x10, 0x02, 0x22, 0x23, 0x0a, 0x0d, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x22, 0xc0, 0x04, 0x0a, 0x13, 0x41, 0x70, 0x70,
+	0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73,
+	0x12, 0x39, 0x0a, 0x19, 0x63, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b, 0x5f, 0x62, 0x61, 0x63,
+	0x6b, 0x6f, 0x66, 0x66, 0x5f, 0x64, 0x65, 0x6c, 0x61, 0x79, 0x5f, 0x6d, 0x73, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x16, 0x63, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b, 0x42, 0x61, 0x63,
+	0x6b, 0x6f, 0x66, 0x66, 0x44, 0x65, 0x6c, 0x61, 0x79, 0x4d, 0x73, 0x12, 0x40, 0x0a, 0x1d, 0x6d,
+	0x61, 0x78, 0x5f, 0x63, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b, 0x5f, 0x62, 0x61, 0x63, 0x6b,
+	0x6f, 0x66, 0x66, 0x5f, 0x64, 0x65, 0x6c, 0x61, 0x79, 0x5f, 0x6d, 0x73, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x19, 0x6d, 0x61, 0x78, 0x43, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b, 0x42,
+	0x61, 0x63, 0x6b, 0x6f, 0x66, 0x66, 0x44, 0x65, 0x6c, 0x61, 0x79, 0x4d, 0x73, 0x12, 0x29, 0x0a,
+	0x10, 0x63, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63, 0x6b, 0x5f, 0x70, 0x65, 0x72, 0x73, 0x69, 0x73,
+	0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0f, 0x63, 0x61, 0x6c, 0x6c, 0x62, 0x61, 0x63,
+	0x6b, 0x50, 0x65, 0x72, 0x73, 0x69, 0x73, 0x74, 0x12, 0x39, 0x0a, 0x05, 0x6d, 0x65, 0x64, 0x69,
+	0x61, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73, 0x61,
+	0x70, 0x70, 0x2e, 0x41, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x65,
+	0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x2e, 0x4d, 0x65, 0x64, 0x69, 0x61, 0x52, 0x05, 0x6d, 0x65,
+	0x64, 0x69, 0x61, 0x12, 0x40, 0x0a, 0x07, 0x77, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x18, 0x05,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73, 0x61, 0x70, 0x70, 0x2e,
+	0x41, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x65, 0x74, 0x74, 0x69,
+	0x6e, 0x67, 0x73, 0x2e, 0x57, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x73, 0x52, 0x07, 0x77, 0x65,
+	0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x12, 0x21, 0x0a, 0x0c, 0x70, 0x61, 0x73, 0x73, 0x5f, 0x74, 0x68,
+	0x72, 0x6f, 0x75, 0x67, 0x68, 0x18, 0x06, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0b, 0x70, 0x61, 0x73,
+	0x73, 0x54, 0x68, 0x72, 0x6f, 0x75, 0x67, 0x68, 0x12, 0x1f, 0x0a, 0x0b, 0x73, 0x65, 0x6e, 0x74,
+	0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x07, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0a, 0x73,
+	0x65, 0x6e, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x3c, 0x0a, 0x1a, 0x64, 0x62, 0x5f,
+	0x67, 0x61, 0x72, 0x62, 0x61, 0x67, 0x65, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x6f, 0x72,
+	0x5f, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x18, 0x08, 0x20, 0x01, 0x28, 0x08, 0x52, 0x18, 0x64,
+	0x62, 0x47, 0x61, 0x72, 0x62, 0x61, 0x67, 0x65, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x6f,
+	0x72, 0x45, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x1a, 0x2c, 0x0a, 0x05, 0x4d, 0x65, 0x64, 0x69, 0x61,
+	0x12, 0x23, 0x0a, 0x0d, 0x61, 0x75, 0x74, 0x6f, 0x5f, 0x64, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61,
+	0x64, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0c, 0x61, 0x75, 0x74, 0x6f, 0x44, 0x6f, 0x77,
+	0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x1a, 0x54, 0x0a, 0x08, 0x57, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b,
+	0x73, 0x12, 0x10, 0x0a, 0x03, 0x75, 0x72, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
+	0x75, 0x72, 0x6c, 0x12, 0x36, 0x0a, 0x17, 0x6d, 0x61, 0x78, 0x5f, 0x63, 0x6f, 0x6e, 0x63, 0x75,
+	0x72, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x73, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x15, 0x6d, 0x61, 0x78, 0x43, 0x6f, 0x6e, 0x63, 0x75, 0x72, 0x72,
+	0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x73, 0x22, 0x22, 0x0a, 0x0c, 0x50,
+	0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x41, 0x62, 0x6f, 0x75, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x74,
+	0x65, 0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x65, 0x78, 0x74, 0x22,
+	0x9b, 0x01, 0x0a, 0x0f, 0x42, 0x75, 0x73, 0x69, 0x6e, 0x65, 0x73, 0x73, 0x50, 0x72, 0x6f, 0x66,
+	0x69, 0x6c, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x20, 0x0a,
+	0x0b, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0b, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x12,
+	0x14, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05,
+	0x65, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x76, 0x65, 0x72, 0x74, 0x69, 0x63, 0x61,
+	0x6c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x76, 0x65, 0x72, 0x74, 0x69, 0x63, 0x61,
+	0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x77, 0x65, 0x62, 0x73, 0x69, 0x74, 0x65, 0x73, 0x18, 0x05, 0x20,
+	0x03, 0x28, 0x09, 0x52, 0x08, 0x77, 0x65, 0x62, 0x73, 0x69, 0x74, 0x65, 0x73, 0x2a, 0x78, 0x0a,
+	0x0b, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x54, 0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07,
+	0x75, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x10, 0x00, 0x12, 0x0c, 0x0a, 0x08, 0x64, 0x6f, 0x63,
+	0x75, 0x6d, 0x65, 0x6e, 0x74, 0x10, 0x01, 0x12, 0x09, 0x0a, 0x05, 0x69, 0x6d, 0x61, 0x67, 0x65,
+	0x10, 0x02, 0x12, 0x0c, 0x0a, 0x08, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x10, 0x03,
+	0x12, 0x0a, 0x0a, 0x06, 0x73, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x10, 0x04, 0x12, 0x08, 0x0a, 0x04,
+	0x74, 0x65, 0x78, 0x74, 0x10, 0x05, 0x12, 0x09, 0x0a, 0x05, 0x76, 0x69, 0x64, 0x65, 0x6f, 0x10,
+	0x06, 0x12, 0x09, 0x0a, 0x05, 0x76, 0x6f, 0x69, 0x63, 0x65, 0x10, 0x07, 0x12, 0x09, 0x0a, 0x05,
+	0x61, 0x75, 0x64, 0x69, 0x6f, 0x10, 0x08, 0x42, 0x0a, 0x5a, 0x08, 0x2e, 0x2e, 0x2f, 0x6d, 0x6f,
+	0x64, 0x65, 0x6c, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2154,71 +2725,82 @@ func file_whatsapp_proto_rawDescGZIP() []byte {
 	return file_whatsapp_proto_rawDescData
 }
 
-var file_whatsapp_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_whatsapp_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_whatsapp_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_whatsapp_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_whatsapp_proto_goTypes = []interface{}{
-	(MessageType)(0),           // 0: whatsapp.MessageType
-	(Contact_ContactStatus)(0), // 1: whatsapp.Contact.ContactStatus
-	(Meta_APIStatus)(0),        // 2: whatsapp.Meta.APIStatus
-	(Status_StatusEnum)(0),     // 3: whatsapp.Status.StatusEnum
-	(Message_RecipientType)(0), // 4: whatsapp.Message.RecipientType
-	(*Contact)(nil),            // 5: whatsapp.Contact
-	(*Meta)(nil),               // 6: whatsapp.Meta
-	(*Id)(nil),                 // 7: whatsapp.Id
-	(*TokenResponse)(nil),      // 8: whatsapp.TokenResponse
-	(*APIResponse)(nil),        // 9: whatsapp.APIResponse
-	(*ChangePwdRequest)(nil),   // 10: whatsapp.ChangePwdRequest
-	(*User)(nil),               // 11: whatsapp.User
-	(*Context)(nil),            // 12: whatsapp.Context
-	(*Status)(nil),             // 13: whatsapp.Status
-	(*Provider)(nil),           // 14: whatsapp.Provider
-	(*TextMessage)(nil),        // 15: whatsapp.TextMessage
-	(*ImageMessage)(nil),       // 16: whatsapp.ImageMessage
-	(*AudioMessage)(nil),       // 17: whatsapp.AudioMessage
-	(*VideoMessage)(nil),       // 18: whatsapp.VideoMessage
-	(*VoiceMessage)(nil),       // 19: whatsapp.VoiceMessage
-	(*DocumentMessage)(nil),    // 20: whatsapp.DocumentMessage
-	(*LocationMessage)(nil),    // 21: whatsapp.LocationMessage
-	(*SystemMessage)(nil),      // 22: whatsapp.SystemMessage
-	(*Error)(nil),              // 23: whatsapp.Error
-	(*StickerMessage)(nil),     // 24: whatsapp.StickerMessage
-	(*MessageWrapper)(nil),     // 25: whatsapp.MessageWrapper
-	(*Message)(nil),            // 26: whatsapp.Message
-	(*Contact_Profile)(nil),    // 27: whatsapp.Contact.Profile
+	(MessageType)(0),                       // 0: whatsapp.MessageType
+	(Contact_ContactStatus)(0),             // 1: whatsapp.Contact.ContactStatus
+	(Meta_APIStatus)(0),                    // 2: whatsapp.Meta.APIStatus
+	(Status_StatusEnum)(0),                 // 3: whatsapp.Status.StatusEnum
+	(Message_RecipientType)(0),             // 4: whatsapp.Message.RecipientType
+	(RegistrationRequest_ContactMethod)(0), // 5: whatsapp.RegistrationRequest.ContactMethod
+	(*Contact)(nil),                        // 6: whatsapp.Contact
+	(*Meta)(nil),                           // 7: whatsapp.Meta
+	(*Id)(nil),                             // 8: whatsapp.Id
+	(*TokenResponse)(nil),                  // 9: whatsapp.TokenResponse
+	(*APIResponse)(nil),                    // 10: whatsapp.APIResponse
+	(*ChangePwdRequest)(nil),               // 11: whatsapp.ChangePwdRequest
+	(*User)(nil),                           // 12: whatsapp.User
+	(*Context)(nil),                        // 13: whatsapp.Context
+	(*Status)(nil),                         // 14: whatsapp.Status
+	(*Provider)(nil),                       // 15: whatsapp.Provider
+	(*TextMessage)(nil),                    // 16: whatsapp.TextMessage
+	(*ImageMessage)(nil),                   // 17: whatsapp.ImageMessage
+	(*AudioMessage)(nil),                   // 18: whatsapp.AudioMessage
+	(*VideoMessage)(nil),                   // 19: whatsapp.VideoMessage
+	(*VoiceMessage)(nil),                   // 20: whatsapp.VoiceMessage
+	(*DocumentMessage)(nil),                // 21: whatsapp.DocumentMessage
+	(*LocationMessage)(nil),                // 22: whatsapp.LocationMessage
+	(*SystemMessage)(nil),                  // 23: whatsapp.SystemMessage
+	(*Error)(nil),                          // 24: whatsapp.Error
+	(*StickerMessage)(nil),                 // 25: whatsapp.StickerMessage
+	(*MessageWrapper)(nil),                 // 26: whatsapp.MessageWrapper
+	(*Message)(nil),                        // 27: whatsapp.Message
+	(*RegistrationRequest)(nil),            // 28: whatsapp.RegistrationRequest
+	(*VerifyRequest)(nil),                  // 29: whatsapp.VerifyRequest
+	(*ApplicationSettings)(nil),            // 30: whatsapp.ApplicationSettings
+	(*ProfileAbout)(nil),                   // 31: whatsapp.ProfileAbout
+	(*BusinessProfile)(nil),                // 32: whatsapp.BusinessProfile
+	(*Contact_Profile)(nil),                // 33: whatsapp.Contact.Profile
+	(*ApplicationSettings_Media)(nil),      // 34: whatsapp.ApplicationSettings.Media
+	(*ApplicationSettings_Webhooks)(nil),   // 35: whatsapp.ApplicationSettings.Webhooks
 }
 var file_whatsapp_proto_depIdxs = []int32{
-	27, // 0: whatsapp.Contact.profile:type_name -> whatsapp.Contact.Profile
+	33, // 0: whatsapp.Contact.profile:type_name -> whatsapp.Contact.Profile
 	1,  // 1: whatsapp.Contact.status:type_name -> whatsapp.Contact.ContactStatus
 	2,  // 2: whatsapp.Meta.api_status:type_name -> whatsapp.Meta.APIStatus
-	6,  // 3: whatsapp.APIResponse.meta:type_name -> whatsapp.Meta
-	23, // 4: whatsapp.APIResponse.errors:type_name -> whatsapp.Error
-	7,  // 5: whatsapp.APIResponse.messages:type_name -> whatsapp.Id
-	5,  // 6: whatsapp.APIResponse.contacts:type_name -> whatsapp.Contact
-	8,  // 7: whatsapp.APIResponse.users:type_name -> whatsapp.TokenResponse
+	7,  // 3: whatsapp.APIResponse.meta:type_name -> whatsapp.Meta
+	24, // 4: whatsapp.APIResponse.errors:type_name -> whatsapp.Error
+	8,  // 5: whatsapp.APIResponse.messages:type_name -> whatsapp.Id
+	6,  // 6: whatsapp.APIResponse.contacts:type_name -> whatsapp.Contact
+	9,  // 7: whatsapp.APIResponse.users:type_name -> whatsapp.TokenResponse
 	3,  // 8: whatsapp.Status.status:type_name -> whatsapp.Status.StatusEnum
-	14, // 9: whatsapp.ImageMessage.provider:type_name -> whatsapp.Provider
-	14, // 10: whatsapp.VideoMessage.provider:type_name -> whatsapp.Provider
-	14, // 11: whatsapp.DocumentMessage.provider:type_name -> whatsapp.Provider
-	14, // 12: whatsapp.StickerMessage.provider:type_name -> whatsapp.Provider
-	26, // 13: whatsapp.MessageWrapper.messages:type_name -> whatsapp.Message
-	12, // 14: whatsapp.Message.context:type_name -> whatsapp.Context
+	15, // 9: whatsapp.ImageMessage.provider:type_name -> whatsapp.Provider
+	15, // 10: whatsapp.VideoMessage.provider:type_name -> whatsapp.Provider
+	15, // 11: whatsapp.DocumentMessage.provider:type_name -> whatsapp.Provider
+	15, // 12: whatsapp.StickerMessage.provider:type_name -> whatsapp.Provider
+	27, // 13: whatsapp.MessageWrapper.messages:type_name -> whatsapp.Message
+	13, // 14: whatsapp.Message.context:type_name -> whatsapp.Context
 	0,  // 15: whatsapp.Message.type:type_name -> whatsapp.MessageType
-	23, // 16: whatsapp.Message.errors:type_name -> whatsapp.Error
-	15, // 17: whatsapp.Message.text:type_name -> whatsapp.TextMessage
-	16, // 18: whatsapp.Message.image:type_name -> whatsapp.ImageMessage
-	17, // 19: whatsapp.Message.audio:type_name -> whatsapp.AudioMessage
-	18, // 20: whatsapp.Message.video:type_name -> whatsapp.VideoMessage
-	19, // 21: whatsapp.Message.voice:type_name -> whatsapp.VoiceMessage
-	20, // 22: whatsapp.Message.document:type_name -> whatsapp.DocumentMessage
-	21, // 23: whatsapp.Message.location:type_name -> whatsapp.LocationMessage
-	22, // 24: whatsapp.Message.system:type_name -> whatsapp.SystemMessage
-	24, // 25: whatsapp.Message.sticker:type_name -> whatsapp.StickerMessage
+	24, // 16: whatsapp.Message.errors:type_name -> whatsapp.Error
+	16, // 17: whatsapp.Message.text:type_name -> whatsapp.TextMessage
+	17, // 18: whatsapp.Message.image:type_name -> whatsapp.ImageMessage
+	18, // 19: whatsapp.Message.audio:type_name -> whatsapp.AudioMessage
+	19, // 20: whatsapp.Message.video:type_name -> whatsapp.VideoMessage
+	20, // 21: whatsapp.Message.voice:type_name -> whatsapp.VoiceMessage
+	21, // 22: whatsapp.Message.document:type_name -> whatsapp.DocumentMessage
+	22, // 23: whatsapp.Message.location:type_name -> whatsapp.LocationMessage
+	23, // 24: whatsapp.Message.system:type_name -> whatsapp.SystemMessage
+	25, // 25: whatsapp.Message.sticker:type_name -> whatsapp.StickerMessage
 	4,  // 26: whatsapp.Message.recipient_type:type_name -> whatsapp.Message.RecipientType
-	27, // [27:27] is the sub-list for method output_type
-	27, // [27:27] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	5,  // 27: whatsapp.RegistrationRequest.method:type_name -> whatsapp.RegistrationRequest.ContactMethod
+	34, // 28: whatsapp.ApplicationSettings.media:type_name -> whatsapp.ApplicationSettings.Media
+	35, // 29: whatsapp.ApplicationSettings.webhook:type_name -> whatsapp.ApplicationSettings.Webhooks
+	30, // [30:30] is the sub-list for method output_type
+	30, // [30:30] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_whatsapp_proto_init() }
@@ -2492,7 +3074,91 @@ func file_whatsapp_proto_init() {
 			}
 		}
 		file_whatsapp_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RegistrationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_whatsapp_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*VerifyRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_whatsapp_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ApplicationSettings); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_whatsapp_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProfileAbout); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_whatsapp_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BusinessProfile); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_whatsapp_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Contact_Profile); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_whatsapp_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ApplicationSettings_Media); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_whatsapp_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ApplicationSettings_Webhooks); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2509,8 +3175,8 @@ func file_whatsapp_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_whatsapp_proto_rawDesc,
-			NumEnums:      5,
-			NumMessages:   23,
+			NumEnums:      6,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
