@@ -16,13 +16,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func extractToken(ctx *fasthttp.RequestCtx) string {
+func extractAuthToken(ctx *fasthttp.RequestCtx, key string) string {
 	auth := string(ctx.Request.Header.Peek("Authorization"))
-	return strings.TrimPrefix(auth, "Bearer ")
+	return strings.TrimPrefix(auth, key+" ")
 }
 
 func verifyToken(ctx *fasthttp.RequestCtx) (*jwt.Token, error) {
-	tokenString := extractToken(ctx)
+	tokenString := extractAuthToken(ctx, "Bearer")
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

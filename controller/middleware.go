@@ -21,6 +21,18 @@ func Authorize(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	})
 }
 
+func AuthorizeStaticToken(h fasthttp.RequestHandler, staticToken string) fasthttp.RequestHandler {
+
+	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+		token := extractAuthToken(ctx, "Apikey")
+		if staticToken != "" && token != staticToken {
+			ctx.SetStatusCode(401)
+			return
+		}
+		h(ctx)
+	})
+}
+
 func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		start := time.Now()

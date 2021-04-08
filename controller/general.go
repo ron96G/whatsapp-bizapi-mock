@@ -82,3 +82,8 @@ func PanicHandler(ctx *fasthttp.RequestCtx, in interface{}) {
 		Href:    "",
 	})
 }
+
+func HealthCheck(ctx *fasthttp.RequestCtx) {
+	ctx.Write([]byte("OK"))
+	ctx.SetStatusCode(200)
+}

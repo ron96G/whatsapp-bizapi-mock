@@ -14,12 +14,13 @@ import (
 )
 
 var (
-	apiPrefix  = flag.String("apiprefix", "/v1", "the prefix for the API")
-	configFile = flag.String("configfile", "/home/app/config.json", "the application config")
-	addr       = flag.String("addr", "0.0.0.0:9090", "port the webserver listens on")
-	signingKey = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
-	webhookURL = flag.String("webhook", "", "URL of the webhook")
-	enableTLS  = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
+	apiPrefix      = flag.String("apiprefix", "/v1", "the prefix for the API")
+	configFile     = flag.String("configfile", "/home/app/config.json", "the application config")
+	addr           = flag.String("addr", "0.0.0.0:9090", "port the webserver listens on")
+	signingKey     = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
+	webhookURL     = flag.String("webhook", "", "URL of the webhook")
+	enableTLS      = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
+	staticAPIToken = os.Getenv("WA_API_KEY")
 )
 
 func readConfig(path string) *model.InternalConfig {
@@ -61,7 +62,7 @@ func main() {
 	}
 
 	log.Printf("Creating new webserver with prefix %v", *apiPrefix)
-	server := controller.NewServer(*apiPrefix)
+	server := controller.NewServer(*apiPrefix, staticAPIToken)
 	generators := model.NewGenerators(config.UploadDir, contacts, config.InboundMedia)
 	webhook := controller.NewWebhookConfig(config.WebhookUrl, generators)
 
