@@ -25,9 +25,12 @@ func SendMessages(ctx *fasthttp.RequestCtx) {
 	}
 
 	// return
+	id := uuid.New().String()
+	log.Println("Generated  message id " + id)
 	resp := AcquireResponse()
+	resp.Reset()
 	defer ReleaseResponse(resp)
-	resp.Messages = append(resp.Messages, &model.Id{Id: uuid.New().String()})
+	resp.Messages = append(resp.Messages, &model.Id{Id: id})
 	returnJSON(ctx, 200, resp)
 
 	stati := Webhook.Generators.GenerateSatiForMessage(msg)
