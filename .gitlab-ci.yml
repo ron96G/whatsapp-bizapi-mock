@@ -1,0 +1,19 @@
+variables:
+  VERSION: "0.1.0"
+
+stages:
+  - build
+
+build image wabiz mock:
+  stage: build
+  tags:
+    - run_shell
+  variables:
+    IMAGE_NAME: "wabizapi-mock"
+    TAG: "$VERSION"
+  script:
+    - docker build
+        --tag $MTR_URL/$IMAGE_NAME:$TAG
+        --build-arg K6_VERSION=$K6_VERSION
+        --file Dockerfile .
+    - docker push $MTR_URL/$IMAGE_NAME:$TAG
