@@ -26,9 +26,7 @@
   "uploadDir": "/home/app/uploads/",
   "webhookUrl": "http://localhost:9000/webhook",
   "users": {
-    "admin": "secret",
-    "systemUser": "systemUserPwd123!",
-    "messaginguser": "Us42!8e8d7526d10133522b9239a46815d86820197827"
+    "admin": "secret"
   },
   "inboundMedia": {
     "image": "image",

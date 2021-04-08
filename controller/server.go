@@ -26,8 +26,8 @@ var (
 	}
 
 	SigningKey []byte
-	Users      = map[string]string{}
-	Tokens     = []string{}
+	Users      = map[string]string{} // the users that exist
+	Tokens     = []string{}          // all tokens that have been signed and can be used to login
 
 	Webhook *WebhookConfig
 

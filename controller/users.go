@@ -22,7 +22,6 @@ func Login(ctx *fasthttp.RequestCtx) {
 	}
 	if pwd, ok := Users[username]; ok {
 		if pwd == password { // check if entered password is correct
-
 			if pwd == "secret" { // check if the password has been changed, if not, it must be done now
 				chPwdReq := new(model.ChangePwdRequest)
 				err := jsonpb.Unmarshal(bytes.NewReader(ctx.PostBody()), chPwdReq)
@@ -64,7 +63,7 @@ func Logout(ctx *fasthttp.RequestCtx) {
 	auth := string(ctx.Request.Header.Peek("Authorization"))
 	for i, token := range Tokens {
 		if token == strings.TrimPrefix(auth, "Bearer ") {
-			Tokens = append(Tokens[:i], Tokens[i+1:]...)
+			Tokens = append(Tokens[:i], Tokens[i+1:]...) // delete  the token entry from the list
 			return
 		}
 	}
@@ -86,11 +85,11 @@ func CreateUser(ctx *fasthttp.RequestCtx) {
 
 	if _, exists := Users[user.Username]; exists {
 		response.Errors = append(response.Errors, &model.Error{
-			Code:    401,
+			Code:    400,
 			Title:   "User  already  exists",
 			Details: fmt.Sprintf("The requested user %s already exists", user.Username),
 		})
-		returnJSON(ctx, 401, response)
+		returnJSON(ctx, 400, response)
 		return
 	}
 	Users[user.Username] = user.Password
