@@ -246,6 +246,7 @@ func (g *Generators) GenerateSatiForMessage(msg *Message) []*Status {
 
 func (g *Generators) generateStatus(recipient string, msgID string, status string) *Status {
 	stat := AcquireStatus()
+	stat.Reset()
 	stat.Id = msgID
 	stat.RecipientId = recipient
 	stat.Timestamp = time.Now().Unix()

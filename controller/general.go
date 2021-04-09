@@ -27,6 +27,7 @@ func SendMessages(ctx *fasthttp.RequestCtx) {
 	// return
 	id := uuid.New().String()
 	log.Println("Generated message id " + id)
+	msg.Id = id
 	resp := AcquireResponse()
 	resp.Reset()
 	defer ReleaseResponse(resp)
