@@ -110,6 +110,34 @@ func (g *Generators) generateBaseMessage() *Message {
 	return msg
 }
 
+func (g *Generators) GenerateMessages(n int, types ...string) []*Message {
+	out := make([]*Message, n)
+
+	for i := 0; i < n; i++ {
+		typ := types[rand.Intn(len(types))]
+
+		switch typ {
+		case "text":
+			out[i] = g.GenerateTextMessage()
+
+		case "image":
+			out[i] = g.GenerateImageMessage()
+
+		case "audio":
+			out[i] = g.GenerateAudioMessage()
+
+		case "video":
+			out[i] = g.GenerateVideoMessage()
+
+		case "document":
+			out[i] = g.GenerateDocumentMessage()
+		default:
+			log.Printf("Unsupported message type '%s'\n", typ)
+		}
+	}
+	return out
+}
+
 func (g *Generators) GenerateRndMessages(n int) []*Message {
 	out := make([]*Message, n)
 

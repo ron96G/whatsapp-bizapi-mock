@@ -42,6 +42,16 @@ func Contacts(ctx *fasthttp.RequestCtx) {
 }
 
 func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
+
+	// read the 'types' query args which is used to define the allowed
+	// messages type which will be generated
+	// if the query arg is not set, 'rnd' is used instead to generate rnd
+	// messages
+	allowedTypes, ok := getQueryArgList(ctx, "types")
+	if !ok {
+		allowedTypes = append(allowedTypes, "rnd")
+	}
+
 	// number of messages that are generated
 	n, ok := getQueryArgInt(ctx, "volume")
 	if !ok {
@@ -62,13 +72,23 @@ func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
 					return
 
 				case <-time.After(time.Duration(r) * time.Second):
-					Webhook.GenerateWebhookRequests(n)
+					Webhook.GenerateWebhookRequests(n, allowedTypes...)
 				}
 			}
 		}()
 
 	} else {
-		Webhook.GenerateWebhookRequests(n)
+		messages := Webhook.GenerateWebhookRequests(n, allowedTypes...)
+
+		resp := AcquireResponse()
+		resp.Reset()
+		defer ReleaseResponse(resp)
+
+		resp.Messages = make([]*model.Id, len(messages))
+		for i, msg := range messages {
+			resp.Messages[i] = &model.Id{Id: msg.Id}
+		}
+		returnJSON(ctx, 200, resp)
 	}
 }
 

@@ -92,19 +92,26 @@ func (wc *WebhookConfig) statusRunner() (stop chan int) {
 	return
 }
 
-func (wc *WebhookConfig) GenerateWebhookRequests(numberOfEntries int) {
+func (wc *WebhookConfig) GenerateWebhookRequests(numberOfEntries int, types ...string) []*model.Message {
 	wc.mux.Lock()
 	defer wc.mux.Unlock()
 
 	whReq := webhookReqPool.Get().(*model.WebhookRequest)
 	whReq.Reset()
-	messages := wc.Generators.GenerateRndMessages(numberOfEntries)
+	var messages []*model.Message
+
+	if types[0] == "rnd" {
+		messages = wc.Generators.GenerateRndMessages(numberOfEntries)
+	} else {
+		messages = wc.Generators.GenerateMessages(numberOfEntries, types...)
+	}
 	whReq.Messages = append(whReq.Messages, messages...)
 	whReq.Contacts = append(whReq.Contacts, wc.Generators.Contacts...)
 	whReq.Errors = append(whReq.Errors, nil)
 	whReq.Statuses = wc.StatusQueue
 	wc.StatusQueue = []*model.Status{}
 	wc.Queue <- whReq
+	return messages
 }
 
 func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {

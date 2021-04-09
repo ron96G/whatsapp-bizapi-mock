@@ -93,6 +93,12 @@ func returnJSON(ctx *fasthttp.RequestCtx, statusCode int, out proto.Message) {
 	marsheler.Marshal(ctx, out)
 }
 
+func returnBytes(ctx *fasthttp.RequestCtx, statusCode int, content []byte) {
+	ctx.SetContentType("application/json")
+	ctx.SetStatusCode(statusCode)
+	ctx.Write(content)
+}
+
 func notImplemented(ctx *fasthttp.RequestCtx) {
 	returnError(ctx, 501, model.Error{
 		Code:    501,
@@ -150,6 +156,18 @@ func getQueryArgInt(ctx *fasthttp.RequestCtx, key string) (n int, ok bool) {
 		return 0, false
 	}
 	return n, true
+}
+
+func getQueryArgList(ctx *fasthttp.RequestCtx, key string) (l []string, ok bool) {
+
+	queryArg := ctx.QueryArgs().PeekMulti(key)
+	for _, i := range queryArg {
+		l = append(l, string(i))
+	}
+	if len(l) == 0 {
+		return l, false
+	}
+	return l, true
 }
 
 func generateRandomCode(n int) (numbers string) {
