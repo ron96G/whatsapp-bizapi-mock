@@ -49,11 +49,14 @@ func SaveMedia(ctx *fasthttp.RequestCtx) {
 		})
 		return
 	}
+	resp := AcquireResponse()
+	resp.Reset()
+	defer ReleaseResponse(resp)
 
-	id := &model.Id{
+	resp.Media = append(resp.Media, &model.Id{
 		Id: fileID,
-	}
-	returnJSON(ctx, 200, id)
+	})
+	returnJSON(ctx, 200, resp)
 }
 
 func RetrieveMedia(ctx *fasthttp.RequestCtx) {

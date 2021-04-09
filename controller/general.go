@@ -97,7 +97,7 @@ func CancelGenerateWebhookRquests(ctx *fasthttp.RequestCtx) {
 }
 
 func PanicHandler(ctx *fasthttp.RequestCtx, in interface{}) {
-	log.Printf("%v\n", in)
+	log.Printf("PANIC %v\n", in)
 	returnError(ctx, 500, model.Error{
 		Code:    500,
 		Details: "An unexpected error occured",

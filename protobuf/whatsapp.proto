@@ -46,6 +46,7 @@ message APIResponse {
     repeated Id messages = 3;
     repeated Contact contacts = 4;
     repeated TokenResponse users = 5;
+    repeated Id media = 6;
 }
 
 message ChangePwdRequest {

@@ -52,3 +52,12 @@ Outbound types are accepted by the messages resource and validated.
 | Contact | ⬜️ | ⬜️ |
 | Hsm | ⬜️ | ⬜️ |
 | System | ⬜️ | ⬜️ |
+
+
+
+## Notes
+
+### Generate model code
+```bash
+protoc --proto_path=protobuf --go_out=model whatsapp.proto
+```
