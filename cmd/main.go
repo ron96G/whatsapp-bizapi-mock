@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"log"
+	"net"
 	"os"
 
 	"github.com/gogo/protobuf/jsonpb"
@@ -20,6 +21,7 @@ var (
 	signingKey     = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
 	webhookURL     = flag.String("webhook", "", "URL of the webhook")
 	enableTLS      = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
+	soReuseport    = flag.Bool("sharding", false, "(experimental) uses SO_REUSEPORT option to start TCP listener") // see https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/
 	staticAPIToken = os.Getenv("WA_API_KEY")
 )
 
@@ -73,14 +75,22 @@ func main() {
 	go func() {
 		for {
 			err := <-errors
-			log.Printf(err.Error())
+			log.Printf("ERROR " + err.Error())
 		}
 	}()
+	var ln net.Listener
+	var err error
 
-	log.Printf("Starting webserver with addr %v", *addr)
-	ln, err := reuseport.Listen("tcp4", *addr)
-	if err != nil {
-		log.Fatalf("Reuseport listener failed with %v", err)
+	if *soReuseport {
+		ln, err = reuseport.Listen("tcp4", *addr)
+		if err != nil {
+			log.Fatalf("Reuseport listener failed with %v", err)
+		}
+	} else {
+		ln, err = net.Listen("tcp", *addr)
+		if err != nil {
+			log.Fatalf("Listener failed with %v", err)
+		}
 	}
 
 	if *enableTLS {
@@ -92,6 +102,7 @@ func main() {
 		ln = tls.NewListener(ln, tlsCfg)
 	}
 
+	log.Printf("Starting webserver with addr %v", *addr)
 	if err := server.Serve(ln); err != nil {
 		log.Fatalf("Server listen failed with %v\n", err)
 	}
