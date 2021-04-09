@@ -95,6 +95,7 @@ func (g *Generators) selectRndContact() *Contact {
 
 func (g *Generators) generateMedia(t string) string {
 	id := uuid.New().String()
+	log.Printf("Generating new media file of type %s with id %s\n", t, id)
 	if err := os.Symlink(g.UploadDir+g.Media[t], g.UploadDir+id); err != nil {
 		panic(err)
 	}
@@ -104,6 +105,7 @@ func (g *Generators) generateMedia(t string) string {
 func (g *Generators) generateBaseMessage() *Message {
 	contact := g.selectRndContact()
 	msg := AcquireMessage()
+	msg.Reset()
 	msg.From = contact.GetWaId()
 	msg.Id = uuid.New().String()
 	msg.Timestamp = time.Now().Unix()
@@ -198,7 +200,6 @@ func (g *Generators) GenerateImageMessage() *Message {
 func (g *Generators) GenerateVideoMessage() *Message {
 	msg := g.generateBaseMessage()
 	msg.Type = MessageType_video
-
 	msg.Video = &VideoMessage{
 		Id:       g.generateMedia(MessageType_video.String()),
 		MimeType: "video/mp4",
