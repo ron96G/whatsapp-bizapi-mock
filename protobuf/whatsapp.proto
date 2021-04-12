@@ -221,8 +221,8 @@ message VerifyRequest {
 
 
 message ApplicationSettings {
-    string callback_backoff_delay_ms =  1;
-    string max_callback_backoff_delay_ms = 2;
+    int32 callback_backoff_delay_ms =  1;
+    int32 max_callback_backoff_delay_ms = 2;
     bool  callback_persist =  3;
 
     message Media {
@@ -233,9 +233,9 @@ message ApplicationSettings {
 
     message Webhooks {
         string url = 1;
-        string max_concurrent_requests = 2;
+        int32 max_concurrent_requests = 2;
     }
-    Webhooks webhook = 5;
+    Webhooks webhooks = 5;
     bool pass_through = 6;
     bool sent_status = 7;
     bool db_garbagecollector_enable = 8;
