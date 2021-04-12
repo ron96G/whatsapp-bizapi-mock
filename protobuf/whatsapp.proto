@@ -114,6 +114,7 @@ message AudioMessage {
     string link = 3;
     string mime_type = 4;
     string sha256 = 5;
+    Provider provider = 6;
 }
 
 message VideoMessage {
@@ -122,7 +123,8 @@ message VideoMessage {
     string link = 3;
     string mime_type = 4;
     string sha256 = 5;
-    Provider provider = 8;
+    string caption = 6;
+    Provider provider = 7;
 }
 
 message VoiceMessage {
@@ -239,6 +241,8 @@ message ApplicationSettings {
     bool pass_through = 6;
     bool sent_status = 7;
     bool db_garbagecollector_enable = 8;
+    bool notify_user_change_number = 9;
+    bool show_security_notifications = 10;
 }
 
 

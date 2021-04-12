@@ -105,6 +105,10 @@ func notImplemented(ctx *fasthttp.RequestCtx) {
 	})
 }
 
+func NotImplementedHandler(ctx *fasthttp.RequestCtx) {
+	notImplemented(ctx)
+}
+
 func generateToken(user string) (string, error) {
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true

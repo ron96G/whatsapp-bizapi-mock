@@ -81,10 +81,19 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	r.POST(apiPrefix+"/settings/business/profile", Log(Authorize(SetBusinessProfile)))
 	r.GET(apiPrefix+"/settings/business/profile", Log(Authorize(GetBusinessProfile)))
 
+	// stickerpacks resources
+	r.ANY(apiPrefix+"/stickerpacks/{path:*}", Log(NotImplementedHandler))
+
+	// groups resources
+	r.ANY(apiPrefix+"/groups/{path:*}", Log(NotImplementedHandler))
+
+	// stats resources
+	r.ANY(apiPrefix+"/stats/{path:*}", Log(NotImplementedHandler))
+
 	r.PanicHandler = PanicHandler
 	server := &fasthttp.Server{
 		Handler:                       r.Handler,
-		Name:                          "WhatsApp Mockserver",
+		Name:                          "WhatsAppMockserver",
 		Concurrency:                   256 * 1024,
 		DisableKeepalive:              false,
 		ReadTimeout:                   5 * time.Second,

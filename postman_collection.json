@@ -1,0 +1,3337 @@
+{
+	"info": {
+		"_postman_id": "e9dfe95a-6be7-4af9-b60d-3e9e235b429d",
+		"name": "WhatsApp Business API Mock",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "00-Users",
+			"item": [
+				{
+					"name": "Login-Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response must be ok\", () => {\r",
+									"    pm.expect(pm.response.status).to.be.ok;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token must be returned\", () => {\r",
+									"    let bearerToken = pm.response.json().users[0].token;\r",
+									"    pm.expect(bearerToken).not.be.empty;\r",
+									"\r",
+									"    pm.environment.set(\"AdminBearerToken\", bearerToken)\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{AdminUsername}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "secret",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"new_password\": \"{{AdminPassword}}\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create-User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{UserUsername}}\",\n  \"password\": \"{{UserPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login-User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response must be ok\", () => {\r",
+									"    pm.expect(pm.response.status).to.be.ok;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token must be returned\", () => {\r",
+									"    let bearerToken = pm.response.json().users[0].token;\r",
+									"    pm.expect(bearerToken).not.be.empty;\r",
+									"\r",
+									"    pm.environment.set(\"UserBearerToken\", bearerToken)\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{UserUsername}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{UserPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/users/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Admin",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/users/{{AdminUsername}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{AdminUsername}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/users/{{UserUsername}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{UserUsername}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update-User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"password\": \"<New Password>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/{{UserUsername}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{UserUsername}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout-User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{UserBearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete-User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/{{UserUsername}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{UserUsername}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "01-Settings",
+			"item": [
+				{
+					"name": "Application",
+					"item": [
+						{
+							"name": "Get-Settings",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/v1/settings/application",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"application"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set-Shards",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"cc\": \"<Country Code>\",\n\t\"phone_number\": \"<Phone Number>\",\n\t\"shards\": \"1 | 2 | 4 | 8 | 16 | 32\",\n\t\"pin\": \"<Two-Step PIN>\"\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/account/shards",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"account",
+										"shards"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update-Webhooks",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"webhooks\": {\n       \"url\": \"{{webhookURL}}\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/application",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"application"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update-Settings",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"callback_backoff_delay_ms\": 3000,\n  \t\"max_callback_backoff_delay_ms\": 900000,\n  \t\"callback_persist\": true,\n  \t\"media\": {\n  \t\t\"auto_download\": [\"image\", \"document\", \"audio\"]\n  \t},\n  \t\"webhooks\": {\n  \t\t\"url\": \"{{webhookURL}}\",\n  \t\t\"max_concurrent_requests\": 12\n  \t},\n  \t\"pass_through\": false,\n  \t\"sent_status\": false,\n\t\"db_garbagecollector_enable\": true\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/application",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"application"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete-App-Settings",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/application",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"application"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get-Media-Providers",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/application/media/providers",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"application",
+										"media",
+										"providers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete-Media-Providers",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/application/media/providers/<Provider Name>",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"application",
+										"media",
+										"providers",
+										"<Provider Name>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update-Media-Providers",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n\t{\n\t\t\"name\": \"<Provider Name>\",\n\t\t\"type\": \"www\",\n\t\t\"config\": {\n\t\t\t\"bearer\": \"<Bearer Auth Token>\"\n\t\t}\n\t}\n]"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/application/media/providers",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"application",
+										"media",
+										"providers"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Backup/Restore",
+					"item": [
+						{
+							"name": "Backup-Settings",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"password\": \"whatsappBackup1234!\"\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/backup",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"backup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore-Settings",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"password\": \"<Password for Backup>\",\n\t\"data\": \"<Data to Restore, from Backup API>\"\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/restore",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"restore"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Business Profile",
+					"item": [
+						{
+							"name": "Get-Business-Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/v1/settings/business/profile",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"business",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set-Business-Profile",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"description\": \"Herzlich Willkommen bei dem Kundenservice der Telekom! Stellen Sie uns Ihre Fragen auch hier über WhatsApp.\",\n\t\"websites\": [\"https://www.telekom.de\"]\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/business/profile",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"business",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Profile",
+					"item": [
+						{
+							"name": "Get-Profile-About",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/v1/settings/profile/about",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"profile",
+										"about"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get-Profile-Photo-Binary",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/v1/settings/profile/photo",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"profile",
+										"photo"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get-Profile-Photo-URL",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/v1/settings/profile/photo?format=link",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"profile",
+										"photo"
+									],
+									"query": [
+										{
+											"key": "format",
+											"value": "link"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set-Profile-About",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"text\": \"<About Profile>\"\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/profile/about",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"profile",
+										"about"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set-Profile-Photo",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "image/jpeg"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/v1/settings/profile/photo",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"profile",
+										"photo"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Two-Step Verification",
+					"item": [
+						{
+							"name": "Enable-Two-Step",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"pin\": \"456789\"\n}"
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/account/two-step",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"account",
+										"two-step"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Disable-Two-Step",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{AdminAuthToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{URL}}/v1/settings/account/two-step",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"settings",
+										"account",
+										"two-step"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "02-Registration",
+			"item": [
+				{
+					"name": "Request-Code",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"cc\": \"49\",\n\t\"phone_number\": \"170123123123\",\n\t\"method\": \"sms\",\n\t\"cert\": \"CmUKIQiA9c25sJPTAhIGZadasdhakjkhhskljhgajasdfJDLJAKSdjlkajsdklajsdadkh123c5eZew/EF3gJbsIgWbDOJ2JT7remy7VPQfLtH\",\n\t\"pin\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/account",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register-Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"code\": \"544514\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/account/verify",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"account",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "07-Stickers",
+			"item": [
+				{
+					"name": "Get-First-Party-Stickerpacks",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks?namespace=whatsapp",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks"
+							],
+							"query": [
+								{
+									"key": "namespace",
+									"value": "whatsapp"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-First-Party-Stickerpack-Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/YaYa?namespace=whatsapp",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"YaYa"
+							],
+							"query": [
+								{
+									"key": "namespace",
+									"value": "whatsapp"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-First-Party-Stickers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/whatsappcuppy/stickers/1?namespace=whatsapp",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"whatsappcuppy",
+								"stickers",
+								"1"
+							],
+							"query": [
+								{
+									"key": "namespace",
+									"value": "whatsapp"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-First-Party-Sticker-Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/whatsappcuppy/stickers/0?namespace=whatsapp",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"whatsappcuppy",
+								"stickers",
+								"0"
+							],
+							"query": [
+								{
+									"key": "namespace",
+									"value": "whatsapp"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create-Third-Party-Stickerpacks",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"publisher\": \"<Your Publisher Name>\",\n\t\"name\": \"<Your Sticker Pack Name>\",\n\t\"ios_app_store_link\": \"<Valid iOS App Store Link>\",\n\t\"android_app_store_link\": \"<Valid Android App Store Link>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Third-Party-Stickerpacks",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update-Third-Party-Stickerpack",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"publisher\": \"<Your Publisher Name>\",\n\t\"name\": \"<Your Sticker Pack Name>\",\n\t\"ios_app_store_link\": \"<Valid iOS App Store Link>\",\n\t\"android_app_store_link\": \"<Valid Android App Store Link>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/{{Test-3P-Stickerpack-Id}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"{{Test-3P-Stickerpack-Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete-Third-Party-Stickerpack",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/{{Test-3P-Stickerpack-Id}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"{{Test-3P-Stickerpack-Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Third-Party-Stickerpack-Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/{{Test-3P-Stickerpack-Id}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"{{Test-3P-Stickerpack-Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create-Third-Party-Stickers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"image_data_id\" : \"<Sticker Image Media Id>\",\n\t\"emojis\": [\"🐥\", \"😃\"]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/{{Test-3P-Stickerpack-Id}}/stickers",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"{{Test-3P-Stickerpack-Id}}",
+								"stickers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Third-Party-Stickers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/com.wastickerappmeme.stickercontentprovider%201/stickers",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"com.wastickerappmeme.stickercontentprovider%201",
+								"stickers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update-Third-Party-Sticker",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"image_data_id\" : \"<Valid Image Media Id\",\n\t\"emojis\": [\"🐥\", \"😃\"]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/{{Test-3P-Stickerpack-Id}}/stickers/{{Test-Sticker-Index}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"{{Test-3P-Stickerpack-Id}}",
+								"stickers",
+								"{{Test-Sticker-Index}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete-Third-Party-Sticker",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/{{Test-3P-Stickerpack-Id}}/stickers/{{Test-Sticker-Index}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"{{Test-3P-Stickerpack-Id}}",
+								"stickers",
+								"{{Test-Sticker-Index}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Third-Party-Sticker-Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stickerpacks/{{Test-3P-Stickerpack-Id}}/stickers/{{Test-Sticker-Index}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stickerpacks",
+								"{{Test-3P-Stickerpack-Id}}",
+								"stickers",
+								"{{Test-Sticker-Index}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response must be not implemented\", () => {",
+							"    pm.expect(pm.response.code).to.be.eq(501);",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "03-Contacts",
+			"item": [
+				{
+					"name": "Check-Contact",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"blocking\": \"wait\",\n   \"contacts\": [\n      \"{{Recipient-WA-ID}}\"\n   ],\n   \"force_check\": \"<false (default) | true>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/contacts",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check-Contact-Async",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"contacts\": [\n      \"{{Recipient-WA-ID}}\"\n   ],\n   \"force_check\": \"<false (default) | true>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/contacts/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"contacts",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "04-Messages",
+			"item": [
+				{
+					"name": "Send-Text-Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"to\": \"491708302896\",\n  \"type\": \"text\",\n  \"recipient_type\": \"individual\",\n  \"text\": {\n    \"body\": \"<Message Text>\"\n  }\n}\n"
+						},
+						"url": {
+							"raw": "https://localhost:9090/v1/messages",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"v1",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Text-URL-Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"to\": \"{{Recipient-WA-ID}}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"<Message Text With URL>\"\n  },\n  \"preview_url\": true\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Text-Group-Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"to\": \"{{Test-Group-Id}}\",\n  \"type\": \"text\",\n  \"recipient_type\": \"group\",\n  \"text\": {\n    \"body\": \"<Message Text>\"\n  }\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Image-Message-By-ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"image\",\n\t\"recipient_type\": \"individual\",\n\t\"image\": {\n\t\t\"caption\": \"<Message Caption>\",\n\t\t\"id\": \"<Media Id, from Media API>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Image-Message-By-URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"image\",\n\t\"recipient_type\": \"individual\",\n\t\"image\": {\n\t\t\"provider\": {\n\t\t\t\"name\": \"<Provider Name from Media Provider API, optional\"\n\t\t},\n\t\t\"link\": \"<Link to Image, https>\",\n\t\t\"caption\": \"<Media Caption>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Audio-Message-By-ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"audio\",\n\t\"recipient_type\": \"individual\",\n\t\"audio\": {\n\t\t\"id\": \"<Media Id, from Media API>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Audio-Message-By-URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"audio\",\n\t\"recipient_type\": \"individual\",\n\t\"audio\": {\n\t\t\"provider\": {\n\t\t\t\"name\": \"<Provider Name from Media Provider API, optional\"\n\t\t},\n\t\t\"link\": \"<Link to Audio, https>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Video-Message-By-ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"video\",\n\t\"recipient_type\": \"individual\",\n\t\"video\": {\n\t\t\"caption\": \"<Message Caption>\",\n\t\t\"id\": \"<Media Id, from Media API>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Video-Message-By-URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"video\",\n\t\"recipient_type\": \"individual\",\n\t\"video\": {\n\t\t\"provider\": {\n\t\t\t\"name\": \"<Provider Name from Media Provider API, optional\"\n\t\t},\n\t\t\"caption\": \"<Message Caption>\",\n\t\t\"link\": \"<Link to Video, https>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Doc-Message-By-ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"document\",\n\t\"recipient_type\": \"individual\",\n\t\"document\": {\n\t\t\"caption\": \"<Message Caption>\",\n\t\t\"id\": \"<Media Id, from Media API>\",\n\t\t\"filename\": \"<Filename>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Doc-Message-By-URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"document\",\n\t\"recipient_type\": \"individual\",\n\t\"document\": {\n\t\t\"provider\": {\n\t\t\t\"name\": \"<Provider Name from Media Provider API, optional\"\n\t\t},\n\t\t\"caption\": \"<Message Caption>\",\n\t\t\"link\": \"<Link to PDF, https>\",\n\t\t\"filename\": \"<Filename>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Message-Template-Text",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"hsm\",\n\t\"hsm\": {\n\t\t\"namespace\": \"{{Namespace}}\",\n    \t\"element_name\": \"ablehnung_datenverarbeitungshinweis\",\n    \t\"language\": {\n    \t\t\"policy\": \"deterministic\",\n    \t\t\"code\": \"de\"\n    \t},\n\t    \"localizable_params\": [{\"default\":\"<param value>\"}]\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Message-Template-Text-TTL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"ttl\": \"<Message Template TTL>\",\n\t\"type\": \"hsm\",\n\t\"hsm\": {\n\t\t\"namespace\": \"<Message Template Namespace>\",\n    \t\"element_name\": \"<Message Template Element Name>\",\n    \t\"language\": {\n    \t\t\"policy\": \"<Message Template Language Policy>\",\n    \t\t\"code\": \"<Message Template Language Code>\"\n    \t},\n\t    \"localizable_params\": [{\"default\":\"<param value>\"}]\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Message-Template-Media",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"template\",\n\t\"template\": {\n\t\t\"namespace\": \"<Message Template Namespace>\",\n    \t\"name\": \"<Message Template Element Name>\",\n    \t\"language\": {\n    \t\t\"policy\": \"<Message Template Language Policy>\",\n    \t\t\"code\": \"<Message Template Language Code>\"\n    \t},\n    \t\"components\": [\n    \t{\n    \t\t\"type\": \"header\",\n    \t\t\"parameters\": [\n    \t\t{\n    \t\t\t\"type\": \"image\",\n\t\t\t\t\"caption\": \"<Message Caption>\",\n\t\t\t\t\"link\": \"<Media HTTPS URL>\"\n    \t\t}\n    \t\t]\n    \t},\n    \t{\n    \t\t\"type\": \"body\",\n    \t\t\"parameters\": [\n    \t\t{\n    \t\t\t\"type\": \"text\",\n    \t\t\t\"text\": \"<Message Text Param>\"\n    \t\t}\n    \t\t]\n    \t}\n    \t]\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Message-Template-Call-To-Action",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"template\",\n\t\"template\": {\n\t\t\"namespace\": \"<Message Template Namespace>\",\n    \t\"name\": \"<Message Template Element Name>\",\n    \t\"language\": {\n    \t\t\"policy\": \"<Message Template Language Policy>\",\n    \t\t\"code\": \"<Message Template Language Code>\"\n    \t},\n    \t\"components\": [\n    \t\t{\n    \t\t\t\"type\": \"header\",\n    \t\t\t\"parameters\": {\n    \t\t\t\t\"type\": \"text\",\n    \t\t\t\t\"text\": \"<Param Text>\"\n    \t\t\t}\n    \t\t},\n    \t\t{\n    \t\t\t\"type\": \"body\",\n    \t\t\t\"parameters\": {\n    \t\t\t\t\"type\": \"text\",\n    \t\t\t\t\"text\": \"<Param Text>\"\n    \t\t\t}\n    \t\t},\n    \t\t{\n    \t\t\t\"type\": \"button\",\n    \t\t\t\"sub_type\": \"url\",\n    \t\t\t\"index\": \"1\",\n    \t\t\t\"parameters\": [\n    \t\t\t\t{\n    \t\t\t\t\t\"type\": \"text\",\n    \t\t\t\t\t\"text\": \"<Developer Defined Dynamic URL suffix>\"\n    \t\t\t\t}\n    \t\t\t]\n    \t\t}\n    \t]\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Message-Template-Quick-Reply",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"to\": \"{{Recipient-WA-ID}}\",\n    \"type\": \"template\",\n    \"template\": {\n        \"namespace\": \"{{Namespace}}\",\n        \"name\": \"ticketcloseconfirm\",\n        \"language\": {\n            \"policy\": \"deterministic\",\n            \"code\": \"de\"\n        },\n        \"components\": [\n            {\n                \"type\": \"header\",\n                \"parameters\": [\n                    {\n                        \"type\": \"text\",\n                        \"text\": \"Foo\"\n                    }\n                ]\n            },\n            {\n                \"type\": \"body\",\n                \"parameters\": [\n                    {\n                        \"type\": \"currency\",\n                        \"currency\": {\n                            \"code\": \"EUR\",\n                            \"fallback_value\": \"20€\",\n                            \"amount_1000\": \"20000\"\n                        }\n                    }\n                ]\n            },\n            {\n                \"type\": \"button\",\n                \"sub_type\": \"quick_reply\",\n                \"index\": \"1\",\n                \"parameters\": []\n            }\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Contact-Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"to\": \"{{Recipient-WA-ID}}\",\n  \"type\": \"contacts\",\n  \"recipient_type\": \"individual\",\n  \"contacts\": [\n  \t{\n  \t\t\"addresses\": [\n  \t\t\t{\n  \t\t\t\t\"city\": \"<Contact's City>\",\n  \t\t\t\t\"country\": \"<Contact's Country>\",\n  \t\t\t\t\"country_code\": \"<Contact's Country Code>\",\n  \t\t\t\t\"state\": \"<Contact's State>\",\n  \t\t\t\t\"street\": \"<Contact's Street>\",\n  \t\t\t\t\"type\": \"<Contact's Address Type>\",\n  \t\t\t\t\"zip\": \"<Contact's Zip Code>\"\n  \t\t\t}\n  \t\t],\n  \t\t\"birthday\": \"<Contact's Birthday>\",\n  \t\t\"emails\": [\n  \t\t\t{\n  \t\t\t\t\"email\": \"<Contact's Email>\",\n  \t\t\t\t\"type\": \"<Contact's Email Type>\"\n  \t\t\t}\n  \t\t],\n  \t\t\"ims\": [],\n  \t\t\"name\": {\n  \t\t\t\"first_name\": \"<Contact's First Name>\",\n  \t\t\t\"formatted_name\": \"<Contact's Formatted Name>\",\n  \t\t\t\"last_name\": \"<Contact's Last Name>\"\n  \t\t},\n  \t\t\"org\": {\n  \t\t\t\"company\": \"<Contact's Company>\"\n  \t\t},\n  \t\t\"phones\": [\n  \t\t\t{\n  \t\t\t\t\"phone\": \"<Contact's Phone Number>\",\n  \t\t\t\t\"type\": \"<Contact's Phone Number Type>\"\n  \t\t\t}\n  \t\t],\n  \t\t\"urls\": []\n  \t}\n  ]\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Location-Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"to\": \"{{Recipient-WA-ID}}\",\n  \"type\": \"location\",\n  \"recipient_type\": \"individual\",\n  \"location\": {\n    \"longitude\": \"<Longitude>\",\n    \"latitude\": \"<Latitude>\",\n    \"name\": \"<Location Name>\",\n    \"address\": \"<Location's Address>\"\n  }\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Sticker-Message-By-ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"sticker\",\n\t\"recipient_type\": \"individual\",\n\t\"sticker\": {\n\t\t\"id\": \"<Sticker Media ID>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send-Sticker-Message-By-URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"to\": \"{{Recipient-WA-ID}}\",\n\t\"type\": \"sticker\",\n\t\"recipient_type\": \"individual\",\n\t\"sticker\": {\n\t\t\"provider\": {\n\t\t\t\"name\": \"<Provider Name from Media Provider API, optional\"\n\t\t},\n\t\t\"link\": \"<Image Link>\"\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark-Message-As-Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"read\"\n}\n"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/messages/<Message ID from Webhook>",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"messages",
+								"<Message ID from Webhook>"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response must be ok\", () => {",
+							"    pm.expect(pm.response.status).to.be.ok;",
+							"});",
+							"/*",
+							"pm.test(\"Message ID must be returned\", () => {",
+							"    let msgId = pm.response.json().messages[0].id;",
+							"    pm.expect(msgId).not.be.empty;",
+							"});",
+							"*/"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "05-Groups",
+			"item": [
+				{
+					"name": "Create-Group",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"subject\": \"<Group Subject>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/groups",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-All-Groups",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/groups/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Group-Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update-Group-Info",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"subject\": \"<New Group Subject>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Group-Invite",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/invite",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete-Group-Invite",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/invite",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove-Group-Participant",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"wa_ids\": [\"{{Recipient-WA-ID}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/participants",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"participants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leave-Group",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/leave",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"leave"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set-Group-Icon",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/icon",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"icon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Group-Icon-Binary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/icon",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"icon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Group-Icon-URL",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/icon?format=link",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"icon"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "link"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete-Group-Icon",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/icon",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"icon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Promote-To-Group-Admin",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"wa_ids\": [\"<Recipient WA-ID, from Contacts API>\"]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/admins",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"admins"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Demote-Group-Admin",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"wa_ids\": [\"<Recipient WA-ID, from Contacts API>\"]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/groups/{{Test-Group-Id}}/admins",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"groups",
+								"{{Test-Group-Id}}",
+								"admins"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response must be not implemented\", () => {",
+							"    pm.expect(pm.response.code).to.be.eq(501);",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "06-Media",
+			"item": [
+				{
+					"name": "Upload-Media",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response must be ok\", () => {\r",
+									"    pm.expect(pm.response.status).to.be.ok;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token must be returned\", () => {\r",
+									"    let mediaId = pm.response.json().media[0].id;\r",
+									"    pm.expect(mediaId).not.be.empty;\r",
+									"\r",
+									"    pm.environment.set(\"Test-Media-Id\", mediaId)\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "image/webp"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							},
+							{
+								"key": "",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/media",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download-Media",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/media/{{Test-Media-Id}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"media",
+								"{{Test-Media-Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete-Media",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/media/{{Test-Media-Id}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"media",
+								"{{Test-Media-Id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "08-Health",
+			"item": [
+				{
+					"name": "Check-Health",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Apikey abc123",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:9090/v1/health",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"v1",
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-App-Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Apikey 205c3e16c66ff0b845700155d0394219f64e9eb6ed9db9f7758382bb4106eb11"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stats/app",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stats",
+								"app"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-App-Internal-Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stats/app/internal",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stats",
+								"app",
+								"internal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-DB-Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stats/db",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stats",
+								"db"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-DB-Internal-Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/stats/db/internal",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"stats",
+								"db",
+								"internal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Support-Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/support",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"support"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "09-Certificates",
+			"item": [
+				{
+					"name": "Upload-Certificate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain"
+							},
+							{
+								"key": "Content-Length",
+								"value": "<content-size>"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/certificates/external",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"certificates",
+								"external"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download-CA-Certificate",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/certificates/external/ca",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"certificates",
+								"external",
+								"ca"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Webhook CA Certificate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:9090/v1/certificates/webhooks/ca",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"v1",
+								"certificates",
+								"webhooks",
+								"ca"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Webhook CA Certificate",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/certificates/webhooks/ca",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"certificates",
+								"webhooks",
+								"ca"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Webhook CA Certificate",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AdminAuthToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/v1/certificates/webhooks/ca",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"certificates",
+								"webhooks",
+								"ca"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Start Generating Inbound Messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code must be 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Must return the message id\", () =>  {\r",
+							"    var id = pm.response.json().messages[0].id;\r",
+							"    pm.expect(id).to.be.not.null\r",
+							"    console.log(`Successfully generated new message ${id}. Writing to environment...`)\r",
+							"    pm.environment.set(\"MESSAGE_ID_TRACKER\", id)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:9090/v1/generate?volume=5&interval=0&types=text",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"v1",
+						"generate"
+					],
+					"query": [
+						{
+							"key": "volume",
+							"value": "5"
+						},
+						{
+							"key": "interval",
+							"value": "0"
+						},
+						{
+							"key": "types",
+							"value": "text"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel Webhook Inbound Messages",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/v1/generate/cancel",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"generate",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{AdminBearerToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "95c2eae7-b8ec-48f0-b9e0-fbf10b081035",
+			"key": "URL",
+			"value": "https://localhost:9090"
+		},
+		{
+			"id": "1a46f300-80e5-4678-822a-0f803f282d63",
+			"key": "AdminUsername",
+			"value": "admin"
+		},
+		{
+			"id": "5fbe74e9-2fd2-4aed-aaa0-27aaa9379941",
+			"key": "AdminPassword",
+			"value": "topsecret123!"
+		},
+		{
+			"id": "05c6af4b-9195-4bce-9292-92e32f445cce",
+			"key": "UserUsername",
+			"value": "myMessagingUser"
+		},
+		{
+			"id": "a74dbaa0-75ec-433c-8af8-bd330041e443",
+			"key": "UserPassword",
+			"value": "topsecret123!"
+		},
+		{
+			"id": "3339f4c4-17a5-42c2-9e31-2a9ec3ad9006",
+			"key": "AdminBearerToken",
+			"value": ""
+		},
+		{
+			"id": "2b746631-f338-4260-a0e7-02fe54fb7fa5",
+			"key": "UserBearerToken",
+			"value": ""
+		},
+		{
+			"id": "e8769267-8f90-4e75-abb5-1f65fa50d1c0",
+			"key": "webhookURL",
+			"value": "https://localhost:9000/webhook"
+		},
+		{
+			"id": "5c493d6f-6bc7-45f8-ba87-5f6fd1b832bf",
+			"key": "Test-Media-Id",
+			"value": ""
+		}
+	]
+}
