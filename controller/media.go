@@ -1,9 +1,6 @@
 package controller
 
 import (
-	"bytes"
-	"io"
-	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,40 +12,11 @@ import (
 
 func SaveMedia(ctx *fasthttp.RequestCtx) {
 	fileID := uuid.New().String()
-	_, err := mime.ExtensionsByType(string(ctx.Request.Header.ContentType()))
-	if err != nil {
-		returnError(ctx, 400, model.Error{
-			Code:    400,
-			Details: err.Error(),
-			Title:   "Client Error",
-			Href:    "",
-		})
-		return
-	}
-	filename := fileID
-	f, err := os.OpenFile(UploadDir+filename, os.O_WRONLY|os.O_CREATE, 0777)
-	if err != nil {
-		returnError(ctx, 500, model.Error{
-			Code:    500,
-			Details: err.Error(),
-			Title:   "Server Error",
-			Href:    "",
-		})
-		return
-	}
-	defer f.Close()
 
-	r := bytes.NewReader(ctx.PostBody())
-	_, err = io.Copy(f, r)
-	if err != nil {
-		returnError(ctx, 500, model.Error{
-			Code:    500,
-			Details: err.Error(),
-			Title:   "Server Error",
-			Href:    "",
-		})
+	if !savePostBody(ctx, fileID) {
 		return
 	}
+
 	resp := AcquireResponse()
 	resp.Reset()
 	defer ReleaseResponse(resp)
@@ -62,39 +30,7 @@ func SaveMedia(ctx *fasthttp.RequestCtx) {
 func RetrieveMedia(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	filename := filepath.Base(id)
-	f, err := os.OpenFile(UploadDir+filename, os.O_RDONLY, 0777)
-	if err != nil && os.IsNotExist(err) {
-		ctx.SetStatusCode(404)
-		return
-
-	} else if err != nil {
-		returnError(ctx, 500, model.Error{
-			Code:    500,
-			Details: err.Error(),
-			Title:   "Server Error",
-			Href:    "",
-		})
-		return
-	}
-
-	defer f.Close()
-	contentType, err := getFileContentType(f)
-	if err == nil {
-		_, err := f.Seek(0, io.SeekStart)
-		if err == nil {
-			ctx.SetContentType(contentType)
-			ctx.SetStatusCode(200)
-			io.Copy(ctx, f)
-			return
-		}
-	}
-
-	returnError(ctx, 500, model.Error{
-		Code:    500,
-		Details: err.Error(),
-		Title:   "Server Error",
-		Href:    "",
-	})
+	respondWithFile(ctx, filename)
 }
 
 func DeleteMedia(ctx *fasthttp.RequestCtx) {

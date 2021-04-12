@@ -103,7 +103,7 @@ func main() {
 
 	if *enableTLS {
 		util.Log.Debugf("Creating new Server TLS config as TLS is enabled")
-		tlsCfg, err := controller.GenerateServerTLS()
+		tlsCfg, err := util.GenerateServerTLS()
 		if err != nil {
 			util.Log.Fatalf("Unable to generate Server TLS config due to %v", err)
 		}

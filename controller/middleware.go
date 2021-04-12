@@ -9,6 +9,10 @@ import (
 	"golang.org/x/time/rate"
 )
 
+var (
+	requestIDHeader = "X-Request-ID"
+)
+
 func Authorize(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 
@@ -38,7 +42,7 @@ func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 		start := time.Now()
 		defer func() {
 			util.Log.Infof("%s - %s - %s \"%s %s %s\" %d %v",
-				string(ctx.Response.Header.Peek("X-Request-ID")),
+				string(ctx.Response.Header.Peek(requestIDHeader)),
 				ctx.RemoteAddr().String(),
 				string(ctx.Host()),
 				string(ctx.Method()),
@@ -66,13 +70,13 @@ func Limiter(h fasthttp.RequestHandler, concurrencyLimit int) fasthttp.RequestHa
 func SetConnID(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 
-		reqID := ctx.Request.Header.Peek("X-Request-ID")
+		reqID := ctx.Request.Header.Peek(requestIDHeader)
 		if len(reqID) == 0 {
 			reqID = []byte(uuid.New().String())
-			ctx.Request.Header.SetBytesV("X-Request-ID", reqID)
-			ctx.Response.Header.SetBytesV("X-Request-ID", reqID)
+			ctx.Request.Header.SetBytesV(requestIDHeader, reqID)
+			ctx.Response.Header.SetBytesV(requestIDHeader, reqID)
 		} else {
-			ctx.Response.Header.SetBytesV("X-Request-ID", reqID)
+			ctx.Response.Header.SetBytesV(requestIDHeader, reqID)
 		}
 
 		h(ctx)

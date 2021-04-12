@@ -38,9 +38,7 @@ func SendMessages(ctx *fasthttp.RequestCtx) {
 	Webhook.AddStati(stati...)
 }
 
-func Contacts(ctx *fasthttp.RequestCtx) {
-	notImplemented(ctx)
-}
+func Contacts(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
 
 func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
 

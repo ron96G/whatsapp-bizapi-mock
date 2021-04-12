@@ -18,13 +18,13 @@ It is used to perform integration-, system- and load-testing.
 | POST /v1/media| save media file| ✅ |
 | GET /v1/media/{id}| delete media file| ✅ |
 | DEL /v1/{media/id}| get media file| ✅ |
-| GET /v1/contacts| get contact info for wa_id| ⬜️ |
+| GET /v1/contacts| get contact info for wa_id| ❌ |
 | XXX /v1/settings/**| setup application settings| ✅ |
-| XXX /v1/profile/**| setup all profile settings| ⬜️ |
-| XXX /v1/stickerpacks/**| all stickerpacks functionality | ⬜️ |
-| XXX /v1/certificates/**| all certificates functionality | ⬜️ |
-| XXX /v1/account | registration functionality | ⬜️ |
-| XXX /v1/account/verify | registration functionality | ⬜️ |
+| XXX /v1/profile/**| setup all profile settings| ✅ |
+| XXX /v1/stickerpacks/**| all stickerpacks functionality | ❌ |
+| XXX /v1/certificates/**| all certificates functionality | ❌ |
+| XXX /v1/account | registration functionality | ✅ |
+| XXX /v1/account/verify | registration functionality | ✅ |
 
 ## Functionaliy
 The following list shows the core functionality that is currently supported.
@@ -47,10 +47,10 @@ Outbound types are accepted by the messages resource and validated.
 | Audio | ✅ | ✅ |
 | Video | ✅ | ✅ |
 | Document | ✅ | ✅ |
-| Location | ⬜️ | ✅ |
-| Contact | ⬜️ | ⬜️ |
-| Hsm | ⬜️ | ⬜️ |
-| System | ⬜️ | ⬜️ |
+| Location | ❌ | ✅ |
+| Contact | ❌ | ❌ |
+| Hsm | ❌ | ❌ |
+| System | ❌ | ❌ |
 
 
 

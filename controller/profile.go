@@ -1,15 +1,40 @@
 package controller
 
-import "github.com/valyala/fasthttp"
+import (
+	"github.com/google/uuid"
+	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/valyala/fasthttp"
+)
 
-func SetProfileAbout(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+var (
+	currentAbout           *model.ProfileAbout
+	currentBusinessProfile *model.BusinessProfile
+	profilePhotoFilename   = ""
+)
 
-func GetProfileAbout(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+func SetProfileAbout(ctx *fasthttp.RequestCtx) {
+	currentAbout = &model.ProfileAbout{}
+	unmarshalPayload(ctx, currentAbout)
+}
 
-func SetProfilePhoto(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+func GetProfileAbout(ctx *fasthttp.RequestCtx) {
+	returnJSON(ctx, 200, currentAbout)
+}
 
-func GetProfilePhoto(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+func SetProfilePhoto(ctx *fasthttp.RequestCtx) {
+	profilePhotoFilename = "pp_" + uuid.New().String()
+	savePostBody(ctx, profilePhotoFilename)
+}
 
-func SetBusinessProfile(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+func GetProfilePhoto(ctx *fasthttp.RequestCtx) {
+	respondWithFile(ctx, profilePhotoFilename)
+}
 
-func GetBusinessProfile(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+func SetBusinessProfile(ctx *fasthttp.RequestCtx) {
+	currentBusinessProfile = &model.BusinessProfile{}
+	unmarshalPayload(ctx, currentBusinessProfile)
+}
+
+func GetBusinessProfile(ctx *fasthttp.RequestCtx) {
+	returnJSON(ctx, 200, currentBusinessProfile)
+}

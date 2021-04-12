@@ -11,14 +11,18 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+var (
+	currentApplicationSettings *model.ApplicationSettings
+)
+
 // TODO also support other parameters which are given here (e.g. auto_download)
 func SetApplicationSettings(ctx *fasthttp.RequestCtx) {
-	settings := &model.ApplicationSettings{}
-	if !unmarshalPayload(ctx, settings) {
+	currentApplicationSettings = &model.ApplicationSettings{}
+	if !unmarshalPayload(ctx, currentApplicationSettings) {
 		return
 	}
 
-	parsedUrl, err := url.Parse(settings.Webhooks.Url)
+	parsedUrl, err := url.Parse(currentApplicationSettings.Webhooks.Url)
 	if err != nil {
 		returnError(ctx, 400, model.Error{
 			Code:    400,
@@ -42,7 +46,9 @@ func SetApplicationSettings(ctx *fasthttp.RequestCtx) {
 	returnJSON(ctx, 200, nil)
 }
 
-func GetApplicationSettings(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+func GetApplicationSettings(ctx *fasthttp.RequestCtx) {
+	returnJSON(ctx, 200, currentApplicationSettings)
+}
 
 func ResetApplicationSettings(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
 

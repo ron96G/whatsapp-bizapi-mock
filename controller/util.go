@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"math/rand"
+	"mime"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -129,6 +132,14 @@ func returnToken(ctx *fasthttp.RequestCtx, token string) {
 	returnJSON(ctx, 200, response)
 }
 
+func getQueryArgString(ctx *fasthttp.RequestCtx, key string) (val string, ok bool) {
+	queryArg := string(ctx.QueryArgs().Peek(key))
+	if queryArg == "" {
+		return queryArg, false
+	}
+	return queryArg, true
+}
+
 func getQueryArgInt(ctx *fasthttp.RequestCtx, key string) (n int, ok bool) {
 	var err error
 	queryArg := string(ctx.QueryArgs().Peek(key))
@@ -169,4 +180,79 @@ func generateRandomCode(n int) (numbers string) {
 		numbers += fmt.Sprintf("%d", rand.Intn(9))
 	}
 	return
+}
+
+func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
+	_, err := mime.ExtensionsByType(string(ctx.Request.Header.ContentType()))
+	if err != nil {
+		returnError(ctx, 400, model.Error{
+			Code:    400,
+			Details: err.Error(),
+			Title:   "Client Error",
+			Href:    "",
+		})
+		return false
+	}
+	f, err := os.OpenFile(UploadDir+filename, os.O_WRONLY|os.O_CREATE, 0777)
+	if err != nil {
+		returnError(ctx, 500, model.Error{
+			Code:    500,
+			Details: err.Error(),
+			Title:   "Server Error",
+			Href:    "",
+		})
+		return false
+	}
+	defer f.Close()
+
+	r := bytes.NewReader(ctx.PostBody())
+	_, err = io.Copy(f, r)
+	if err != nil {
+		returnError(ctx, 500, model.Error{
+			Code:    500,
+			Details: err.Error(),
+			Title:   "Server Error",
+			Href:    "",
+		})
+		return false
+	}
+	return true
+}
+
+func respondWithFile(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
+	f, err := os.OpenFile(UploadDir+filename, os.O_RDONLY, 0777)
+	if err != nil && os.IsNotExist(err) {
+		ctx.SetStatusCode(404)
+		return false
+
+	} else if err != nil {
+		returnError(ctx, 500, model.Error{
+			Code:    500,
+			Details: err.Error(),
+			Title:   "Server Error",
+			Href:    "",
+		})
+		return false
+	}
+
+	defer f.Close()
+	contentType, err := getFileContentType(f)
+	if err == nil {
+		_, err := f.Seek(0, io.SeekStart)
+		if err == nil {
+			ctx.SetContentType(contentType)
+			ctx.SetStatusCode(200)
+			io.Copy(ctx, f)
+			return true
+		}
+	}
+
+	returnError(ctx, 500, model.Error{
+		Code:    500,
+		Details: err.Error(),
+		Title:   "Server Error",
+		Href:    "",
+	})
+
+	return false
 }
