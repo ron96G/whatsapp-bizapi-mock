@@ -20,7 +20,7 @@ func Login(ctx *fasthttp.RequestCtx) {
 		})
 		return
 	}
-	if pwd, ok := Users[username]; ok {
+	if pwd, ok := Config.Users[username]; ok {
 		if pwd == password { // check if entered password is correct
 			if pwd == "secret" { // check if the password has been changed, if not, it must be done now
 				chPwdReq := new(model.ChangePwdRequest)
@@ -34,7 +34,7 @@ func Login(ctx *fasthttp.RequestCtx) {
 					})
 					return
 				}
-				Users[username] = chPwdReq.NewPassword // change the password
+				Config.Users[username] = chPwdReq.NewPassword // change the password
 			}
 
 			// generate new token for the user
@@ -83,7 +83,7 @@ func CreateUser(ctx *fasthttp.RequestCtx) {
 		Version:   ApiVersion,
 	}
 
-	if _, exists := Users[user.Username]; exists {
+	if _, exists := Config.Users[user.Username]; exists {
 		response.Errors = append(response.Errors, &model.Error{
 			Code:    400,
 			Title:   "User  already  exists",
@@ -92,15 +92,15 @@ func CreateUser(ctx *fasthttp.RequestCtx) {
 		returnJSON(ctx, 400, response)
 		return
 	}
-	Users[user.Username] = user.Password
+	Config.Users[user.Username] = user.Password
 	returnJSON(ctx, 201, response)
 }
 
 func DeleteUser(ctx *fasthttp.RequestCtx) {
 	name := ctx.UserValue("name").(string)
 
-	if _, ok := Users[name]; ok {
-		delete(Users, name)
+	if _, ok := Config.Users[name]; ok {
+		delete(Config.Users, name)
 	} else {
 		returnError(ctx, 404, model.Error{
 			Code:    404,

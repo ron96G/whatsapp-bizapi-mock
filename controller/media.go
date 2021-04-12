@@ -36,7 +36,7 @@ func RetrieveMedia(ctx *fasthttp.RequestCtx) {
 func DeleteMedia(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	filename := filepath.Base(id)
-	err := os.Remove(UploadDir + filename)
+	err := os.Remove(Config.UploadDir + filename)
 	if err == nil {
 		ctx.SetStatusCode(200)
 		return

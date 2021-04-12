@@ -12,12 +12,12 @@ import (
 
 var (
 	ApiVersion         = "3.31.5"
-	UploadDir          = ""
 	TokenValidDuration = 7 * 24 * time.Hour
 	marsheler          = jsonpb.Marshaler{
 		EmitDefaults: false,
 		EnumsAsInts:  false,
 		OrigName:     true,
+		Indent:       "  ",
 	}
 	responsePool = sync.Pool{
 		New: func() interface{} {
@@ -26,8 +26,7 @@ var (
 	}
 
 	SigningKey []byte
-	Users      = map[string]string{} // the users that exist
-	Tokens     = []string{}          // all tokens that have been signed and can be used to login
+	Tokens     = []string{} // all tokens that have been signed and can be used to login
 
 	Webhook *WebhookConfig
 

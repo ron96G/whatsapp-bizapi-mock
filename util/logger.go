@@ -17,8 +17,9 @@ var (
 
 	hostname, node string
 	formatter      = &log.TextFormatter{
-		ForceColors: true,
-		ForceQuote:  true,
+		ForceColors:   true,
+		ForceQuote:    true,
+		FullTimestamp: true,
 	}
 
 	// context  keys

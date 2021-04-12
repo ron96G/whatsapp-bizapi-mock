@@ -9,20 +9,17 @@ import (
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
-)
-
-var (
-	currentApplicationSettings *model.ApplicationSettings
+	"google.golang.org/protobuf/proto"
 )
 
 // TODO also support other parameters which are given here (e.g. auto_download)
 func SetApplicationSettings(ctx *fasthttp.RequestCtx) {
-	currentApplicationSettings = &model.ApplicationSettings{}
-	if !unmarshalPayload(ctx, currentApplicationSettings) {
+	appSettings := &model.ApplicationSettings{}
+	if !unmarshalPayload(ctx, appSettings) {
 		return
 	}
 
-	parsedUrl, err := url.Parse(currentApplicationSettings.Webhooks.Url)
+	parsedUrl, err := url.Parse(appSettings.Webhooks.Url)
 	if err != nil {
 		returnError(ctx, 400, model.Error{
 			Code:    400,
@@ -41,13 +38,15 @@ func SetApplicationSettings(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	proto.Merge(Config.ApplicationSettings, appSettings)
+
 	Webhook.URL = parsedUrl.String()
 	util.Log.Infof("Updated webhook URL to %s", Webhook.URL)
 	returnJSON(ctx, 200, nil)
 }
 
 func GetApplicationSettings(ctx *fasthttp.RequestCtx) {
-	returnJSON(ctx, 200, currentApplicationSettings)
+	returnJSON(ctx, 200, Config.ApplicationSettings)
 }
 
 func ResetApplicationSettings(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
@@ -86,6 +85,7 @@ func UploadWebhookCA(ctx *fasthttp.RequestCtx) {
 		MaxConnDuration:               0, // unlimited
 		MaxIdemponentCallAttempts:     2,
 	}
+	Config.WebhookCA = uploadedCert
 
 	ctx.SetStatusCode(200)
 }

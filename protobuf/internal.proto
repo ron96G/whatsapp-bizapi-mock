@@ -13,9 +13,14 @@ message InternalConfig {
     string status = 2;
     repeated InternalContact contacts = 3;
     string uploadDir = 4;
-    string webhookUrl = 5;
-    map<string,string> users = 6;
-    map<string,string> inboundMedia = 7;
+    map<string,string> users = 5;
+    map<string,string> inboundMedia = 6;
+    whatsapp.ApplicationSettings applicationSettings = 7;
+    whatsapp.ProfileAbout profileAbout = 8;
+    whatsapp.BusinessProfile businessProfile = 9;
+    string profilePhotoFilename = 10;
+    bool verified = 11;
+    bytes webhookCA = 12;
 }
 
 message WebhookRequest {

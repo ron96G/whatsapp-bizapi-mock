@@ -4,37 +4,35 @@ import (
 	"github.com/google/uuid"
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/valyala/fasthttp"
-)
-
-var (
-	currentAbout           *model.ProfileAbout
-	currentBusinessProfile *model.BusinessProfile
-	profilePhotoFilename   = ""
+	"google.golang.org/protobuf/proto"
 )
 
 func SetProfileAbout(ctx *fasthttp.RequestCtx) {
-	currentAbout = &model.ProfileAbout{}
-	unmarshalPayload(ctx, currentAbout)
+	about := &model.ProfileAbout{}
+	unmarshalPayload(ctx, about)
+	proto.Merge(Config.ProfileAbout, about)
 }
 
 func GetProfileAbout(ctx *fasthttp.RequestCtx) {
-	returnJSON(ctx, 200, currentAbout)
+	returnJSON(ctx, 200, Config.ProfileAbout)
 }
 
 func SetProfilePhoto(ctx *fasthttp.RequestCtx) {
-	profilePhotoFilename = "pp_" + uuid.New().String()
+	profilePhotoFilename := "pp_" + uuid.New().String()
 	savePostBody(ctx, profilePhotoFilename)
+	Config.ProfilePhotoFilename = profilePhotoFilename
 }
 
 func GetProfilePhoto(ctx *fasthttp.RequestCtx) {
-	respondWithFile(ctx, profilePhotoFilename)
+	respondWithFile(ctx, Config.ProfilePhotoFilename)
 }
 
 func SetBusinessProfile(ctx *fasthttp.RequestCtx) {
-	currentBusinessProfile = &model.BusinessProfile{}
-	unmarshalPayload(ctx, currentBusinessProfile)
+	businessProfile := &model.BusinessProfile{}
+	unmarshalPayload(ctx, businessProfile)
+	proto.Merge(Config.BusinessProfile, businessProfile)
 }
 
 func GetBusinessProfile(ctx *fasthttp.RequestCtx) {
-	returnJSON(ctx, 200, currentBusinessProfile)
+	returnJSON(ctx, 200, Config.BusinessProfile)
 }

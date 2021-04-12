@@ -18,6 +18,7 @@ USER app
 WORKDIR /home/app
 COPY --from=appBuilder /go/src/github.com/rgumi/whatsapp-mock/app .
 
+VOLUME [ "/home/app/uploads" ]
 EXPOSE 8443/tcp
 
 ENTRYPOINT ["./app"]

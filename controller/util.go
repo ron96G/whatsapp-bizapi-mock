@@ -136,14 +136,6 @@ func returnToken(ctx *fasthttp.RequestCtx, token string) {
 	returnJSON(ctx, 200, response)
 }
 
-func getQueryArgString(ctx *fasthttp.RequestCtx, key string) (val string, ok bool) {
-	queryArg := string(ctx.QueryArgs().Peek(key))
-	if queryArg == "" {
-		return queryArg, false
-	}
-	return queryArg, true
-}
-
 func getQueryArgInt(ctx *fasthttp.RequestCtx, key string) (n int, ok bool) {
 	var err error
 	queryArg := string(ctx.QueryArgs().Peek(key))
@@ -197,7 +189,7 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 		})
 		return false
 	}
-	f, err := os.OpenFile(UploadDir+filename, os.O_WRONLY|os.O_CREATE, 0777)
+	f, err := os.OpenFile(Config.UploadDir+filename, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		returnError(ctx, 500, model.Error{
 			Code:    500,
@@ -224,7 +216,7 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 }
 
 func respondWithFile(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
-	f, err := os.OpenFile(UploadDir+filename, os.O_RDONLY, 0777)
+	f, err := os.OpenFile(Config.UploadDir+filename, os.O_RDONLY, 0777)
 	if err != nil && os.IsNotExist(err) {
 		ctx.SetStatusCode(404)
 		return false
@@ -259,4 +251,13 @@ func respondWithFile(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 	})
 
 	return false
+}
+
+func SaveToJSONFile(in proto.Message, filepath string) error {
+	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	return marsheler.Marshal(file, in)
 }

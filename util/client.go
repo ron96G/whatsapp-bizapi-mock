@@ -2,6 +2,8 @@ package util
 
 import (
 	"crypto/tls"
+	"crypto/x509"
+	"fmt"
 	"time"
 
 	"github.com/valyala/fasthttp"
@@ -26,3 +28,21 @@ var (
 		MaxIdemponentCallAttempts: 2,
 	}
 )
+
+func NewClient(rootCa []byte) error {
+
+	if rootCa != nil {
+		caCertPool := x509.NewCertPool()
+
+		if !caCertPool.AppendCertsFromPEM(rootCa) {
+			return fmt.Errorf("Unable to parse provided certificate")
+		}
+
+		DefaultClient.TLSConfig = &tls.Config{
+			RootCAs:            caCertPool,
+			InsecureSkipVerify: false,
+		}
+	}
+
+	return nil
+}

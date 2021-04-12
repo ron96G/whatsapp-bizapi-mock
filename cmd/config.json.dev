@@ -24,15 +24,50 @@
     }
   ],
   "uploadDir": "./uploads/",
-  "webhookUrl": "https://localhost:9000/webhook",
   "users": {
     "admin": "secret",
     "systemUser": "secret"
   },
   "inboundMedia": {
-    "image": "image",
-    "video": "video",
+    "audio": "audio",
     "document": "document",
-    "audio": "audio"
-  }
+    "image": "image",
+    "video": "video"
+  },
+  "applicationSettings": {
+    "callback_backoff_delay_ms": 3000,
+    "max_callback_backoff_delay_ms": 900000,
+    "callback_persist": true,
+    "media": {
+      "auto_download": [
+        "image",
+        "document",
+        "audio",
+        "image",
+        "document",
+        "audio",
+        "image",
+        "document",
+        "audio",
+        "image",
+        "document",
+        "audio"
+      ]
+    },
+    "webhooks": {
+      "url": "https://localhost:9000/webhook",
+      "max_concurrent_requests": 12
+    },
+    "db_garbagecollector_enable": true
+  },
+  "profileAbout": {
+    "text": "\u003cAbout Profile\u003e"
+  },
+  "businessProfile": {
+    "description": "Herzlich Willkommen bei dem Kundenservice der Telekom! Stellen Sie uns Ihre Fragen auch hier über WhatsApp.",
+    "websites": [
+      "https://www.telekom.de"
+    ]
+  },
+  "profilePhotoFilename": "pp_ce6d9a60-37e6-4adc-94b4-8e1f22bb7910"
 }
