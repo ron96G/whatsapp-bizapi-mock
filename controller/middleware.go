@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/time/rate"
 )
@@ -37,7 +37,7 @@ func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		start := time.Now()
 		defer func() {
-			log.Printf("%s - %s - %s \"%s %s %s\" %d %v",
+			util.Log.Infof("%s - %s - %s \"%s %s %s\" %d %v",
 				string(ctx.Response.Header.Peek("X-Request-ID")),
 				ctx.RemoteAddr().String(),
 				string(ctx.Host()),
@@ -65,7 +65,16 @@ func Limiter(h fasthttp.RequestHandler, concurrencyLimit int) fasthttp.RequestHa
 
 func SetConnID(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		ctx.Response.Header.Set("X-Request-ID", uuid.New().String())
+
+		reqID := ctx.Request.Header.Peek("X-Request-ID")
+		if len(reqID) == 0 {
+			reqID = []byte(uuid.New().String())
+			ctx.Request.Header.SetBytesV("X-Request-ID", reqID)
+			ctx.Response.Header.SetBytesV("X-Request-ID", reqID)
+		} else {
+			ctx.Response.Header.SetBytesV("X-Request-ID", reqID)
+		}
+
 		h(ctx)
 	})
 }

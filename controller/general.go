@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"log"
 	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
@@ -26,7 +26,7 @@ func SendMessages(ctx *fasthttp.RequestCtx) {
 
 	// return
 	id := uuid.New().String()
-	log.Println("Generated message id " + id)
+	util.Log.Infof("Generated message id " + id)
 	msg.Id = id
 	resp := AcquireResponse()
 	resp.Reset()
@@ -98,7 +98,7 @@ func CancelGenerateWebhookRquests(ctx *fasthttp.RequestCtx) {
 }
 
 func PanicHandler(ctx *fasthttp.RequestCtx, in interface{}) {
-	log.Printf("PANIC %v\n", in)
+	util.Log.Errorf("%v\n", in)
 	returnError(ctx, 500, model.Error{
 		Code:    500,
 		Details: "An unexpected error occured",

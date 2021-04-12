@@ -4,11 +4,12 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
-	"log"
 	"math/rand"
 	"os"
 	sync "sync"
 	"time"
+
+	"github.com/rgumi/whatsapp-mock/util"
 
 	"github.com/google/uuid"
 )
@@ -53,7 +54,7 @@ func NewGenerators(uploadDir string, c []*Contact, m map[string]string) *Generat
 	for k, f := range g.Media {
 		g.Sha256[k], err = g.generateSha256(g.UploadDir + f)
 		if err != nil {
-			log.Printf("Unable to generate sha256 from media %s due to %v", f, err)
+			util.Log.Printf("Unable to generate sha256 from media %s due to %v", f, err)
 		}
 	}
 	return g
@@ -62,13 +63,13 @@ func NewGenerators(uploadDir string, c []*Contact, m map[string]string) *Generat
 func (g *Generators) generateSha256(file string) (string, error) {
 	f, err := os.Open(file)
 	if err != nil {
-		log.Fatal(err)
+		util.Log.Fatal(err)
 	}
 	defer f.Close()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		log.Fatal(err)
+		util.Log.Fatal(err)
 	}
 
 	return hex.EncodeToString(h.Sum(nil)), nil
@@ -95,7 +96,7 @@ func (g *Generators) selectRndContact() *Contact {
 
 func (g *Generators) generateMedia(t string) string {
 	id := uuid.New().String()
-	log.Printf("Generating new media file of type %s with id %s\n", t, id)
+	util.Log.Infof("Generating new media file of type %s with id %s\n", t, id)
 	if err := os.Symlink(g.UploadDir+g.Media[t], g.UploadDir+id); err != nil {
 		panic(err)
 	}
@@ -134,7 +135,7 @@ func (g *Generators) GenerateMessages(n int, types ...string) []*Message {
 		case "document":
 			out[i] = g.GenerateDocumentMessage()
 		default:
-			log.Printf("Unsupported message type '%s'\n", typ)
+			util.Log.Warnf("Unsupported message type '%s'\n", typ)
 		}
 	}
 	return out

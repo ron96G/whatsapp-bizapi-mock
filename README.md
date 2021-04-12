@@ -19,7 +19,7 @@ It is used to perform integration-, system- and load-testing.
 | GET /v1/media/{id}| delete media file| ✅ |
 | DEL /v1/{media/id}| get media file| ✅ |
 | GET /v1/contacts| get contact info for wa_id| ⬜️ |
-| XXX /v1/settings/**| setup application settings| ⬜️ |
+| XXX /v1/settings/**| setup application settings| ✅ |
 | XXX /v1/profile/**| setup all profile settings| ⬜️ |
 | XXX /v1/stickerpacks/**| all stickerpacks functionality | ⬜️ |
 | XXX /v1/certificates/**| all certificates functionality | ⬜️ |
@@ -47,7 +47,6 @@ Outbound types are accepted by the messages resource and validated.
 | Audio | ✅ | ✅ |
 | Video | ✅ | ✅ |
 | Document | ✅ | ✅ |
-| Voice | ⬜️ | ⬜️ |
 | Location | ⬜️ | ✅ |
 | Contact | ⬜️ | ⬜️ |
 | Hsm | ⬜️ | ⬜️ |

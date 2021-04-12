@@ -24,7 +24,7 @@
     }
   ],
   "uploadDir": "./uploads/",
-  "webhookUrl": "http://localhost:9000/webhook",
+  "webhookUrl": "https://localhost:9000/webhook",
   "users": {
     "admin": "secret",
     "systemUser": "secret"

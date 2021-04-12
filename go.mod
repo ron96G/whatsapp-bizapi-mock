@@ -9,7 +9,9 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/uuid v1.1.5
+	github.com/sirupsen/logrus v1.8.1
 	github.com/valyala/fasthttp v1.19.0
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
 	google.golang.org/protobuf v1.25.0
 )

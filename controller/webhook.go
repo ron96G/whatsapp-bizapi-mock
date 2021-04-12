@@ -1,13 +1,12 @@
 package controller
 
 import (
-	"crypto/tls"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
@@ -17,6 +16,8 @@ var (
 			return new(model.WebhookRequest)
 		},
 	}
+
+	userAgent = "WhatsAppMockserver/" + ApiVersion
 )
 
 type WebhookConfig struct {
@@ -25,7 +26,6 @@ type WebhookConfig struct {
 	StatusQueue  []*model.Status
 	MessageQueue []*model.Message
 	Queue        chan *model.WebhookRequest
-	client       *fasthttp.Client
 	WaitInterval time.Duration
 	mux          sync.Mutex
 }
@@ -37,26 +37,12 @@ func NewWebhookConfig(url string, g *model.Generators) *WebhookConfig {
 		Queue:        make(chan *model.WebhookRequest, 100),
 		StatusQueue:  []*model.Status{},
 		WaitInterval: 0 * time.Second,
-		client: &fasthttp.Client{
-			NoDefaultUserAgentHeader:      true,
-			DisablePathNormalizing:        false,
-			DisableHeaderNamesNormalizing: false,
-			ReadTimeout:                   5 * time.Second,
-			WriteTimeout:                  5 * time.Second,
-			TLSConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-			MaxConnsPerHost:           8,
-			MaxIdleConnDuration:       30 * time.Second,
-			MaxConnDuration:           0, // unlimited
-			MaxIdemponentCallAttempts: 2,
-		},
 	}
 }
 
 func (wc *WebhookConfig) Send(req *fasthttp.Request) (*fasthttp.Response, error) {
 	resp := fasthttp.AcquireResponse()
-	err := wc.client.Do(req, resp)
+	err := util.DefaultClient.Do(req, resp)
 	return resp, err
 }
 
@@ -130,7 +116,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				req := fasthttp.AcquireRequest()
 				marsheler.Marshal(req.BodyWriter(), whReq)
 				req.SetRequestURI(wc.URL)
-				req.Header.Set("User-Agent", "WhatsApp Mockserver")
+				req.Header.Set("User-Agent", userAgent)
 				req.Header.Set("Content-Type", "application/json")
 				req.Header.SetMethod("POST")
 				resp, err := wc.Send(req)
@@ -151,7 +137,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				}
 				wc.WaitInterval = 0
 				webhookReqPool.Put(whReq)
-				log.Printf("Webook-request to %s successfully returned status 2xx\n", wc.URL)
+				util.Log.Infof("Webook-request to %s successfully returned status 2xx\n", wc.URL)
 
 				for _, msg := range whReq.Messages {
 					model.ReleaseMessage(msg)

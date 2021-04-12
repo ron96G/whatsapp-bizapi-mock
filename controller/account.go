@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"log"
 	"math/rand"
 	"time"
 
 	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
@@ -33,7 +33,7 @@ func VerifyAccount(ctx *fasthttp.RequestCtx) {
 		})
 
 	} else {
-		log.Print("Successfully verified account")
+		util.Log.Print("Successfully verified account")
 	}
 }
 

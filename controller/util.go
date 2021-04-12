@@ -93,12 +93,6 @@ func returnJSON(ctx *fasthttp.RequestCtx, statusCode int, out proto.Message) {
 	marsheler.Marshal(ctx, out)
 }
 
-func returnBytes(ctx *fasthttp.RequestCtx, statusCode int, content []byte) {
-	ctx.SetContentType("application/json")
-	ctx.SetStatusCode(statusCode)
-	ctx.Write(content)
-}
-
 func notImplemented(ctx *fasthttp.RequestCtx) {
 	returnError(ctx, 501, model.Error{
 		Code:    501,
