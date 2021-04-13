@@ -23,7 +23,7 @@
       "name": "Michel"
     }
   ],
-  "uploadDir": "/home/app/uploads/",
+  "uploadDir": "/home/app/data/",
   "users": {
     "admin": "secret"
   },

@@ -8,14 +8,14 @@ FROM busybox
 
 RUN set -x && \
     addgroup -S app && adduser -S -G app app && \
-    mkdir -p  /home/app/uploads /home/app/data && \
+    mkdir -p  /home/app/media /home/app/data && \
     chown -R app:app /home/app
 
 USER app
 WORKDIR /home/app
 
 COPY ./cmd/config.json /home/app
-COPY ./media /home/app/uploads
+COPY ./media /home/app/media
 COPY entrypoint.sh /home/app
 
 COPY --from=appBuilder /go/src/github.com/rgumi/whatsapp-mock/app .
