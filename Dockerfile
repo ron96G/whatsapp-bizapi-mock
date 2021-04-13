@@ -8,17 +8,19 @@ FROM busybox
 
 RUN set -x && \
     addgroup -S app && adduser -S -G app app && \
-    mkdir -p  /home/app/uploads && \
+    mkdir -p  /home/app/uploads /home/app/data && \
     chown -R app:app /home/app
-
-COPY ./cmd/config.json /home/app
-COPY ./media /home/app/uploads
 
 USER app
 WORKDIR /home/app
+
+COPY ./cmd/config.json /home/app
+COPY ./media /home/app/uploads
+COPY entrypoint.sh /home/app
+
 COPY --from=appBuilder /go/src/github.com/rgumi/whatsapp-mock/app .
 
-VOLUME [ "/home/app/uploads" ]
-EXPOSE 8443/tcp
+VOLUME [ "/home/app/data" ]
 
-ENTRYPOINT ["./app"]
+EXPOSE 8443/tcp
+ENTRYPOINT ["./entrypoint.sh"]

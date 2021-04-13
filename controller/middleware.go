@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,20 +16,36 @@ var (
 
 func Authorize(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-
-		token, err := verifyToken(ctx)
+		token, err := parseToken(ctx)
 		if err == nil && token.Valid && contains(Tokens, token.Raw) {
 			h(ctx)
 			return
 		}
+		util.Log.Warn(err)
+		ctx.SetStatusCode(401)
+	})
+}
+
+func AuthorizeWithRoles(h fasthttp.RequestHandler, roles []string) fasthttp.RequestHandler {
+	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+		token, err := parseTokenWithClaims(ctx)
+		if err == nil {
+			if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid && contains(Tokens, token.Raw) {
+				if contains(roles, claims.Role) {
+					h(ctx)
+					return
+				}
+			}
+			err = fmt.Errorf("invalid role or token")
+		}
+		util.Log.Warn(err)
 		ctx.SetStatusCode(401)
 	})
 }
 
 func AuthorizeStaticToken(h fasthttp.RequestHandler, staticToken string) fasthttp.RequestHandler {
-
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		token := extractAuthToken(ctx, "Apikey")
+		token, _ := extractAuthToken(ctx, "Apikey")
 		if staticToken != "" && token != staticToken {
 			ctx.SetStatusCode(401)
 			return

@@ -40,10 +40,14 @@ func RegisterAccount(ctx *fasthttp.RequestCtx) {
 		util.Log.Warnf("GENERATED VERIFY CODE %s", expectedVerifyCode)
 	}
 
-	returnJSON(ctx, 202, &model.Meta{
+	resp := AcquireResponse()
+	defer ReleaseResponse(resp)
+	resp.Meta = &model.Meta{
 		ApiStatus: model.Meta_stable,
 		Version:   ApiVersion,
-	})
+	}
+	ctx.Response.Header.Set("verify-code", expectedVerifyCode)
+	returnJSON(ctx, 202, resp)
 }
 
 // VerifyAccount mocks the verification to finish the registration of an account

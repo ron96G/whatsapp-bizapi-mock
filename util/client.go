@@ -35,7 +35,7 @@ func NewClient(rootCa []byte) error {
 		caCertPool := x509.NewCertPool()
 
 		if !caCertPool.AppendCertsFromPEM(rootCa) {
-			return fmt.Errorf("Unable to parse provided certificate")
+			return fmt.Errorf("unable to parse provided certificate")
 		}
 
 		DefaultClient.TLSConfig = &tls.Config{

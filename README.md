@@ -23,6 +23,7 @@ It is used to perform integration-, system- and load-testing.
 | XXX /v1/profile/**| setup all profile settings| ✅ |
 | XXX /v1/stickerpacks/**| all stickerpacks functionality | ❌ |
 | XXX /v1/certificates/**| all certificates functionality | ❌ |
+| XXX /v1/groups/**| all groups functionality | ❌ |
 | XXX /v1/account | registration functionality | ✅ |
 | XXX /v1/account/verify | registration functionality | ✅ |
 

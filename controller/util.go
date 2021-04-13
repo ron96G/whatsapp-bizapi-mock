@@ -12,30 +12,52 @@ import (
 	"strings"
 	"time"
 
-	"github.com/form3tech-oss/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/valyala/fasthttp"
 )
 
-func extractAuthToken(ctx *fasthttp.RequestCtx, key string) string {
-	auth := string(ctx.Request.Header.Peek("Authorization"))
-	return strings.TrimPrefix(auth, key+" ")
+type CustomClaims struct {
+	Role string `json:"role"`
+	jwt.StandardClaims
 }
 
-func verifyToken(ctx *fasthttp.RequestCtx) (*jwt.Token, error) {
-	tokenString := extractAuthToken(ctx, "Bearer")
+func extractAuthToken(ctx *fasthttp.RequestCtx, key string) (val string, ok bool) {
+	auth := strings.TrimPrefix(
+		string(ctx.Request.Header.Peek("Authorization")),
+		strings.TrimSpace(key)+" ",
+	)
+	return auth, auth != ""
+}
+
+func parseToken(ctx *fasthttp.RequestCtx) (*jwt.Token, error) {
+	tokenString, ok := extractAuthToken(ctx, "Bearer ")
+	if !ok {
+		return nil, fmt.Errorf("unable to find bearer token in request")
+	}
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return SigningKey, nil
 	})
-	if err != nil {
-		return nil, err
+	return token, err
+}
+
+func parseTokenWithClaims(ctx *fasthttp.RequestCtx) (*jwt.Token, error) {
+	tokenString, ok := extractAuthToken(ctx, "Bearer ")
+	if !ok {
+		return nil, fmt.Errorf("unable to find bearer token in request")
 	}
-	return token, nil
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return SigningKey, nil
+	})
+	return token, err
 }
 
 func contains(slice []string, item string) bool {
@@ -109,11 +131,15 @@ func NotImplementedHandler(ctx *fasthttp.RequestCtx) {
 	notImplemented(ctx)
 }
 
-func generateToken(user string) (string, error) {
+func generateToken(user string, role string) (string, error) {
+
+	// https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#rfc.section.4.1.7
 	atClaims := jwt.MapClaims{}
-	atClaims["authorized"] = true
-	atClaims["user"] = user
+	atClaims["iss"] = "WhatsAppMockserver"
+	atClaims["sub"] = user
 	atClaims["exp"] = time.Now().Add(TokenValidDuration).Unix()
+	atClaims["iat"] = time.Now().Unix()
+	atClaims["role"] = role
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	token, err := at.SignedString(SigningKey)
 	if err != nil {

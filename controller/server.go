@@ -49,13 +49,14 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	r.POST(apiPrefix+"/generate/cancel", Log(CancelGenerateWebhookRquests))
 	r.POST(apiPrefix+"/messages", Limiter(SetConnID(Log(Authorize(SendMessages))), 20))
 	r.POST(apiPrefix+"/contacts", Limiter(SetConnID(Log(Authorize(Contacts))), 20))
-	r.GET(apiPrefix+"/health", Limiter(Log(AuthorizeStaticToken(HealthCheck, staticApiToken)), 20))
+
+	r.GET(apiPrefix+"/health", Limiter(Log(AuthorizeStaticToken(HealthCheck, staticApiToken)), 5))
 
 	// User resources
 	r.POST(apiPrefix+"/users/login", Log(Login))
 	r.POST(apiPrefix+"/users/logout", Log(Authorize(Logout)))
-	r.POST(apiPrefix+"/users", Log(Authorize(CreateUser)))
-	r.DELETE(apiPrefix+"/users/{name}", Log(Authorize(DeleteUser)))
+	r.POST(apiPrefix+"/users", Log(AuthorizeWithRoles(CreateUser, []string{"ADMIN"})))
+	r.DELETE(apiPrefix+"/users/{name}", Log(AuthorizeWithRoles(DeleteUser, []string{"ADMIN"})))
 
 	// Media resources
 	r.POST(apiPrefix+"/media", Log(Authorize(SaveMedia)))

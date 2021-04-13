@@ -37,8 +37,12 @@ func Login(ctx *fasthttp.RequestCtx) {
 				Config.Users[username] = chPwdReq.NewPassword // change the password
 			}
 
+			role := "USER"
+			if username == "admin" {
+				role = "ADMIN"
+			}
 			// generate new token for the user
-			newToken, err := generateToken(username)
+			newToken, err := generateToken(username, role)
 			if err != nil {
 				returnError(ctx, 500, model.Error{
 					Code:    500,
@@ -104,7 +108,7 @@ func DeleteUser(ctx *fasthttp.RequestCtx) {
 	} else {
 		returnError(ctx, 404, model.Error{
 			Code:    404,
-			Details: fmt.Errorf("Could not find user with name %s", name).Error(),
+			Details: fmt.Errorf("could not find user with name %s", name).Error(),
 			Title:   "Client Error",
 			Href:    "",
 		})

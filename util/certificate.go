@@ -61,7 +61,7 @@ func GenerateCertificate() (certPEM *bytes.Buffer, certPrivKeyPEM *bytes.Buffer,
 		BasicConstraintsValid: true,
 	}
 
-	caPrivKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	caPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -101,7 +101,7 @@ func GenerateCertificate() (certPEM *bytes.Buffer, certPrivKeyPEM *bytes.Buffer,
 		KeyUsage:     x509.KeyUsageDigitalSignature,
 	}
 
-	certPrivKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	certPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -147,7 +147,7 @@ func FromPEM(in io.Reader) (cert tls.Certificate, err error) {
 		} else {
 			cert.PrivateKey, err = parsePrivateKey(block.Bytes)
 			if err != nil {
-				err = fmt.Errorf("Failure reading private key: %s", err)
+				err = fmt.Errorf("failure reading private key: %s", err)
 				return
 			}
 		}
@@ -155,10 +155,10 @@ func FromPEM(in io.Reader) (cert tls.Certificate, err error) {
 	}
 
 	if len(cert.Certificate) == 0 {
-		err = fmt.Errorf("No certificate found")
+		err = fmt.Errorf("oo certificate found")
 		return
 	} else if cert.PrivateKey == nil {
-		err = fmt.Errorf("No private key found")
+		err = fmt.Errorf("no private key found")
 		return
 	}
 
@@ -181,10 +181,10 @@ func FromP12(in io.Reader, password string) (cert tls.Certificate, err error) {
 	cert.PrivateKey = key.(crypto.PrivateKey)
 
 	if len(cert.Certificate) == 0 {
-		err = fmt.Errorf("No certificate found")
+		err = fmt.Errorf("no certificate found")
 		return
 	} else if cert.PrivateKey == nil {
-		err = fmt.Errorf("No private key found")
+		err = fmt.Errorf("no private key found")
 		return
 	}
 
@@ -200,11 +200,11 @@ func parsePrivateKey(der []byte) (crypto.PrivateKey, error) {
 		case *rsa.PrivateKey, *ecdsa.PrivateKey:
 			return key, nil
 		default:
-			return nil, fmt.Errorf("Found unknown private key type in PKCS#8 wrapping")
+			return nil, fmt.Errorf("found unknown private key type in PKCS#8 wrapping")
 		}
 	}
 	if key, err := x509.ParseECPrivateKey(der); err == nil {
 		return key, nil
 	}
-	return nil, fmt.Errorf("Failed to parse private key")
+	return nil, fmt.Errorf("failed to parse private key")
 }

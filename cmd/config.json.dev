@@ -25,7 +25,8 @@
   ],
   "uploadDir": "./uploads/",
   "users": {
-    "admin": "secret",
+    "admin": "topsecret123!",
+    "myMessagingUser": "topsecret123!",
     "systemUser": "secret"
   },
   "inboundMedia": {
