@@ -14,9 +14,9 @@ RUN set -x && \
 USER app
 WORKDIR /home/app
 
-COPY ./cmd/config.json /home/app
-COPY ./media /home/app/media
-COPY entrypoint.sh /home/app
+COPY --chown=app:app ./cmd/config.json /home/app
+COPY --chown=app:app ./media /home/app/media
+COPY --chown=app:app entrypoint.sh /home/app
 
 COPY --from=appBuilder /go/src/github.com/rgumi/whatsapp-mock/app .
 
