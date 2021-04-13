@@ -21,10 +21,11 @@ func SetProfilePhoto(ctx *fasthttp.RequestCtx) {
 	profilePhotoFilename := "pp_" + uuid.New().String()
 	savePostBody(ctx, profilePhotoFilename)
 	Config.ProfilePhotoFilename = profilePhotoFilename
+	ctx.SetStatusCode(201)
 }
 
 func GetProfilePhoto(ctx *fasthttp.RequestCtx) {
-	respondWithFile(ctx, Config.ProfilePhotoFilename)
+	respondWithFile(ctx, 200, Config.ProfilePhotoFilename)
 }
 
 func SetBusinessProfile(ctx *fasthttp.RequestCtx) {

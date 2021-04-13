@@ -241,7 +241,7 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 	return true
 }
 
-func respondWithFile(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
+func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string) (ok bool) {
 	f, err := os.OpenFile(Config.UploadDir+filename, os.O_RDONLY, 0777)
 	if err != nil && os.IsNotExist(err) {
 		ctx.SetStatusCode(404)
@@ -263,7 +263,7 @@ func respondWithFile(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 		_, err := f.Seek(0, io.SeekStart)
 		if err == nil {
 			ctx.SetContentType(contentType)
-			ctx.SetStatusCode(200)
+			ctx.SetStatusCode(statusCode)
 			io.Copy(ctx, f)
 			return true
 		}

@@ -71,4 +71,5 @@ func VerifyAccount(ctx *fasthttp.RequestCtx) {
 	util.Log.Print("Successfully verified account")
 	Verified = true
 	expectedVerifyCode = "" // reset code
+	ctx.SetStatusCode(201)
 }

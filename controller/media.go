@@ -30,7 +30,7 @@ func SaveMedia(ctx *fasthttp.RequestCtx) {
 func RetrieveMedia(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	filename := filepath.Base(id)
-	respondWithFile(ctx, filename)
+	respondWithFile(ctx, 200, filename)
 }
 
 func DeleteMedia(ctx *fasthttp.RequestCtx) {
