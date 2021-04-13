@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"os"
+
 	"github.com/google/uuid"
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/valyala/fasthttp"
@@ -9,7 +11,9 @@ import (
 
 func SetProfileAbout(ctx *fasthttp.RequestCtx) {
 	about := &model.ProfileAbout{}
-	unmarshalPayload(ctx, about)
+	if !unmarshalPayload(ctx, about) {
+		return
+	}
 	proto.Merge(Config.ProfileAbout, about)
 }
 
@@ -19,7 +23,16 @@ func GetProfileAbout(ctx *fasthttp.RequestCtx) {
 
 func SetProfilePhoto(ctx *fasthttp.RequestCtx) {
 	profilePhotoFilename := "pp_" + uuid.New().String()
-	savePostBody(ctx, profilePhotoFilename)
+
+	if !savePostBody(ctx, profilePhotoFilename) {
+		return
+	}
+
+	if Config.ProfilePhotoFilename != "" {
+		// a profile picture already exists, delete it as not required anymore
+		_ = os.Remove(Config.UploadDir + Config.ProfilePhotoFilename)
+	}
+
 	Config.ProfilePhotoFilename = profilePhotoFilename
 	ctx.SetStatusCode(201)
 }
@@ -30,7 +43,9 @@ func GetProfilePhoto(ctx *fasthttp.RequestCtx) {
 
 func SetBusinessProfile(ctx *fasthttp.RequestCtx) {
 	businessProfile := &model.BusinessProfile{}
-	unmarshalPayload(ctx, businessProfile)
+	if !unmarshalPayload(ctx, businessProfile) {
+		return
+	}
 	proto.Merge(Config.BusinessProfile, businessProfile)
 }
 
