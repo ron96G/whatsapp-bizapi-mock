@@ -50,7 +50,7 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	r.POST(apiPrefix+"/messages", Limiter(SetConnID(Log(Authorize(SendMessages))), 20))
 	r.POST(apiPrefix+"/contacts", Limiter(SetConnID(Log(Authorize(Contacts))), 20))
 
-	r.GET(apiPrefix+"/health", Limiter(Log(AuthorizeStaticToken(HealthCheck, staticApiToken)), 5))
+	r.GET(apiPrefix+"/health", Limiter(AuthorizeStaticToken(HealthCheck, staticApiToken), 5))
 
 	// User resources
 	r.POST(apiPrefix+"/users/login", Log(Login))
