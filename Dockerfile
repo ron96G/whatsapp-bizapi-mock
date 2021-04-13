@@ -18,7 +18,9 @@ COPY --chown=app:app ./cmd/config.json /home/app
 COPY --chown=app:app ./media /home/app/media
 COPY --chown=app:app entrypoint.sh /home/app
 
-COPY --from=appBuilder /go/src/github.com/rgumi/whatsapp-mock/app .
+RUN chmod +x ./entrypoint.sh
+
+COPY --chown=app:app --from=appBuilder /go/src/github.com/rgumi/whatsapp-mock/app .
 
 VOLUME [ "/home/app/data" ]
 
