@@ -7,7 +7,7 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -o app ./cmd/main.go
 FROM busybox
 
 RUN set -x && \
-    addgroup -S app && adduser -S -G app app && \
+    addgroup -S --gid 510 app && adduser -S --uid 510 -G app app && \
     mkdir -p  /home/app/media /home/app/data && \
     chown -R app:app /home/app
 
