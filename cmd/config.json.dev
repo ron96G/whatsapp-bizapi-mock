@@ -26,7 +26,6 @@
   "uploadDir": "./uploads/",
   "users": {
     "admin": "topsecret123!",
-    "myMessagingUser": "topsecret123!",
     "systemUser": "secret"
   },
   "inboundMedia": {
@@ -41,6 +40,15 @@
     "callback_persist": true,
     "media": {
       "auto_download": [
+        "image",
+        "document",
+        "audio",
+        "image",
+        "document",
+        "audio",
+        "image",
+        "document",
+        "audio",
         "image",
         "document",
         "audio",
@@ -67,8 +75,11 @@
   "businessProfile": {
     "description": "Herzlich Willkommen bei dem Kundenservice der Telekom! Stellen Sie uns Ihre Fragen auch hier über WhatsApp.",
     "websites": [
+      "https://www.telekom.de",
+      "https://www.telekom.de",
+      "https://www.telekom.de",
       "https://www.telekom.de"
     ]
   },
-  "profilePhotoFilename": "pp_ce6d9a60-37e6-4adc-94b4-8e1f22bb7910"
+  "profilePhotoFilename": "pp_62571667-e6ec-44f3-83e7-ce587fc8cb0d"
 }

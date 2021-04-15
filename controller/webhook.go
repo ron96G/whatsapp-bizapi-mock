@@ -74,9 +74,9 @@ func (wc *WebhookConfig) statusRunner() (stop chan int) {
 				return
 			case <-time.After(StatusMergeInterval):
 				wc.mux.Lock()
-				defer wc.mux.Unlock()
 
 				if len(wc.StatusQueue) == 0 {
+					wc.mux.Unlock()
 					continue
 				}
 
@@ -85,6 +85,7 @@ func (wc *WebhookConfig) statusRunner() (stop chan int) {
 				whReq.Statuses = wc.StatusQueue
 				wc.StatusQueue = []*model.Status{}
 				wc.Queue <- whReq
+				wc.mux.Unlock()
 			}
 		}
 	}()
