@@ -29,7 +29,7 @@ var (
 	// 2. A longer duration means that more status-information will be merged with generated inbound messages.
 	// However, with little generated inbound messages, the status-information will take longer to be sent to the webhook
 	// (Max is the here defined duration).
-	StatusMergeInterval = 5 * time.Second
+	StatusMergeInterval = 3 * time.Second
 )
 
 type WebhookConfig struct {
