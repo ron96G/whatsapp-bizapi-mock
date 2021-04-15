@@ -39,6 +39,7 @@ func SetApplicationSettings(ctx *fasthttp.RequestCtx) {
 	}
 
 	proto.Merge(Config.ApplicationSettings, appSettings)
+	Config.ApplicationSettings.Media.AutoDownload = appSettings.Media.AutoDownload
 
 	Webhook.URL = parsedUrl.String()
 	util.Log.Infof("Updated webhook URL to %s", Webhook.URL)

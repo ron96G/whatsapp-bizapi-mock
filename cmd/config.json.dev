@@ -42,24 +42,6 @@
       "auto_download": [
         "image",
         "document",
-        "audio",
-        "image",
-        "document",
-        "audio",
-        "image",
-        "document",
-        "audio",
-        "image",
-        "document",
-        "audio",
-        "image",
-        "document",
-        "audio",
-        "image",
-        "document",
-        "audio",
-        "image",
-        "document",
         "audio"
       ]
     },
@@ -76,9 +58,7 @@
     "description": "Herzlich Willkommen bei dem Kundenservice der Telekom! Stellen Sie uns Ihre Fragen auch hier über WhatsApp.",
     "websites": [
       "https://www.telekom.de",
-      "https://www.telekom.de",
-      "https://www.telekom.de",
-      "https://www.telekom.de"
+      "https://telekom.com"
     ]
   },
   "profilePhotoFilename": "pp_62571667-e6ec-44f3-83e7-ce587fc8cb0d"

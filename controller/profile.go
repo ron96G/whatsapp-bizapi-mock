@@ -14,7 +14,7 @@ func SetProfileAbout(ctx *fasthttp.RequestCtx) {
 	if !unmarshalPayload(ctx, about) {
 		return
 	}
-	proto.Merge(Config.ProfileAbout, about)
+	Config.ProfileAbout = about
 }
 
 func GetProfileAbout(ctx *fasthttp.RequestCtx) {
@@ -46,7 +46,14 @@ func SetBusinessProfile(ctx *fasthttp.RequestCtx) {
 	if !unmarshalPayload(ctx, businessProfile) {
 		return
 	}
+
 	proto.Merge(Config.BusinessProfile, businessProfile)
+
+	// WhatsApp only allows 2 urls. Therefore, only persist the last 2 and ignore the rest
+	countWebsites := len(Config.BusinessProfile.Websites)
+	if countWebsites > 2 {
+		Config.BusinessProfile.Websites = Config.BusinessProfile.Websites[countWebsites-2:]
+	}
 }
 
 func GetBusinessProfile(ctx *fasthttp.RequestCtx) {
