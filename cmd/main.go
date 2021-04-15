@@ -85,7 +85,7 @@ func main() {
 	go func() {
 		for {
 			err := <-errors
-			util.Log.Errorf(err.Error())
+			util.Log.Error("Async error occured: " + err.Error())
 		}
 	}()
 	var ln net.Listener

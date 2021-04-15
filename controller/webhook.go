@@ -18,6 +18,18 @@ var (
 	}
 
 	userAgent = "WhatsAppMockserver/" + ApiVersion
+
+	// StatusMergeInterval determines the duration in which the status queue of outbound messages
+	// is checked (>0) and merged into a new webhook-request, which is then added to the webhook queue.
+	// This should never be set below 2 seconds to avoid starvation of the webhook queue
+	//
+	// 1. A shorter duration means that more webhook requests are created with just status-information rather than
+	// generated inbound messages aswell. However, status-information will be quicker to be sent to the webhook.
+	//
+	// 2. A longer duration means that more status-information will be merged with generated inbound messages.
+	// However, with little generated inbound messages, the status-information will take longer to be sent to the webhook
+	// (Max is the here defined duration).
+	StatusMergeInterval = 5 * time.Second
 )
 
 type WebhookConfig struct {
@@ -60,18 +72,19 @@ func (wc *WebhookConfig) statusRunner() (stop chan int) {
 			select {
 			case <-stop:
 				return
-			case <-time.After(10 * time.Second):
+			case <-time.After(StatusMergeInterval):
+				wc.mux.Lock()
+				defer wc.mux.Unlock()
+
 				if len(wc.StatusQueue) == 0 {
 					continue
 				}
 
-				wc.mux.Lock()
 				whReq := webhookReqPool.Get().(*model.WebhookRequest)
 				whReq.Reset()
 				whReq.Statuses = wc.StatusQueue
 				wc.StatusQueue = []*model.Status{}
 				wc.Queue <- whReq
-				wc.mux.Unlock()
 			}
 		}
 	}()

@@ -1,0 +1,86 @@
+# github.com/andybalholm/brotli v1.0.0
+github.com/andybalholm/brotli
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+## explicit
+github.com/dgrijalva/jwt-go
+# github.com/fasthttp/router v1.3.5
+## explicit
+github.com/fasthttp/router
+github.com/fasthttp/router/radix
+# github.com/gogo/protobuf v1.3.2
+## explicit
+github.com/gogo/protobuf/jsonpb
+github.com/gogo/protobuf/proto
+github.com/gogo/protobuf/sortkeys
+github.com/gogo/protobuf/types
+# github.com/golang/protobuf v1.4.2
+## explicit
+github.com/golang/protobuf/jsonpb
+github.com/golang/protobuf/proto
+# github.com/google/go-cmp v0.5.2
+## explicit
+# github.com/google/uuid v1.1.5
+## explicit
+github.com/google/uuid
+# github.com/klauspost/compress v1.10.7
+github.com/klauspost/compress/flate
+github.com/klauspost/compress/gzip
+github.com/klauspost/compress/zlib
+# github.com/savsgio/gotils v0.0.0-20210105085219-0567298fdcac
+github.com/savsgio/gotils/bytes
+github.com/savsgio/gotils/strconv
+github.com/savsgio/gotils/strings
+# github.com/sirupsen/logrus v1.8.1
+## explicit
+github.com/sirupsen/logrus
+# github.com/valyala/bytebufferpool v1.0.0
+github.com/valyala/bytebufferpool
+# github.com/valyala/fasthttp v1.19.0
+## explicit
+github.com/valyala/fasthttp
+github.com/valyala/fasthttp/fasthttputil
+github.com/valyala/fasthttp/reuseport
+github.com/valyala/fasthttp/stackless
+# github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a
+github.com/valyala/tcplisten
+# golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+## explicit
+golang.org/x/crypto/pkcs12
+golang.org/x/crypto/pkcs12/internal/rc2
+# golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+# golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
+## explicit
+golang.org/x/time/rate
+# google.golang.org/protobuf v1.25.0
+## explicit
+google.golang.org/protobuf/encoding/protojson
+google.golang.org/protobuf/encoding/prototext
+google.golang.org/protobuf/encoding/protowire
+google.golang.org/protobuf/internal/descfmt
+google.golang.org/protobuf/internal/descopts
+google.golang.org/protobuf/internal/detrand
+google.golang.org/protobuf/internal/encoding/defval
+google.golang.org/protobuf/internal/encoding/json
+google.golang.org/protobuf/internal/encoding/messageset
+google.golang.org/protobuf/internal/encoding/tag
+google.golang.org/protobuf/internal/encoding/text
+google.golang.org/protobuf/internal/errors
+google.golang.org/protobuf/internal/fieldsort
+google.golang.org/protobuf/internal/filedesc
+google.golang.org/protobuf/internal/filetype
+google.golang.org/protobuf/internal/flags
+google.golang.org/protobuf/internal/genid
+google.golang.org/protobuf/internal/impl
+google.golang.org/protobuf/internal/mapsort
+google.golang.org/protobuf/internal/pragma
+google.golang.org/protobuf/internal/set
+google.golang.org/protobuf/internal/strs
+google.golang.org/protobuf/internal/version
+google.golang.org/protobuf/proto
+google.golang.org/protobuf/reflect/protoreflect
+google.golang.org/protobuf/reflect/protoregistry
+google.golang.org/protobuf/runtime/protoiface
+google.golang.org/protobuf/runtime/protoimpl
