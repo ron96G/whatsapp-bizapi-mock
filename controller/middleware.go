@@ -17,11 +17,13 @@ var (
 func Authorize(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		token, err := parseToken(ctx)
-		if err == nil && token.Valid && contains(Tokens, token.Raw) {
+		if err != nil {
+			util.Log.Warn(err)
+
+		} else if token.Valid && contains(Tokens, token.Raw) {
 			h(ctx)
 			return
 		}
-		util.Log.Warn(err)
 		ctx.SetStatusCode(401)
 	})
 }
@@ -37,8 +39,10 @@ func AuthorizeWithRoles(h fasthttp.RequestHandler, roles []string) fasthttp.Requ
 				}
 			}
 			err = fmt.Errorf("invalid role or token")
+
 		}
 		util.Log.Warn(err)
+
 		ctx.SetStatusCode(401)
 	})
 }
@@ -56,20 +60,20 @@ func AuthorizeStaticToken(h fasthttp.RequestHandler, staticToken string) fasthtt
 
 func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		start := time.Now()
-		defer func() {
-			util.Log.Infof("%s - %s - %s \"%s %s %s\" %d %v",
-				string(ctx.Response.Header.Peek(requestIDHeader)),
-				ctx.RemoteAddr().String(),
-				string(ctx.Host()),
-				string(ctx.Method()),
-				string(ctx.RequestURI()),
-				string(ctx.Request.Header.UserAgent()),
-				ctx.Response.StatusCode(),
-				time.Since(start),
-			)
-		}()
+		start := ctx.Time()
 		h(ctx)
+
+		util.Log.Infof("%s - %s - %s \"%s %s %s\" %d %v",
+			string(ctx.Response.Header.Peek(requestIDHeader)),
+			ctx.RemoteAddr().String(),
+			string(ctx.Host()),
+			string(ctx.Method()),
+			string(ctx.RequestURI()),
+			string(ctx.Request.Header.UserAgent()),
+			ctx.Response.StatusCode(),
+			time.Since(start),
+		)
+
 	})
 }
 

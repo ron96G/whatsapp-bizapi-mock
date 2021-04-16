@@ -38,7 +38,7 @@ func SetProfilePhoto(ctx *fasthttp.RequestCtx) {
 }
 
 func GetProfilePhoto(ctx *fasthttp.RequestCtx) {
-	respondWithFile(ctx, 200, Config.ProfilePhotoFilename)
+	respondWithFile(ctx, 200, Config.ProfilePhotoFilename, isEncodingAllowed(ctx, "gzip"))
 }
 
 func SetBusinessProfile(ctx *fasthttp.RequestCtx) {

@@ -5,7 +5,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/rgumi/whatsapp-mock/monitoring"
 	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
 )
@@ -62,6 +64,7 @@ func (wc *WebhookConfig) AddStati(stati ...*model.Status) {
 	wc.mux.Lock()
 	wc.StatusQueue = append(wc.StatusQueue, stati...)
 	wc.mux.Unlock()
+	monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "status"}).Add(float64(len(stati)))
 }
 
 // collect all stati of outbound messages and send them to webhook
@@ -111,6 +114,10 @@ func (wc *WebhookConfig) GenerateWebhookRequests(numberOfEntries int, types ...s
 	whReq.Statuses = wc.StatusQueue
 	wc.StatusQueue = []*model.Status{}
 	wc.Queue <- whReq
+
+	fCount := float64(numberOfEntries)
+	monitoring.TotalGeneratedMessages.With(nil).Add(fCount)
+	monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "message"}).Add(fCount)
 	return messages
 }
 
@@ -126,6 +133,9 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				return
 
 			case whReq := <-wc.Queue:
+				msgCount := len(whReq.Messages)
+				staCount := len(whReq.Statuses)
+
 				time.Sleep(wc.WaitInterval)
 				req := fasthttp.AcquireRequest()
 				marsheler.Marshal(req.BodyWriter(), whReq)
@@ -149,7 +159,11 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 					wc.Queue <- whReq
 					continue
 				}
-				wc.WaitInterval = 0
+
+				monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "message"}).Sub(float64(msgCount))
+				monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "status"}).Sub(float64(staCount))
+
+				wc.WaitInterval = 2
 				webhookReqPool.Put(whReq)
 				util.Log.Infof("Webook-request to %s successfully returned status 2xx\n", wc.URL)
 

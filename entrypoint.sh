@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 if [[ -z "$(ls -A ~/data)" ]];
 then
@@ -19,13 +20,10 @@ trap_handler() {
     exit 143; # 128 + 15 -- SIGTERM
 }
 
-trap 'kill ${!}; trap_handler' SIGINT SIGTERM
+trap 'trap_handler' SIGINT SIGTERM
 
 ./app "$@" &
 pid="$!"
 
 echo "App running with pid ${pid}"
-while true
-do
-  tail -f /dev/null & wait ${!}
-done
+wait ${pid}

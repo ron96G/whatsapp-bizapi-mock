@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -17,6 +19,14 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/valyala/fasthttp"
+)
+
+var (
+	gzipPool = sync.Pool{
+		New: func() interface{} {
+			return gzip.NewWriter(nil)
+		},
+	}
 )
 
 type CustomClaims struct {
@@ -241,7 +251,7 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 	return true
 }
 
-func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string) (ok bool) {
+func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string, compress bool) (ok bool) {
 	f, err := os.OpenFile(Config.UploadDir+filename, os.O_RDONLY, 0777)
 	if err != nil && os.IsNotExist(err) {
 		ctx.SetStatusCode(404)
@@ -254,17 +264,34 @@ func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string) 
 			Title:   "Server Error",
 			Href:    "",
 		})
+
 		return false
 	}
 
 	defer f.Close()
+
 	contentType, err := getFileContentType(f)
 	if err == nil {
 		_, err := f.Seek(0, io.SeekStart)
 		if err == nil {
+			fmt.Println("A")
 			ctx.SetContentType(contentType)
 			ctx.SetStatusCode(statusCode)
-			io.Copy(ctx, f)
+
+			w := ctx.Response.BodyWriter()
+
+			if compress {
+				gz := gzipPool.Get().(*gzip.Writer)
+
+				defer gzipPool.Put(gz)
+				gz.Reset(w)
+				io.Copy(gz, f)
+				gz.Close()
+				ctx.Response.Header.Add("Content-Encoding", "gzip")
+
+			} else {
+				io.Copy(w, f)
+			}
 			return true
 		}
 	}
@@ -286,4 +313,8 @@ func SaveToJSONFile(in proto.Message, filepath string) error {
 	}
 	defer file.Close()
 	return marsheler.Marshal(file, in)
+}
+
+func isEncodingAllowed(ctx *fasthttp.RequestCtx, encoding string) bool {
+	return ctx.Request.Header.HasAcceptEncoding(encoding)
 }

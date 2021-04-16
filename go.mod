@@ -6,9 +6,10 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fasthttp/router v1.3.5
 	github.com/gogo/protobuf v1.3.2
-	github.com/golang/protobuf v1.4.2
-	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.5
+	github.com/prometheus/client_golang v1.10.0
+	github.com/prometheus/common v0.18.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/valyala/fasthttp v1.19.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9

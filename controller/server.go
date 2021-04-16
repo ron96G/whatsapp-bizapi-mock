@@ -7,6 +7,7 @@ import (
 	"github.com/fasthttp/router"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/rgumi/whatsapp-mock/monitoring"
 	"github.com/valyala/fasthttp"
 )
 
@@ -43,56 +44,60 @@ func ReleaseResponse(s *model.APIResponse) {
 
 func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	r := router.New()
+	r.RedirectFixedPath = false
+	r.RedirectTrailingSlash = false
+	subR := r.Group(apiPrefix)
 
 	// general resources
-	r.POST(apiPrefix+"/generate", Limiter(Log(GenerateWebhookRequests), 2))
-	r.POST(apiPrefix+"/generate/cancel", Log(CancelGenerateWebhookRquests))
-	r.POST(apiPrefix+"/messages", Limiter(SetConnID(Log(Authorize(SendMessages))), 20))
-	r.POST(apiPrefix+"/contacts", Limiter(SetConnID(Log(Authorize(Contacts))), 20))
+	subR.POST("/generate", Limiter(GenerateWebhookRequests, 2))
+	subR.POST("/generate/cancel", CancelGenerateWebhookRquests)
+	subR.POST("/messages", monitoring.All(Limiter(SetConnID(Authorize(SendMessages)), 20)))
+	subR.POST("/contacts", monitoring.All(Limiter(SetConnID(Authorize(Contacts)), 20)))
 
-	r.GET(apiPrefix+"/health", Limiter(AuthorizeStaticToken(HealthCheck, staticApiToken), 5))
+	subR.GET("/health", Limiter(AuthorizeStaticToken(HealthCheck, staticApiToken), 5))
 
 	// User resources
-	r.POST(apiPrefix+"/users/login", Log(Login))
-	r.POST(apiPrefix+"/users/logout", Log(Authorize(Logout)))
-	r.POST(apiPrefix+"/users", Log(AuthorizeWithRoles(CreateUser, []string{"ADMIN"})))
-	r.DELETE(apiPrefix+"/users/{name}", Log(AuthorizeWithRoles(DeleteUser, []string{"ADMIN"})))
+	subR.POST("/users/login", monitoring.All(Login))
+	subR.POST("/users/logout", monitoring.All(Authorize(Logout)))
+	subR.POST("/users", monitoring.All(AuthorizeWithRoles(CreateUser, []string{"ADMIN"})))
+	subR.DELETE("/users/{name}", monitoring.All(AuthorizeWithRoles(DeleteUser, []string{"ADMIN"})))
 
 	// Media resources
-	r.POST(apiPrefix+"/media", Log(Authorize(SaveMedia)))
-	r.GET(apiPrefix+"/media/{id}", Log(Authorize(RetrieveMedia)))
-	r.DELETE(apiPrefix+"/media/{id}", Log(Authorize(DeleteMedia)))
+	subR.POST("/media", monitoring.All(Authorize(SaveMedia)))
+	subR.GET("/media/{id}", monitoring.All(Authorize(RetrieveMedia)))
+	subR.DELETE("/media/{id}", monitoring.All(Authorize(DeleteMedia)))
 
 	// settings resources
-	r.PATCH(apiPrefix+"/settings/application", Log(Authorize(SetApplicationSettings)))
-	r.GET(apiPrefix+"/settings/application", Log(Authorize(GetApplicationSettings)))
-	r.DELETE(apiPrefix+"/settings/application", Log(Authorize(ResetApplicationSettings)))
-	r.POST(apiPrefix+"/certificates/webhooks/ca", Log(Authorize(UploadWebhookCA)))
+	subR.PATCH("/settings/application", monitoring.All(Authorize(SetApplicationSettings)))
+	subR.GET("/settings/application", monitoring.All(Authorize(GetApplicationSettings)))
+	subR.DELETE("/settings/application", monitoring.All(Authorize(ResetApplicationSettings)))
+	subR.POST("/certificates/webhooks/ca", monitoring.All(Authorize(UploadWebhookCA)))
 
 	// registration resources
-	r.POST(apiPrefix+"/account/verify", Log(Authorize(VerifyAccount)))
-	r.POST(apiPrefix+"/account", Log(Authorize(RegisterAccount)))
+	subR.POST("/account/verify", monitoring.All(Authorize(VerifyAccount)))
+	subR.POST("/account", monitoring.All(Authorize(RegisterAccount)))
 
 	// profile resources
-	r.PATCH(apiPrefix+"/settings/profile/about", Log(Authorize(SetProfileAbout)))
-	r.GET(apiPrefix+"/settings/profile/about", Log(Authorize(GetProfileAbout)))
-	r.POST(apiPrefix+"/settings/profile/photo", Log(Authorize(SetProfilePhoto)))
-	r.GET(apiPrefix+"/settings/profile/photo", Log(Authorize(GetProfilePhoto)))
-	r.POST(apiPrefix+"/settings/business/profile", Log(Authorize(SetBusinessProfile)))
-	r.GET(apiPrefix+"/settings/business/profile", Log(Authorize(GetBusinessProfile)))
+	subR.PATCH("/settings/profile/about", monitoring.All(Authorize(SetProfileAbout)))
+	subR.GET("/settings/profile/about", monitoring.All(Authorize(GetProfileAbout)))
+	subR.POST("/settings/profile/photo", monitoring.All(Authorize(SetProfilePhoto)))
+	subR.GET("/settings/profile/photo", monitoring.All(Authorize(GetProfilePhoto)))
+	subR.POST("/settings/business/profile", monitoring.All(Authorize(SetBusinessProfile)))
+	subR.GET("/settings/business/profile", monitoring.All(Authorize(GetBusinessProfile)))
 
 	// stickerpacks resources
-	r.ANY(apiPrefix+"/stickerpacks/{path:*}", Log(NotImplementedHandler))
+	subR.ANY("/stickerpacks/{path:*}", monitoring.All(NotImplementedHandler))
 
 	// groups resources
-	r.ANY(apiPrefix+"/groups/{path:*}", Log(NotImplementedHandler))
+	subR.ANY("/groups/{path:*}", monitoring.All(NotImplementedHandler))
 
 	// stats resources
-	r.ANY(apiPrefix+"/stats/{path:*}", Log(NotImplementedHandler))
+	subR.ANY("/stats/{path:*}", monitoring.All(NotImplementedHandler))
 
+	r.GET("/metrics", monitoring.PrometheusHandler)
 	r.PanicHandler = PanicHandler
 	server := &fasthttp.Server{
-		Handler:                       r.Handler,
+		Handler:                       Log(r.Handler),
 		Name:                          "WhatsAppMockserver",
 		Concurrency:                   256 * 1024,
 		DisableKeepalive:              false,
