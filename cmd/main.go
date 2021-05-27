@@ -12,20 +12,24 @@ import (
 	"github.com/valyala/fasthttp/reuseport"
 
 	"github.com/rgumi/whatsapp-mock/controller"
+	"github.com/rgumi/whatsapp-mock/docs"
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/rgumi/whatsapp-mock/util"
 )
 
 var (
-	apiPrefix         = flag.String("apiprefix", "/v1", "the prefix for the API")
-	configFile        = flag.String("configfile", "./data/config.json", "the application config")
-	addr              = flag.String("addr", "0.0.0.0:9090", "port the webserver listens on")
-	signingKey        = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
-	webhookURL        = flag.String("webhook", "", "URL of the webhook")
-	enableTLS         = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
-	insecureTLSClient = flag.Bool("insecure", false, "validate certificate of webhook connection")
-	soReuseport       = flag.Bool("reuseport", false, "(experimental) uses SO_REUSEPORT option to start TCP listener") // see https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/
-	staticAPIToken    = os.Getenv("WA_API_KEY")
+	apiPrefix              = flag.String("apiprefix", "/v1", "the prefix for the API")
+	configFile             = flag.String("configfile", "./data/config.json", "the application config")
+	addr                   = flag.String("addr", "0.0.0.0:9090", "port the webserver listens on")
+	signingKey             = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
+	webhookURL             = flag.String("webhook", "", "URL of the webhook")
+	enableTLS              = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
+	insecureSkipVerify     = flag.Bool("insecure-skip-verify", false, "skip the validation of the certificate of webhook")
+	soReuseport            = flag.Bool("reuseport", false, "(experimental) uses SO_REUSEPORT option to start TCP listener") // see https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/
+	compressWebhookContent = flag.Bool("compress-webhook", false, "compress the content of the webhook requests using gzip")
+	compressMinsize        = flag.Int("compress-minsize", 2048, "the minimum uncompressed sized that is required to use gzip compression")
+
+	staticAPIToken = os.Getenv("WA_API_KEY")
 
 	signalLog = "Received %s. Shutting down"
 )
@@ -48,18 +52,16 @@ func main() {
 	util.SetupLog(4)
 
 	setupConfig(*configFile)
+	util.NewClient(controller.Config.WebhookCA)
 
 	if *webhookURL != "" {
 		controller.Config.ApplicationSettings.Webhooks.Url = *webhookURL
 	}
 
-	util.NewClient(controller.Config.WebhookCA)
-
-	if !*insecureTLSClient {
-		util.DefaultClient.TLSConfig.InsecureSkipVerify = false
-	}
-
+	util.DefaultClient.TLSConfig.InsecureSkipVerify = *insecureSkipVerify
 	controller.SigningKey = signingKey
+	controller.Compress = *compressWebhookContent
+	controller.CompressMinsize = *compressMinsize
 
 	contacts := make([]*model.Contact, len(controller.Config.Contacts))
 	for i, c := range controller.Config.Contacts {
@@ -72,6 +74,16 @@ func main() {
 	}
 
 	util.Log.Infof("Current config: \n %v", controller.Config.String())
+
+	// setup  swagger
+
+	if *enableTLS {
+		docs.SwaggerInfo.Schemes = []string{"https"}
+	} else {
+		docs.SwaggerInfo.Schemes = []string{"http"}
+	}
+	docs.SwaggerInfo.BasePath = *apiPrefix
+	docs.SwaggerInfo.Title = "WhatsAppMockServer"
 
 	util.Log.Infof("Creating new webserver with prefix %v\n", *apiPrefix)
 	server := controller.NewServer(*apiPrefix, staticAPIToken)

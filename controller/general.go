@@ -18,19 +18,13 @@ func SendMessages(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// validate
-	if v := msg.Validate(); !v.IsValid() {
-		returnError(ctx, 400, v...)
-		return
-	}
-
 	// return
 	id := uuid.New().String()
 	util.Log.Infof("Generated message id " + id)
 	msg.Id = id
-	resp := AcquireResponse()
+	resp := AcquireIdResponse()
 	resp.Reset()
-	defer ReleaseResponse(resp)
+	defer ReleaseIdResponse(resp)
 	resp.Messages = append(resp.Messages, &model.Id{Id: id})
 	returnJSON(ctx, 200, resp)
 
@@ -79,9 +73,9 @@ func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
 	} else {
 		messages := Webhook.GenerateWebhookRequests(n, allowedTypes...)
 
-		resp := AcquireResponse()
+		resp := AcquireIdResponse()
 		resp.Reset()
-		defer ReleaseResponse(resp)
+		defer ReleaseIdResponse(resp)
 
 		resp.Messages = make([]*model.Id, len(messages))
 		for i, msg := range messages {

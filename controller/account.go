@@ -29,8 +29,13 @@ func RegisterAccount(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if v := req.Validate(); !v.IsValid() {
-		returnError(ctx, 400, v...)
+	// validate
+	if err := req.Validate(); err != nil {
+		returnError(ctx, 400, model.Error{
+			Code:    400,
+			Title:   "Validation for input failed",
+			Details: err.Error(),
+		})
 		return
 	}
 
@@ -40,12 +45,10 @@ func RegisterAccount(ctx *fasthttp.RequestCtx) {
 		util.Log.Warnf("GENERATED VERIFY CODE %s", expectedVerifyCode)
 	}
 
-	resp := AcquireResponse()
-	defer ReleaseResponse(resp)
-	resp.Meta = &model.Meta{
-		ApiStatus: model.Meta_stable,
-		Version:   ApiVersion,
+	resp := &model.MetaResponse{
+		Meta: AcquireMeta(),
 	}
+	defer ReleaseMeta(resp.Meta)
 	ctx.Response.Header.Set("verify-code", expectedVerifyCode)
 	returnJSON(ctx, 202, resp)
 }

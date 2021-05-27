@@ -15,12 +15,12 @@ var (
 	strCRLF             = []byte("\r\n")
 	strHTTP             = []byte("http")
 	strHTTPS            = []byte("https")
+	strHTTP10           = []byte("HTTP/1.0")
 	strHTTP11           = []byte("HTTP/1.1")
 	strColon            = []byte(":")
 	strColonSlashSlash  = []byte("://")
 	strColonSpace       = []byte(": ")
 	strGMT              = []byte("GMT")
-	strAt               = []byte("@")
 
 	strResponseContinue = []byte("HTTP/1.1 100 Continue\r\n\r\n")
 

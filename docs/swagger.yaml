@@ -1,0 +1,243 @@
+basePath: /v1
+definitions:
+  model.Error:
+    properties:
+      code:
+        type: integer
+      details:
+        type: string
+      href:
+        type: string
+      title:
+        type: string
+    type: object
+  model.ErrorResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/model.Error'
+        type: array
+      meta:
+        $ref: '#/definitions/model.Meta'
+    type: object
+  model.Id:
+    properties:
+      id:
+        type: string
+    type: object
+  model.IdResponse:
+    properties:
+      media:
+        items:
+          $ref: '#/definitions/model.Id'
+        type: array
+      messages:
+        items:
+          $ref: '#/definitions/model.Id'
+        type: array
+    type: object
+  model.LoginResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/model.Meta'
+      users:
+        items:
+          $ref: '#/definitions/model.TokenResponse'
+        type: array
+    type: object
+  model.Meta:
+    properties:
+      api_status:
+        type: integer
+      version:
+        type: string
+    type: object
+  model.TokenResponse:
+    properties:
+      expires_after:
+        type: string
+      token:
+        type: string
+    type: object
+  model.User:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:9090
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: The WhatsAppMockServer offers a mock API for the WhatsApp-Business-API
+  title: WhatsAppMockServer API
+  version: "0.1"
+paths:
+  /media:
+    post:
+      description: Upload a media file to the application
+      parameters:
+      - description: the media file
+        in: body
+        name: file
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.IdResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload a media file
+      tags:
+      - media
+  /media/{fileid}:
+    delete:
+      description: Delete the file matching the defined parameter
+      parameters:
+      - description: ID of the file to be deleted
+        in: path
+        name: fileid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a media file
+      tags:
+      - media
+    get:
+      description: Download the media file matching the defined id
+      parameters:
+      - description: ID of the file to be downloaded
+        in: path
+        name: fileid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Download a media file
+      tags:
+      - media
+  /users:
+    post:
+      description: An admin may use this endpoint to create a new user
+      parameters:
+      - description: username and password of the user
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: create a new user in the application
+      tags:
+      - users
+  /users/{username}:
+    delete:
+      description: An admin may use this endpoint to delete an existing user
+      parameters:
+      - description: Name of the user that should be deleted
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: delete an existing user in the application
+      tags:
+      - users
+  /users/login:
+    post:
+      description: Login into the application using basic auth
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - BasicAuth: []
+      summary: Login into the application
+      tags:
+      - users
+  /users/logout:
+    post:
+      description: Logout by supplying a bearer token of the user that should be logged
+        out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Log the user out
+      tags:
+      - users
+schemes:
+- https
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

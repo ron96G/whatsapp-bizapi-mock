@@ -19,9 +19,6 @@ var (
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: true, // per default certificates are not validated
 		},
-		//		Dial: func(addr string) (net.Conn, error) {
-		//			return tls.Dial("tcp", addr, nil)
-		//		},
 		MaxConnsPerHost:           8,
 		MaxIdleConnDuration:       30 * time.Second,
 		MaxConnDuration:           0, // unlimited

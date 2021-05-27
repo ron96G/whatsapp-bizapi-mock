@@ -1,14 +1,15 @@
 package controller
 
 import (
-	"sync"
 	"time"
 
 	"github.com/fasthttp/router"
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/rgumi/whatsapp-mock/monitoring"
 	"github.com/valyala/fasthttp"
+
+	swagger "github.com/rgumi/go-fasthttp-swagger"
+	_ "github.com/rgumi/whatsapp-mock/docs"
 )
 
 var (
@@ -20,11 +21,6 @@ var (
 		OrigName:     true,
 		Indent:       "  ",
 	}
-	responsePool = sync.Pool{
-		New: func() interface{} {
-			return new(model.APIResponse)
-		},
-	}
 
 	SigningKey []byte
 	Tokens     = []string{} // all tokens that have been signed and can be used to login
@@ -32,16 +28,27 @@ var (
 	Webhook *WebhookConfig
 
 	cancel = make(chan int, 1)
+
+	RequestLimit = 20
 )
 
-func AcquireResponse() *model.APIResponse {
-	return responsePool.Get().(*model.APIResponse)
-}
+// @title WhatsAppMockServer API
+// @version 0.1
+// @description The WhatsAppMockServer offers a mock API for the WhatsApp-Business-API
 
-func ReleaseResponse(s *model.APIResponse) {
-	responsePool.Put(s)
-}
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
 
+// @host localhost:9090
+// @schemes https
+// @securityDefinitions.basic BasicAuth
+// @in header
+// @name Authorization
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @BasePath /v1
 func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	r := router.New()
 	r.RedirectFixedPath = false
@@ -51,8 +58,8 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	// general resources
 	subR.POST("/generate", Limiter(GenerateWebhookRequests, 2))
 	subR.POST("/generate/cancel", CancelGenerateWebhookRquests)
-	subR.POST("/messages", monitoring.All(Limiter(SetConnID(Authorize(SendMessages)), 20)))
-	subR.POST("/contacts", monitoring.All(Limiter(SetConnID(Authorize(Contacts)), 20)))
+	subR.POST("/messages", monitoring.All(Limiter(SetConnID(Authorize(SendMessages)), RequestLimit)))
+	subR.POST("/contacts", monitoring.All(Limiter(SetConnID(Authorize(Contacts)), RequestLimit)))
 
 	subR.GET("/health", Limiter(AuthorizeStaticToken(HealthCheck, staticApiToken), 5))
 
@@ -72,6 +79,8 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	subR.GET("/settings/application", monitoring.All(Authorize(GetApplicationSettings)))
 	subR.DELETE("/settings/application", monitoring.All(Authorize(ResetApplicationSettings)))
 	subR.POST("/certificates/webhooks/ca", monitoring.All(Authorize(UploadWebhookCA)))
+	subR.POST("/settings/backup", monitoring.All(Authorize(BackupSettings)))
+	subR.POST("/settings/restore", monitoring.All(Authorize(RestoreSettings)))
 
 	// registration resources
 	subR.POST("/account/verify", monitoring.All(Authorize(VerifyAccount)))
@@ -94,6 +103,7 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	// stats resources
 	subR.ANY("/stats/{path:*}", monitoring.All(NotImplementedHandler))
 
+	r.GET("/swagger/{path:*}", swagger.SwaggerHandler())
 	r.GET("/metrics", monitoring.PrometheusHandler)
 	r.PanicHandler = PanicHandler
 	server := &fasthttp.Server{
