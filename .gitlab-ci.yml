@@ -12,10 +12,11 @@ cache:
     - "model"
 
 .pre_build_protoc: &pre_build_protoc
-  image: jaegertracing/protobuf
+  image: golang:latest
   tags:
     - run_docker
   script:
+    - apt-get install --no-install-recommends --assume-yes protobuf-compiler
     - go install google.golang.org/protobuf/cmd/protoc-gen-go
     - go get github.com/envoyproxy/protoc-gen-validate
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
