@@ -3,7 +3,39 @@ variables:
   IMAGE_NAME: "wabizapi-mock"
 
 stages:
+  - pre_build
+  - scan
   - build
+
+cache:
+  paths:
+    - "model"
+
+
+.pre_build_scan: &pre_build_scan
+  image: golang:latest
+  tags:
+    - run_docker
+  script:
+    - go get -u github.com/securego/gosec/v2/cmd/gosec
+    - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
+    - gosec -exclude G104,G404,G307,G402 ./...
+
+.pre_build_protoc: &pre_build_protoc
+  image: golang:latest
+  tags:
+    - run_docker
+  script:
+    - go install google.golang.org/protobuf/cmd/protoc-gen-go
+    - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
+    - 'protoc 
+        -I . 
+        -I ${GOPATH}/src 
+        -I ${GOPATH}/src/github.com/envoyproxy/protoc-gen-validate 
+        --proto_path="./protobuf" 
+        --go_out=":./" 
+        --validate_out="lang=go:." 
+        meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
 
 .build_template: &build_image
   script:
@@ -12,6 +44,15 @@ stages:
 
     - 'echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL'
     - 'docker push $MTR_URL/$IMAGE_NAME:$TAG'
+
+
+build protoc:
+  stage: pre_build
+  <<: *pre_build_protoc
+
+scan:
+  stage: scan
+  <<: *pre_build_scan
 
 
 build latest:

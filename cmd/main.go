@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -35,7 +36,8 @@ var (
 )
 
 func setupConfig(path string) {
-	f, err := os.Open(path)
+	filePath := filepath.Clean(path)
+	f, err := os.Open(filePath)
 	if err != nil {
 		util.Log.Fatal(err)
 	}

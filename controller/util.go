@@ -9,6 +9,7 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -239,7 +240,8 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 		})
 		return false
 	}
-	f, err := os.OpenFile(Config.UploadDir+filename, os.O_WRONLY|os.O_CREATE, 0755)
+	filePath := filepath.Join(filepath.Clean(Config.UploadDir), filepath.Clean(filename))
+	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		returnError(ctx, 500, model.Error{
 			Code:    500,
@@ -282,7 +284,8 @@ func getFileContentType(r io.ReadSeeker) (string, error) {
 }
 
 func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string) (ok bool) {
-	f, err := os.OpenFile(Config.UploadDir+filename, os.O_RDONLY, 0777)
+	filePath := filepath.Join(filepath.Clean(Config.UploadDir), filepath.Clean(filename))
+	f, err := os.OpenFile(filePath, os.O_RDONLY, 0600)
 	if err != nil && os.IsNotExist(err) {
 		ctx.SetStatusCode(404)
 		return false
@@ -324,8 +327,9 @@ func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string) 
 	return false
 }
 
-func SaveToJSONFile(in proto.Message, filepath string) error {
-	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE, 0755)
+func SaveToJSONFile(in proto.Message, path string) error {
+	filePath := filepath.Clean(path)
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}

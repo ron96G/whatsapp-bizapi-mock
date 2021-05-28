@@ -18,6 +18,7 @@ var (
 		WriteTimeout:                  5 * time.Second,
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: true, // per default certificates are not validated
+			MinVersion:         tls.VersionTLS13,
 		},
 		MaxConnsPerHost:           8,
 		MaxIdleConnDuration:       30 * time.Second,
@@ -38,6 +39,7 @@ func NewClient(rootCa []byte) error {
 		DefaultClient.TLSConfig = &tls.Config{
 			RootCAs:            caCertPool,
 			InsecureSkipVerify: false,
+			MinVersion:         tls.VersionTLS13,
 		}
 	}
 
