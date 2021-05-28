@@ -1,19 +1,34 @@
 variables:
-  VERSION: "latest"
+  VERSION: "2.35.2"
+  IMAGE_NAME: "wabizapi-mock"
 
 stages:
   - build
 
-build image wabiz mock:
+.build_template: &build_image
+  script:
+    - 'docker build --build-arg VERSION=$VERSION
+                    -t $MTR_URL/$IMAGE_NAME:$TAG -f $DOCKERFILE .'
+
+    - 'echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL'
+    - 'docker push $MTR_URL/$IMAGE_NAME:$TAG'
+
+
+build latest:
   stage: build
   tags:
     - run_shell
   variables:
-    IMAGE_NAME: "wabizapi-mock"
-    TAG: "$VERSION"
-  script:
-    - docker build
-        --tag $MTR_URL/$IMAGE_NAME:$TAG
-        --build-arg K6_VERSION=$K6_VERSION
-        --file Dockerfile .
-    - docker push $MTR_URL/$IMAGE_NAME:$TAG
+    TAG: latest
+  only:
+    refs:
+      - tags
+  <<: *build_image
+
+build versioned:
+  stage: build
+  tags:
+    - run_shell
+  variables:
+    TAG: v$VERSION
+  <<: *build_image
