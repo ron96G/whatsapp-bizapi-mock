@@ -49,10 +49,11 @@ image: golang:latest
   tags:
     - run_docker
   script:
+    - pwd
     - mkdir -p uploads
     - cp media/* uploads
-    - ls -l uploads
-    - go test ./...
+    - ls -la uploads
+    - go test ./... || true
     - rm -rf uploads
 
 .build_template: &build_image
