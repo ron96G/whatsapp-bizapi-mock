@@ -12,9 +12,6 @@ cache:
   paths:
     - "model"
 
-before_script:
-  - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
-
 .pre_build_protoc: &pre_build_protoc
   image: golang:latest
   tags:
@@ -55,6 +52,8 @@ before_script:
     - go test ./...
 
 .build_template: &build_image
+  before_script:
+    - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
   script:
     - 'docker build --build-arg VERSION=$VERSION
                     -t $MTR_URL/$IMAGE_NAME:$TAG .'
@@ -69,6 +68,8 @@ include: 'https://codeshare.workbench.telekom.de/gitlab/teamdevsecops/container-
 
 .scan_image: &scan_image
   stage: post_build
+  before_script:
+    - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
   artifacts:
     paths:
       - anchore-reports/*.json
