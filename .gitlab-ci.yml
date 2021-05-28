@@ -9,11 +9,13 @@ stages:
   - post_build
 
 cache:
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - "model"
 
+image: golang:latest
+
 .pre_build_protoc: &pre_build_protoc
-  image: golang:latest
   tags:
     - run_docker
   script:
@@ -36,7 +38,6 @@ cache:
     -  chmod 777 -R model
 
 .pre_build_scan: &pre_build_scan
-  image: golang:latest
   tags:
     - run_docker
   script:
@@ -45,7 +46,6 @@ cache:
     - gosec -exclude G104,G404,G307,G402 -severity high ./...
 
 .pre_build_test: &pre_build_test
-  image: golang:latest
   tags:
     - run_docker
   script:
@@ -53,6 +53,8 @@ cache:
     - go test ./...
 
 .build_template: &build_image
+  tags:
+    - run_shell
   before_script:
     - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
   script:
@@ -95,8 +97,6 @@ scan:
 
 build latest:
   stage: build
-  tags:
-    - run_shell
   variables:
     TAG: latest
   only:
@@ -107,8 +107,6 @@ build latest:
 
 build versioned:
   stage: build
-  tags:
-    - run_shell
   variables:
     TAG: v$VERSION
   <<: *build_image
