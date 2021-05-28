@@ -16,6 +16,7 @@ cache:
   tags:
     - run_docker
   script:
+    - export GO111MODULE=off
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
 
     - apt-get update && apt-get install -y protobuf-compiler
@@ -24,8 +25,6 @@ cache:
     - echo ${GOPATH}
     - ls ${GOPATH}/bin
     - ls ${GOPATH}/src
-    - ls ${GOPATH}/pkg
-    - ls -l
 
     - 'protoc 
         -I . 
