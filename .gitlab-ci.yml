@@ -70,7 +70,7 @@ image: golang:latest
 # Telekom DevSecOps: Container Scanner
 include: 'https://codeshare.workbench.telekom.de/gitlab/teamdevsecops/container-scanning-service/raw/master/container-scan.yml'
 
-.container_scan: &container_scan
+.scan_container: &scan_container
   stage: container_scan_stage
   tags:
     - run_docker
@@ -122,4 +122,4 @@ container scan versioned:
   stage: build
   variables:
     TAG: v$VERSION
-  <<: *container_scan
+  <<: *scan_container
