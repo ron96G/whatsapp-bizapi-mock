@@ -16,11 +16,11 @@ cache:
   tags:
     - run_docker
   script:
-    - export GO111MODULE=off
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
 
     - apt-get update && apt-get install -y protobuf-compiler
     - go install google.golang.org/protobuf/cmd/protoc-gen-go
+    - export GO111MODULE=off
     - go get -d github.com/envoyproxy/protoc-gen-validate
     - echo ${GOPATH}
     - ls ${GOPATH}/bin
