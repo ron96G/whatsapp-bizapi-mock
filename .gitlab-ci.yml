@@ -50,7 +50,9 @@ image: golang:latest
     - run_docker
   script:
     - mkdir -p uploads
+    - cp media/* uploads
     - go test ./...
+    - rm -rf uploads
 
 .build_template: &build_image
   tags:
