@@ -116,10 +116,3 @@ build versioned:
   tags:
     - run_shell
   <<: *build_image
-
-  
-container scan versioned:
-  stage: build
-  variables:
-    TAG: v$VERSION
-  <<: *scan_container
