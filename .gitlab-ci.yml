@@ -18,7 +18,7 @@ cache:
   script:
     - apt-get update && apt-get install -y protobuf-compiler
     - go install google.golang.org/protobuf/cmd/protoc-gen-go
-    - go get github.com/envoyproxy/protoc-gen-validate
+    - go install github.com/envoyproxy/protoc-gen-validate
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
     - ls ${GOPATH}/bin
     - 'protoc 
