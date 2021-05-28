@@ -13,7 +13,7 @@ cache:
   paths:
     - "model"
 
-image: rgummich/protoc-builder
+image: golang:latest
 
 .pre_build_protoc: &pre_build_protoc
   tags:
@@ -63,7 +63,7 @@ image: rgummich/protoc-builder
     - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
   script:
     - docker build --build-arg VERSION=$VERSION --tag $MTR_URL/$IMAGE_NAME:$TAG .
-    
+
     - docker push $MTR_URL/$IMAGE_NAME:$TAG
     - docker image rm $MTR_URL/$IMAGE_NAME:$TAG
 
