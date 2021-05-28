@@ -59,5 +59,6 @@ Outbound types are accepted by the messages resource and validated.
 
 ### Generate model code
 ```bash
-protoc --proto_path=protobuf --go_out=model whatsapp.proto internal.proto
+cd whatsapp-mock
+./build.sh
 ```

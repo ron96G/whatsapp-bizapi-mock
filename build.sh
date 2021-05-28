@@ -16,7 +16,7 @@ protoc \
   --proto_path="./protobuf" \
   --go_out=":./" \
   --validate_out="lang=go:." \
-  whatsapp.proto internal.proto
+  meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto
 
 swag init -g server.go -d controller --parseDependency --parseInternal #--parseDepth 1
 

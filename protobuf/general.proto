@@ -1,0 +1,54 @@
+syntax = "proto3";
+package whatsapp;
+
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+import "meta.proto";
+
+option go_package = "/model";
+
+message Error {
+    int32 code = 1;
+    string title = 2;
+    string details = 3;
+    string href = 4;
+}
+
+message Contact {
+    string wa_id = 1;
+
+    message Profile {
+        string name = 1;
+    }
+    Profile profile = 2;
+
+    enum ContactStatus {
+        unknown = 0;
+        valid = 1;
+        invalid = 2;
+    }
+    ContactStatus status = 3;
+    string input = 4;
+}
+
+message Id {
+    string id = 1;
+}
+
+message IdResponse {
+    repeated Id messages = 1;
+    repeated Id media = 2;
+}
+
+message MetaResponse  {
+    meta.Meta meta = 1;
+}
+
+message ContactResponse {
+    meta.Meta meta = 1;
+    repeated Contact contacts = 2;
+}
+
+message ErrorResponse {
+    meta.Meta meta = 1;
+    repeated Error errors = 2;
+}

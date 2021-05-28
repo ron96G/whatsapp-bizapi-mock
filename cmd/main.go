@@ -87,6 +87,7 @@ func main() {
 
 	util.Log.Infof("Creating new webserver with prefix %v\n", *apiPrefix)
 	server := controller.NewServer(*apiPrefix, staticAPIToken)
+	controller.ApiVersion = controller.Config.Version
 	generators := model.NewGenerators(controller.Config.UploadDir, contacts, controller.Config.InboundMedia)
 	webhook := controller.NewWebhookConfig(controller.Config.ApplicationSettings.Webhooks.Url, generators)
 
