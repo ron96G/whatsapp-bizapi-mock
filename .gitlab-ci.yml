@@ -19,6 +19,7 @@ cache:
     - go install google.golang.org/protobuf/cmd/protoc-gen-go
     - go get github.com/envoyproxy/protoc-gen-validate
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
+    - ls ${GOPATH}/bin
     - 'protoc 
         -I . 
         -I ${GOPATH}/src 
