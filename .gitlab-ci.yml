@@ -11,16 +11,6 @@ cache:
   paths:
     - "model"
 
-
-.pre_build_scan: &pre_build_scan
-  image: golang:latest
-  tags:
-    - run_docker
-  script:
-    - go get -u github.com/securego/gosec/v2/cmd/gosec
-    - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
-    - gosec -exclude G104,G404,G307,G402 ./...
-
 .pre_build_protoc: &pre_build_protoc
   image: golang:latest
   tags:
@@ -36,6 +26,16 @@ cache:
         --go_out=":./" 
         --validate_out="lang=go:." 
         meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
+
+.pre_build_scan: &pre_build_scan
+  image: golang:latest
+  tags:
+    - run_docker
+  script:
+    - go get -u github.com/securego/gosec/v2/cmd/gosec
+    - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
+    - gosec -exclude G104,G404,G307,G402 ./...
+
 
 .build_template: &build_image
   script:
