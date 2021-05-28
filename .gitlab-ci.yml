@@ -75,9 +75,9 @@ include: 'https://codeshare.workbench.telekom.de/gitlab/teamdevsecops/container-
     expire_in: 1 hour
   variables:
     IMAGE_TAG_CONTAINER_SCAN: "$MTR_URL/$IMAGE_NAME:$TAG"
-  <<: *container_scan
+  extends: .container_scan
 
-  
+
 build protoc:
   stage: pre_build
   <<: *pre_build_protoc
