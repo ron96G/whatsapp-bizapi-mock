@@ -22,7 +22,8 @@ cache:
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
     - echo ${GOPATH}
     - ls ${GOPATH}/bin
-    
+    - ls ${GOPATH}/src
+
     - 'protoc 
         -I . 
         -I ${GOPATH}/src 
@@ -31,6 +32,7 @@ cache:
         --go_out=":./" 
         --validate_out="lang=go:." 
         meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
+        
     -  chmod 777 -R model
 
 .pre_build_scan: &pre_build_scan
