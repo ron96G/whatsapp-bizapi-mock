@@ -4,12 +4,16 @@ variables:
 
 stages:
   - pre_build
-  - scan
+  - check
   - build
+  - post_build
 
 cache:
   paths:
     - "model"
+
+before_script:
+  - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
 
 .pre_build_protoc: &pre_build_protoc
   image: golang:latest
@@ -19,12 +23,9 @@ cache:
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
     - export GO111MODULE=off
     - apt-get update && apt-get install -y protobuf-compiler
-    
+
     - go get google.golang.org/protobuf/cmd/protoc-gen-go
     - go get github.com/envoyproxy/protoc-gen-validate
-    - echo ${GOPATH}
-    - ls ${GOPATH}/bin
-    - ls ${GOPATH}/src
 
     - 'protoc 
         -I . 
@@ -46,22 +47,47 @@ cache:
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
     - gosec -exclude G104,G404,G307,G402 -severity high ./...
 
+.pre_build_test: &pre_build_test
+  image: golang:latest
+  tags:
+    - run_docker
+  script:
+    - go test ./...
 
 .build_template: &build_image
   script:
     - 'docker build --build-arg VERSION=$VERSION
                     -t $MTR_URL/$IMAGE_NAME:$TAG .'
 
-    - 'echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL'
-    - 'docker push $MTR_URL/$IMAGE_NAME:$TAG'
+
+    - docker push $MTR_URL/$IMAGE_NAME:$TAG
+    - docker image rm $MTR_URL/$IMAGE_NAME:$TAG
 
 
+# Telekom DevSecOps: Container Scanner
+include: 'https://codeshare.workbench.telekom.de/gitlab/teamdevsecops/container-scanning-service/raw/master/container-scan.yml'
+
+.scan_image: &scan_image
+  stage: post_build
+  artifacts:
+    paths:
+      - anchore-reports/*.json
+    expire_in: 1 hour
+  variables:
+    IMAGE_TAG_CONTAINER_SCAN: "$MTR_URL/$IMAGE_NAME:$TAG"
+  <<: *container_scan
+
+  
 build protoc:
   stage: pre_build
   <<: *pre_build_protoc
 
+unit test:
+  stage: check
+  <<: *pre_build_test
+
 scan:
-  stage: scan
+  stage: check
   <<: *pre_build_scan
 
 
@@ -75,6 +101,7 @@ build latest:
     refs:
       - tags
   <<: *build_image
+  <<: *scan_image
 
 build versioned:
   stage: build
@@ -83,3 +110,5 @@ build versioned:
   variables:
     TAG: v$VERSION
   <<: *build_image
+  <<: *scan_image
+
