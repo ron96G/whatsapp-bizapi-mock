@@ -12,7 +12,7 @@ cache:
     - "model"
 
 .pre_build_protoc: &pre_build_protoc
-  image: golang:latest
+  image: jaegertracing/protobuf
   tags:
     - run_docker
   script:
