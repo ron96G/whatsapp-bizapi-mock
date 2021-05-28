@@ -1,6 +1,7 @@
 variables:
   VERSION: "2.35.2"
   IMAGE_NAME: "wabizapi-mock"
+  TAG: "dev"
 
 stages:
   - pre_build
