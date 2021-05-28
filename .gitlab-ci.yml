@@ -24,6 +24,7 @@ cache:
     - echo ${GOPATH}
     - ls ${GOPATH}/bin
     - ls ${GOPATH}/src
+    - ls ${GOPATH}
     - ls -l
 
     - 'protoc 
