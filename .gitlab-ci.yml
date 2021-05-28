@@ -7,7 +7,7 @@ stages:
   - pre_build
   - check
   - build
-  - post_build
+  - container_scan_stage
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -70,8 +70,10 @@ image: golang:latest
 # Telekom DevSecOps: Container Scanner
 include: 'https://codeshare.workbench.telekom.de/gitlab/teamdevsecops/container-scanning-service/raw/master/container-scan.yml'
 
-.scan_image: &scan_image
-  stage: post_build
+.container_scan: &container_scan
+  stage: container_scan_stage
+  tags:
+    - run_docker
   before_script:
     - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
   artifacts:
@@ -106,7 +108,6 @@ build latest:
     refs:
       - tags
   <<: *build_image
-  <<: *scan_image
 
 build versioned:
   stage: build
@@ -115,5 +116,10 @@ build versioned:
   tags:
     - run_shell
   <<: *build_image
-  <<: *scan_image
 
+  
+container scan versioned:
+  stage: build
+  variables:
+    TAG: v$VERSION
+  <<: *container_scan
