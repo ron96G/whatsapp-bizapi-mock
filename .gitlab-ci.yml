@@ -8,7 +8,7 @@ stages:
 .build_template: &build_image
   script:
     - 'docker build --build-arg VERSION=$VERSION
-                    -t $MTR_URL/$IMAGE_NAME:$TAG -f $DOCKERFILE .'
+                    -t $MTR_URL/$IMAGE_NAME:$TAG .'
 
     - 'echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL'
     - 'docker push $MTR_URL/$IMAGE_NAME:$TAG'
