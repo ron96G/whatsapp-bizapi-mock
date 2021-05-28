@@ -36,7 +36,7 @@ cache:
   script:
     - go get -u github.com/securego/gosec/v2/cmd/gosec
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
-    - gosec -exclude G104,G404,G307,G402 ./...
+    - gosec -exclude G104,G404,G307,G402 -severity high ./...
 
 
 .build_template: &build_image
