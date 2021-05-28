@@ -49,6 +49,7 @@ cache:
   tags:
     - run_docker
   script:
+    - mkdir -p uploads
     - go test ./...
 
 .build_template: &build_image

@@ -10,7 +10,7 @@ var (
 )
 
 func init() {
-	uploadDir := "/mnt/d/PROJECTS/whatsapp-mock/uploads/"
+	uploadDir := "uploads/"
 	contacts := []*Contact{
 		{
 			WaId: "49170123123",
