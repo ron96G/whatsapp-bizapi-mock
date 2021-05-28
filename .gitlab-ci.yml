@@ -51,6 +51,7 @@ image: golang:latest
   script:
     - mkdir -p uploads
     - cp media/* uploads
+    - ls -l uploads
     - go test ./...
     - rm -rf uploads
 
