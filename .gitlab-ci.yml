@@ -16,7 +16,7 @@ cache:
   tags:
     - run_docker
   script:
-    - go install google.golang.org/protobuf/cmd/protoc-gen-go
+    - go get -u google.golang.org/protobuf/cmd/protoc-gen-go
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
     - 'protoc 
         -I . 
