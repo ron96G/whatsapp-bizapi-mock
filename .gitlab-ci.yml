@@ -18,7 +18,7 @@ cache:
   script:
     - apt-get update && apt-get install -y protobuf-compiler
     - go install google.golang.org/protobuf/cmd/protoc-gen-go
-    - go get github.com/envoyproxy/protoc-gen-validate
+    - go get -d github.com/envoyproxy/protoc-gen-validate
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
     - echo ${GOPATH}
     - ls ${GOPATH}/bin
@@ -32,7 +32,7 @@ cache:
         --go_out=":./" 
         --validate_out="lang=go:." 
         meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
-        
+
     -  chmod 777 -R model
 
 .pre_build_scan: &pre_build_scan
