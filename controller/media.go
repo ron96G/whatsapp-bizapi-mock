@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -10,6 +9,16 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// SaveMedia godoc
+// @Summary Upload a media file
+// @Description Upload a media file to the application
+// @Tags media
+// @Produce  json
+// @Param file body string true "the media file"
+// @Success 200 {object} model.IdResponse
+// @Failure default {object} model.ErrorResponse
+// @Router /media [post]
+// @Security BearerAuth
 func SaveMedia(ctx *fasthttp.RequestCtx) {
 	fileID := uuid.New().String()
 
@@ -17,9 +26,9 @@ func SaveMedia(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	resp := AcquireResponse()
+	resp := AcquireIdResponse()
 	resp.Reset()
-	defer ReleaseResponse(resp)
+	defer ReleaseIdResponse(resp)
 
 	resp.Media = append(resp.Media, &model.Id{
 		Id: fileID,
@@ -27,12 +36,30 @@ func SaveMedia(ctx *fasthttp.RequestCtx) {
 	returnJSON(ctx, 200, resp)
 }
 
+// RetrieveMedia godoc
+// @Summary Download a media file
+// @Description Download the media file matching the defined id
+// @Tags media
+// @Success 200 {file} swagger.FileResponse The requested file
+// @Failure default {object} model.ErrorResponse
+// @Param fileid path string true "ID of the file to be downloaded"
+// @Router /media/{fileid} [get]
+// @Security BearerAuth
 func RetrieveMedia(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	filename := filepath.Base(id)
-	respondWithFile(ctx, 200, filename, isEncodingAllowed(ctx, "gzip"))
+	respondWithFile(ctx, 200, filename)
 }
 
+// DeleteMedia godoc
+// @Summary Delete a media file
+// @Description Delete the file matching the defined parameter
+// @Tags media
+// @Success 200
+// @Failure default {object} model.ErrorResponse
+// @Param fileid path string true "ID of the file to be deleted"
+// @Router /media/{fileid} [delete]
+// @Security BearerAuth
 func DeleteMedia(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	filename := filepath.Base(id)
@@ -54,21 +81,4 @@ func DeleteMedia(ctx *fasthttp.RequestCtx) {
 		})
 		return
 	}
-}
-
-func getFileContentType(out *os.File) (string, error) {
-
-	// Only the first 512 bytes are used to sniff the content type.
-	buffer := make([]byte, 512)
-
-	_, err := out.Read(buffer)
-	if err != nil {
-		return "", err
-	}
-
-	// Use the net/http package's handy DectectContentType function. Always returns a valid
-	// content-type by returning "application/octet-stream" if no others seemed to match.
-	contentType := http.DetectContentType(buffer)
-
-	return contentType, nil
 }

@@ -22,8 +22,7 @@ It is used to perform integration-, system- and load-testing.
 | XXX /v1/settings/**| setup application settings| ✅ |
 | XXX /v1/profile/**| setup all profile settings| ✅ |
 | XXX /v1/stickerpacks/**| all stickerpacks functionality | ❌ |
-| XXX /v1/certificates/**| all certificates functionality | ❌ |
-| XXX /v1/groups/**| all groups functionality | ❌ |
+| XXX /v1/certificates/**| webhook ca certificates functionality | ✅ |
 | XXX /v1/account | registration functionality | ✅ |
 | XXX /v1/account/verify | registration functionality | ✅ |
 
@@ -49,8 +48,9 @@ Outbound types are accepted by the messages resource and validated.
 | Video | ✅ | ✅ |
 | Document | ✅ | ✅ |
 | Location | ❌ | ✅ |
+| Interactive | ❌ | ✅ |
+| Template | ❌ | ✅  |
 | Contact | ❌ | ❌ |
-| Hsm | ❌ | ❌ |
 | System | ❌ | ❌ |
 
 
@@ -59,5 +59,6 @@ Outbound types are accepted by the messages resource and validated.
 
 ### Generate model code
 ```bash
-protoc --proto_path=protobuf --go_out=model whatsapp.proto internal.proto
+cd whatsapp-mock
+./build.sh
 ```

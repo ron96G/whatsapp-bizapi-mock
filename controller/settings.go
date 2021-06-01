@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"net/url"
 
 	"github.com/rgumi/whatsapp-mock/model"
@@ -9,7 +10,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// TODO also support other parameters which are given here (e.g. auto_download)
 func SetApplicationSettings(ctx *fasthttp.RequestCtx) {
 	appSettings := &model.ApplicationSettings{}
 	if !unmarshalPayload(ctx, appSettings) {
@@ -48,3 +48,57 @@ func GetApplicationSettings(ctx *fasthttp.RequestCtx) {
 }
 
 func ResetApplicationSettings(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+
+func BackupSettings(ctx *fasthttp.RequestCtx) {
+	req := &model.BackupRequest{}
+	if !unmarshalPayload(ctx, req) {
+		return
+	}
+	buf := &bytes.Buffer{}
+	marsheler.Marshal(buf, Config)
+	ciphertext, err := util.Encrypt(req.Password, buf)
+	if err != nil {
+		util.Log.Error(err)
+		returnError(ctx, 500, model.Error{
+			Code:    500,
+			Title:   "Unable to encrypt settings",
+			Details: err.Error(),
+		})
+	}
+	resp := &model.BackupResponse{
+		Settings: &model.BackupResponse_SettingsData{
+			Data: ciphertext,
+		},
+	}
+
+	returnJSON(ctx, 200, resp)
+}
+
+func RestoreSettings(ctx *fasthttp.RequestCtx) {
+	req := &model.RestoreRequest{}
+	if !unmarshalPayload(ctx, req) {
+		return
+	}
+	buf := bytes.NewBuffer(req.Data)
+	ciphertext, err := util.Decrypt(req.Password, buf)
+	if err != nil {
+		util.Log.Error(err)
+		returnError(ctx, 500, model.Error{
+			Code:    500,
+			Title:   "Unable to decrypt settings",
+			Details: err.Error(),
+		})
+	}
+	buf.Reset()
+	buf = bytes.NewBuffer(ciphertext)
+	err = InitConfig(buf)
+	if err != nil {
+		util.Log.Error(err)
+		returnError(ctx, 500, model.Error{
+			Code:    500,
+			Title:   "Unable to set settings",
+			Details: err.Error(),
+		})
+	}
+	ctx.SetStatusCode(200)
+}

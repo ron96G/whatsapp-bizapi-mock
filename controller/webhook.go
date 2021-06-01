@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"io"
 	"sync"
 	"time"
 
@@ -13,11 +14,8 @@ import (
 )
 
 var (
-	webhookReqPool = sync.Pool{
-		New: func() interface{} {
-			return new(model.WebhookRequest)
-		},
-	}
+	Compress        = false
+	CompressMinsize = 2048
 
 	userAgent = "WhatsAppMockserver/" + ApiVersion
 
@@ -83,7 +81,7 @@ func (wc *WebhookConfig) statusRunner() (stop chan int) {
 					continue
 				}
 
-				whReq := webhookReqPool.Get().(*model.WebhookRequest)
+				whReq := AcquireWebhookRequest()
 				whReq.Reset()
 				whReq.Statuses = wc.StatusQueue
 				wc.StatusQueue = []*model.Status{}
@@ -126,6 +124,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 	stopStatus := wc.statusRunner()
 
 	go func() {
+
 		for {
 			select {
 			case <-stop:
@@ -133,26 +132,67 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				return
 
 			case whReq := <-wc.Queue:
+				var err error
 				msgCount := len(whReq.Messages)
 				staCount := len(whReq.Statuses)
 
 				time.Sleep(wc.WaitInterval)
 				req := fasthttp.AcquireRequest()
-				marsheler.Marshal(req.BodyWriter(), whReq)
-				req.SetRequestURI(wc.URL)
-				req.Header.Set("User-Agent", userAgent)
-				req.Header.Set("Content-Type", "application/json")
-				req.Header.SetMethod("POST")
-				resp, err := wc.Send(req)
 				defer fasthttp.ReleaseRequest(req)
-				defer fasthttp.ReleaseResponse(resp)
 
+				w := req.BodyWriter()
+
+				buf := AcquireBuffer()
+				buf.Reset()
+				defer ReleaseBuffer(buf)
+
+				if err := marsheler.Marshal(buf, whReq); err != nil {
+					wc.WaitInterval = wc.WaitInterval + 3*time.Second
+					errors <- err
+					wc.Queue <- whReq
+					continue
+				}
+
+				if Compress && buf.Len() > CompressMinsize {
+					gz := AcquireGzip()
+					defer ReleaseGzip(gz)
+
+					gz.Reset(w)
+					_, err = io.Copy(gz, buf)
+					gz.Close()
+
+					if err != nil {
+						errors <- err
+					} else {
+						req.Header.Add("Content-Encoding", "gzip")
+						goto send
+					}
+
+				}
+
+				_, err = io.Copy(w, buf)
 				if err != nil {
 					wc.WaitInterval = wc.WaitInterval + 3*time.Second
 					errors <- err
 					wc.Queue <- whReq
 					continue
 				}
+
+			send:
+				req.SetRequestURI(wc.URL)
+				req.Header.Set("User-Agent", userAgent)
+				req.Header.Set("Content-Type", "application/json")
+				req.Header.SetMethod("POST")
+
+				resp, err := wc.Send(req)
+				if err != nil {
+					wc.WaitInterval = wc.WaitInterval + 3*time.Second
+					errors <- err
+					wc.Queue <- whReq
+					continue
+				}
+				defer fasthttp.ReleaseResponse(resp)
+
 				if resp.StatusCode() >= 300 || resp.StatusCode() < 200 {
 					wc.WaitInterval = wc.WaitInterval + 3*time.Second
 					errors <- fmt.Errorf("webook-request to %s failed with status %d", wc.URL, resp.StatusCode())
@@ -164,7 +204,7 @@ func (wc *WebhookConfig) Run(errors chan error) (stop chan int) {
 				monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "status"}).Sub(float64(staCount))
 
 				wc.WaitInterval = 2
-				webhookReqPool.Put(whReq)
+				ReleaseWebhookRequest(whReq)
 				util.Log.Infof("Webook-request to %s successfully returned status 2xx\n", wc.URL)
 
 				for _, msg := range whReq.Messages {

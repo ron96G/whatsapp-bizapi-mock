@@ -2,36 +2,40 @@ package controller
 
 import (
 	"bytes"
-	"compress/gzip"
 	"encoding/base64"
 	"fmt"
 	"io"
 	"math/rand"
 	"mime"
+	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go/v4"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
-var (
-	gzipPool = sync.Pool{
-		New: func() interface{} {
-			return gzip.NewWriter(nil)
-		},
-	}
-)
+// readLimit is the maximum number of bytes from the input used when detecting the MimeType
+var readLimit uint32 = 512
 
 type CustomClaims struct {
 	Role string `json:"role"`
 	jwt.StandardClaims
+}
+
+// Extends the proto.Message interface with the Validate() to enable validation
+type Message interface {
+	Reset()
+	String() string
+	ProtoMessage()
+	Validate() error
 }
 
 func extractAuthToken(ctx *fasthttp.RequestCtx, key string) (val string, ok bool) {
@@ -94,27 +98,37 @@ func basicAuth(ctx *fasthttp.RequestCtx) (string, string, error) {
 }
 
 func returnError(ctx *fasthttp.RequestCtx, statusCode int, errors ...model.Error) {
-	response := AcquireResponse()
+	response := AcquireErrorResponse()
 	response.Reset()
-	defer ReleaseResponse(response)
+	defer ReleaseErrorResponse(response)
 
-	response.Meta = &model.Meta{
-		ApiStatus: model.Meta_stable,
-		Version:   ApiVersion,
-	}
+	response.Meta = AcquireMeta()
 	for _, err := range errors {
 		response.Errors = append(response.Errors, &err)
 	}
 	returnJSON(ctx, statusCode, response)
 }
 
-func unmarshalPayload(ctx *fasthttp.RequestCtx, out proto.Message) bool {
-	err := jsonpb.Unmarshal(bytes.NewReader(ctx.PostBody()), out)
+func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
+	err := jsonpb.Unmarshal(bytes.NewReader(ctx.PostBody()), msg)
 	if err != nil {
 		returnError(ctx, 400, model.Error{
-			Code:    123,
+			Code:    400,
 			Details: err.Error(),
 			Title:   "Unable to unmarshal payload",
+			Href:    "",
+		})
+		return false
+	}
+	return validatePayload(ctx, msg)
+}
+
+func validatePayload(ctx *fasthttp.RequestCtx, msg Message) bool {
+	if err := msg.Validate(); err != nil {
+		returnError(ctx, 400, model.Error{
+			Code:    400,
+			Details: err.Error(),
+			Title:   "Validation of input failed",
 			Href:    "",
 		})
 		return false
@@ -160,7 +174,8 @@ func generateToken(user string, role string) (string, error) {
 
 func returnToken(ctx *fasthttp.RequestCtx, token string) {
 	Tokens = append(Tokens, token)
-	response := responsePool.Get().(*model.APIResponse)
+	response := AcquireLoginResponse()
+	defer ReleaseLoginResponse(response)
 	response.Reset()
 	expires := time.Now().Add(TokenValidDuration).Format("2006-01-02 15:04:05+00:00")
 	response.Users = append(response.Users,
@@ -225,7 +240,8 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 		})
 		return false
 	}
-	f, err := os.OpenFile(Config.UploadDir+filename, os.O_WRONLY|os.O_CREATE, 0777)
+	filePath := filepath.Join(filepath.Clean(Config.UploadDir), filepath.Clean(filename))
+	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		returnError(ctx, 500, model.Error{
 			Code:    500,
@@ -238,6 +254,7 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 	defer f.Close()
 
 	r := bytes.NewReader(ctx.PostBody())
+
 	_, err = io.Copy(f, r)
 	if err != nil {
 		returnError(ctx, 500, model.Error{
@@ -251,8 +268,24 @@ func savePostBody(ctx *fasthttp.RequestCtx, filename string) (ok bool) {
 	return true
 }
 
-func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string, compress bool) (ok bool) {
-	f, err := os.OpenFile(Config.UploadDir+filename, os.O_RDONLY, 0777)
+func getFileContentType(r io.ReadSeeker) (string, error) {
+	buffer := make([]byte, readLimit)
+	_, err := r.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+
+	// Use the net/http package's handy DectectContentType function. Always returns a valid
+	// content-type by returning "application/octet-stream" if no others seemed to match.
+	contentType := http.DetectContentType(buffer)
+
+	_, err = r.Seek(0, io.SeekStart)
+	return contentType, err
+}
+
+func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string) (ok bool) {
+	filePath := filepath.Join(filepath.Clean(Config.UploadDir), filepath.Clean(filename))
+	f, err := os.OpenFile(filePath, os.O_RDONLY, 0600)
 	if err != nil && os.IsNotExist(err) {
 		ctx.SetStatusCode(404)
 		return false
@@ -272,28 +305,16 @@ func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string, 
 
 	contentType, err := getFileContentType(f)
 	if err == nil {
-		_, err := f.Seek(0, io.SeekStart)
-		if err == nil {
-			fmt.Println("A")
-			ctx.SetContentType(contentType)
-			ctx.SetStatusCode(statusCode)
+		util.Log.Infof("Setting Content-Type %s", contentType)
+		ctx.SetContentType(contentType)
+		ctx.SetStatusCode(statusCode)
 
-			w := ctx.Response.BodyWriter()
-
-			if compress {
-				gz := gzipPool.Get().(*gzip.Writer)
-
-				defer gzipPool.Put(gz)
-				gz.Reset(w)
-				io.Copy(gz, f)
-				gz.Close()
-				ctx.Response.Header.Add("Content-Encoding", "gzip")
-
-			} else {
-				io.Copy(w, f)
-			}
-			return true
+		w := ctx.Response.BodyWriter()
+		_, err = io.Copy(w, f)
+		if err != nil {
+			return false
 		}
+		return true
 	}
 
 	returnError(ctx, 500, model.Error{
@@ -306,8 +327,9 @@ func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, filename string, 
 	return false
 }
 
-func SaveToJSONFile(in proto.Message, filepath string) error {
-	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+func SaveToJSONFile(in proto.Message, path string) error {
+	filePath := filepath.Clean(path)
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}

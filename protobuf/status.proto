@@ -1,0 +1,17 @@
+syntax = "proto3";
+package whatsapp;
+option go_package = "/model";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+message Status {
+    string id = 1;  
+    enum StatusEnum {
+        unknown = 0;
+        sent = 1;
+        delivered = 2;
+        read = 3;
+    }
+    StatusEnum status = 2;
+    string recipient_id = 3;
+    int64 timestamp = 4;
+}

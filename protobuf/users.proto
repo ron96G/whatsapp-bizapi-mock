@@ -1,0 +1,24 @@
+syntax = "proto3";
+package whatsapp;
+option go_package = "/model";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+import "meta.proto";
+
+message TokenResponse {
+    string token = 1;
+    string expires_after = 2;
+}
+
+message LoginResponse {
+    meta.Meta meta = 1;
+    repeated TokenResponse users = 2;
+}
+
+message ChangePwdRequest {
+    string new_password = 1 [(validate.rules).string.min_len = 8];
+}
+
+message User {
+    string username = 1 [(validate.rules).string.min_len = 5];
+    string password = 2 [(validate.rules).string.min_len = 8];
+}

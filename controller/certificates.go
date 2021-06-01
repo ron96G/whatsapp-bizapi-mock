@@ -27,6 +27,7 @@ func UploadWebhookCA(ctx *fasthttp.RequestCtx) {
 	tlsConfig := &tls.Config{
 		RootCAs:            caCertPool,
 		InsecureSkipVerify: false,
+		MinVersion:         tls.VersionTLS13,
 	}
 
 	// overwrite the current default client

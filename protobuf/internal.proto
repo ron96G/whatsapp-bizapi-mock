@@ -1,7 +1,12 @@
 syntax = "proto3";
 package internal;
-import "whatsapp.proto";
-option go_package = "../model";
+
+import "settings.proto";
+import "status.proto";
+import "general.proto";
+import "messages.proto";
+
+option go_package = "/model";
 
 message InternalContact {
     string id = 1;

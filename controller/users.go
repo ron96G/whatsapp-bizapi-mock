@@ -10,6 +10,15 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// Login godoc
+// @Summary Login into the application
+// @Description Login into the application using basic auth
+// @Tags users
+// @Produce json
+// @Success 200 {object} model.LoginResponse
+// @Failure default {object} model.ErrorResponse
+// @Router /users/login [post]
+// @Security BasicAuth
 func Login(ctx *fasthttp.RequestCtx) {
 	username, password, err := basicAuth(ctx)
 	if err != nil {
@@ -63,6 +72,15 @@ func Login(ctx *fasthttp.RequestCtx) {
 	})
 }
 
+// Logout godoc
+// @Summary Log the user out
+// @Description Logout by supplying a bearer token of the user that should be logged out
+// @Tags users
+// @Produce json
+// @Success 200
+// @Failure default {object} model.ErrorResponse
+// @Router /users/logout [post]
+// @Security BearerAuth
 func Logout(ctx *fasthttp.RequestCtx) {
 	auth := string(ctx.Request.Header.Peek("Authorization"))
 	for i, token := range Tokens {
@@ -73,35 +91,63 @@ func Logout(ctx *fasthttp.RequestCtx) {
 	}
 }
 
+// CreateUser godoc
+// @Summary create a new user in the application
+// @Description An admin may use this endpoint to create a new user
+// @Tags users
+// @Consume json
+// @Produce json
+// @Param body body model.User true "username and password of the user"
+// @Success 200 {object} model.LoginResponse
+// @Failure default {object} model.ErrorResponse
+// @Router /users [post]
+// @Security BearerAuth
 func CreateUser(ctx *fasthttp.RequestCtx) {
 	user := &model.User{}
 	if !unmarshalPayload(ctx, user) {
 		return
 	}
-	response := AcquireResponse()
+	response := AcquireLoginResponse()
 	response.Reset()
-	defer ReleaseResponse(response)
+	defer ReleaseLoginResponse(response)
 
-	response.Meta = &model.Meta{
-		ApiStatus: model.Meta_stable,
-		Version:   ApiVersion,
-	}
+	response.Meta = AcquireMeta()
+	defer ReleaseMeta(response.Meta)
 
 	if _, exists := Config.Users[user.Username]; exists {
-		response.Errors = append(response.Errors, &model.Error{
+		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Title:   "User  already  exists",
 			Details: fmt.Sprintf("The requested user %s already exists", user.Username),
 		})
-		returnJSON(ctx, 400, response)
 		return
 	}
 	Config.Users[user.Username] = user.Password
 	returnJSON(ctx, 201, response)
 }
 
+// DeleteUser godoc
+// @Summary delete an existing user in the application
+// @Description An admin may use this endpoint to delete an existing user
+// @Tags users
+// @Param username path string true "Name of the user that should be deleted"
+// @Produce json
+// @Success 200
+// @Failure default {object} model.ErrorResponse
+// @Router /users/{username} [delete]
+// @Security BearerAuth
 func DeleteUser(ctx *fasthttp.RequestCtx) {
 	name := ctx.UserValue("name").(string)
+
+	if name == "admin" {
+		returnError(ctx, 400, model.Error{
+			Code:    400,
+			Details: fmt.Errorf("The user %s cannot be deleted", name).Error(),
+			Title:   "Client Error",
+			Href:    "",
+		})
+		return
+	}
 
 	if _, ok := Config.Users[name]; ok {
 		delete(Config.Users, name)

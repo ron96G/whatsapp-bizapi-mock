@@ -6,6 +6,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"path/filepath"
 	sync "sync"
 	"time"
 
@@ -60,8 +61,9 @@ func NewGenerators(uploadDir string, c []*Contact, m map[string]string) *Generat
 	return g
 }
 
-func (g *Generators) generateSha256(file string) (string, error) {
-	f, err := os.Open(file)
+func (g *Generators) generateSha256(path string) (string, error) {
+	filePath := filepath.Clean(path)
+	f, err := os.Open(filePath)
 	if err != nil {
 		util.Log.Fatal(err)
 	}
