@@ -41,7 +41,7 @@ var (
 	metaPool = sync.Pool{
 		New: func() interface{} {
 			return &model.Meta{
-				ApiStatus: model.Meta_stable,
+				ApiStatus: ApiStatus,
 				Version:   ApiVersion,
 			}
 		},

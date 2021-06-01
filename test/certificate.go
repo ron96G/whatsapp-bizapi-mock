@@ -39,6 +39,7 @@ func GenerateServerTLS() (serverTLSConf *tls.Config, err error) {
 
 	serverTLSConf = &tls.Config{
 		Certificates: []tls.Certificate{serverCert},
+		MinVersion:   tls.VersionTLS13,
 	}
 	return
 }

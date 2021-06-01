@@ -1,0 +1,29 @@
+syntax = "proto3";
+package meta;
+option go_package = "/model";
+
+enum MessageType {
+    unknown = 0;
+    document = 1;
+    image = 2;
+    location = 3;
+    system = 4;
+    text = 5;
+    video = 6;
+    voice = 7;
+    audio = 8;
+    template = 9;
+    interactive = 10;
+} 
+
+message Meta {
+    string version = 1;
+
+    enum APIStatus {
+        unknown = 0;
+        deprecated = 1;
+        experimental = 2;
+        stable = 3;
+    }
+    APIStatus api_status = 2;
+}

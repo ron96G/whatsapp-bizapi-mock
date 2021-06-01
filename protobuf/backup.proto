@@ -1,0 +1,21 @@
+syntax = "proto3";
+package whatsapp;
+option go_package = "/model";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+message BackupRequest {
+    string password = 1 [(validate.rules).string.min_len = 8];
+    string data = 2;
+}
+
+message BackupResponse {
+    message SettingsData  {
+        bytes data = 1;
+    }
+    SettingsData settings = 1;
+}
+
+message RestoreRequest {
+    string password = 1;
+    bytes data = 2;
+}

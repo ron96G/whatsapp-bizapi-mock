@@ -5,6 +5,7 @@ import (
 
 	"github.com/fasthttp/router"
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/rgumi/whatsapp-mock/monitoring"
 	"github.com/valyala/fasthttp"
 
@@ -13,7 +14,9 @@ import (
 )
 
 var (
-	ApiVersion         = "3.31.5"
+	ApiStatus  = model.Meta_experimental
+	ApiVersion = "x.xx.x"
+
 	TokenValidDuration = 7 * 24 * time.Hour
 	marsheler          = jsonpb.Marshaler{
 		EmitDefaults: false,
@@ -35,10 +38,6 @@ var (
 // @title WhatsAppMockServer API
 // @version 0.1
 // @description The WhatsAppMockServer offers a mock API for the WhatsApp-Business-API
-
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
 
 // @host localhost:9090
 // @schemes https

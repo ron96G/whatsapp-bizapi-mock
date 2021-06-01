@@ -68,10 +68,7 @@ definitions:
     type: object
 host: localhost:9090
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
+  contact: {}
   description: The WhatsAppMockServer offers a mock API for the WhatsApp-Business-API
   title: WhatsAppMockServer API
   version: "0.1"

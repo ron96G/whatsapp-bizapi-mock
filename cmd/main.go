@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -35,7 +36,8 @@ var (
 )
 
 func setupConfig(path string) {
-	f, err := os.Open(path)
+	filePath := filepath.Clean(path)
+	f, err := os.Open(filePath)
 	if err != nil {
 		util.Log.Fatal(err)
 	}
@@ -87,6 +89,7 @@ func main() {
 
 	util.Log.Infof("Creating new webserver with prefix %v\n", *apiPrefix)
 	server := controller.NewServer(*apiPrefix, staticAPIToken)
+	controller.ApiVersion = controller.Config.Version
 	generators := model.NewGenerators(controller.Config.UploadDir, contacts, controller.Config.InboundMedia)
 	webhook := controller.NewWebhookConfig(controller.Config.ApplicationSettings.Webhooks.Url, generators)
 
