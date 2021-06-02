@@ -96,9 +96,6 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 	// stickerpacks resources
 	subR.ANY("/stickerpacks/{path:*}", monitoring.All(NotImplementedHandler))
 
-	// groups resources
-	subR.ANY("/groups/{path:*}", monitoring.All(NotImplementedHandler))
-
 	// stats resources
 	subR.ANY("/stats/{path:*}", monitoring.All(NotImplementedHandler))
 
