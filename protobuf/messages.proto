@@ -165,7 +165,7 @@ message InteractiveMessage {
                 max_len: 256,
             }];
             string title = 2 [(validate.rules).string = {
-                pattern:   "^[^\\x{1F600}-\\x{1F6FF}|[\\x{2600}-\\x{26FF}]*$",
+                pattern:   "^[^\\x{1F600}-\\x{1F6FF}|[\\x{2600}-\\x{26FF}]*$", // do not allow emojis (does not check all emojis)
                 min_len: 1,
                 max_len: 20,
              }];
@@ -219,9 +219,7 @@ message Message {
     string id = 1;
     string from = 2;
     string to = 3 [(validate.rules).string = {
-        pattern: "^[0-9]+$",
-        min_len: 12,
-        max_len: 20,
+        pattern: "^\\+(?:[0-9]){6,14}[0-9]$" // This is not correct for 100% of cases
     }];
     Context context = 4;
     meta.MessageType type = 5;

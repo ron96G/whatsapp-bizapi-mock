@@ -17,7 +17,7 @@ protoc \
   --proto_path="./protobuf" \
   --go_out=":./" \
   --validate_out="lang=go:." \
-  meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto
+  meta.proto general.proto settings.proto status.proto messages.proto contacts.proto users.proto backup.proto internal.proto
 
 gosec -exclude G104,G404,G307,G402 ./...
 
