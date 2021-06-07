@@ -10,7 +10,7 @@ stages:
   - container_scan_stage
 
 cache:
-  key: ${CI_COMMIT_REF_SLUG}
+  key: ${CI_COMMIT_SHORT_SHA}
   paths:
     - "model"
 
