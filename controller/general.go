@@ -13,7 +13,7 @@ import (
 
 var (
 	regexPhoneNumber = regexp.MustCompile(`^\+(?:[0-9-\(\)] ?){6,14}[0-9]$`)
-	cleanUp          = regexp.MustCompile(`[- \(\)]`)
+	cleanUp          = regexp.MustCompile(`[^\+0-9]`)
 )
 
 func SendMessages(ctx *fasthttp.RequestCtx) {
@@ -45,7 +45,9 @@ func Contacts(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	resp := new(model.ContactResponse)
+	resp := AcquireContactResponse()
+	resp.Reset()
+	defer ReleaseContactResponse(resp)
 	resp.Contacts = make([]*model.Contact, len(msg.Contacts))
 
 	for i, phoneNumber := range msg.Contacts {
