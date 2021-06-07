@@ -18,7 +18,8 @@ It is used to perform integration-, system- and load-testing.
 | POST /v1/media| save media file| ✅ |
 | GET /v1/media/{id}| delete media file| ✅ |
 | DEL /v1/{media/id}| get media file| ✅ |
-| GET /v1/contacts| get contact info for wa_id| ❌ |
+| GET /v1/contacts| check for wa_id for contact input| ✅ |
+| XXX /v1/contacts/{wa_id}/identity | manage whatsapp id identity| ❌ |
 | XXX /v1/settings/**| setup application settings| ✅ |
 | XXX /v1/profile/**| setup all profile settings| ✅ |
 | XXX /v1/stickerpacks/**| all stickerpacks functionality | ❌ |

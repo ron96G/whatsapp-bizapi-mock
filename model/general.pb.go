@@ -21,55 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Contact_ContactStatus int32
-
-const (
-	Contact_unknown Contact_ContactStatus = 0
-	Contact_valid   Contact_ContactStatus = 1
-	Contact_invalid Contact_ContactStatus = 2
-)
-
-// Enum value maps for Contact_ContactStatus.
-var (
-	Contact_ContactStatus_name = map[int32]string{
-		0: "unknown",
-		1: "valid",
-		2: "invalid",
-	}
-	Contact_ContactStatus_value = map[string]int32{
-		"unknown": 0,
-		"valid":   1,
-		"invalid": 2,
-	}
-)
-
-func (x Contact_ContactStatus) Enum() *Contact_ContactStatus {
-	p := new(Contact_ContactStatus)
-	*p = x
-	return p
-}
-
-func (x Contact_ContactStatus) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Contact_ContactStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_general_proto_enumTypes[0].Descriptor()
-}
-
-func (Contact_ContactStatus) Type() protoreflect.EnumType {
-	return &file_general_proto_enumTypes[0]
-}
-
-func (x Contact_ContactStatus) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Contact_ContactStatus.Descriptor instead.
-func (Contact_ContactStatus) EnumDescriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{1, 0}
-}
-
 type Error struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -141,77 +92,6 @@ func (x *Error) GetHref() string {
 	return ""
 }
 
-type Contact struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	WaId    string                `protobuf:"bytes,1,opt,name=wa_id,json=waId,proto3" json:"wa_id,omitempty"`
-	Profile *Contact_Profile      `protobuf:"bytes,2,opt,name=profile,proto3" json:"profile,omitempty"`
-	Status  Contact_ContactStatus `protobuf:"varint,3,opt,name=status,proto3,enum=whatsapp.Contact_ContactStatus" json:"status,omitempty"`
-	Input   string                `protobuf:"bytes,4,opt,name=input,proto3" json:"input,omitempty"`
-}
-
-func (x *Contact) Reset() {
-	*x = Contact{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_general_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *Contact) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Contact) ProtoMessage() {}
-
-func (x *Contact) ProtoReflect() protoreflect.Message {
-	mi := &file_general_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Contact.ProtoReflect.Descriptor instead.
-func (*Contact) Descriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Contact) GetWaId() string {
-	if x != nil {
-		return x.WaId
-	}
-	return ""
-}
-
-func (x *Contact) GetProfile() *Contact_Profile {
-	if x != nil {
-		return x.Profile
-	}
-	return nil
-}
-
-func (x *Contact) GetStatus() Contact_ContactStatus {
-	if x != nil {
-		return x.Status
-	}
-	return Contact_unknown
-}
-
-func (x *Contact) GetInput() string {
-	if x != nil {
-		return x.Input
-	}
-	return ""
-}
-
 type Id struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -223,7 +103,7 @@ type Id struct {
 func (x *Id) Reset() {
 	*x = Id{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_general_proto_msgTypes[2]
+		mi := &file_general_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -236,7 +116,7 @@ func (x *Id) String() string {
 func (*Id) ProtoMessage() {}
 
 func (x *Id) ProtoReflect() protoreflect.Message {
-	mi := &file_general_proto_msgTypes[2]
+	mi := &file_general_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -249,7 +129,7 @@ func (x *Id) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Id.ProtoReflect.Descriptor instead.
 func (*Id) Descriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{2}
+	return file_general_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Id) GetId() string {
@@ -271,7 +151,7 @@ type IdResponse struct {
 func (x *IdResponse) Reset() {
 	*x = IdResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_general_proto_msgTypes[3]
+		mi := &file_general_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -284,7 +164,7 @@ func (x *IdResponse) String() string {
 func (*IdResponse) ProtoMessage() {}
 
 func (x *IdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_general_proto_msgTypes[3]
+	mi := &file_general_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -297,7 +177,7 @@ func (x *IdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IdResponse.ProtoReflect.Descriptor instead.
 func (*IdResponse) Descriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{3}
+	return file_general_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *IdResponse) GetMessages() []*Id {
@@ -325,7 +205,7 @@ type MetaResponse struct {
 func (x *MetaResponse) Reset() {
 	*x = MetaResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_general_proto_msgTypes[4]
+		mi := &file_general_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -338,7 +218,7 @@ func (x *MetaResponse) String() string {
 func (*MetaResponse) ProtoMessage() {}
 
 func (x *MetaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_general_proto_msgTypes[4]
+	mi := &file_general_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -351,67 +231,12 @@ func (x *MetaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaResponse.ProtoReflect.Descriptor instead.
 func (*MetaResponse) Descriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{4}
+	return file_general_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *MetaResponse) GetMeta() *Meta {
 	if x != nil {
 		return x.Meta
-	}
-	return nil
-}
-
-type ContactResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Meta     *Meta      `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`
-	Contacts []*Contact `protobuf:"bytes,2,rep,name=contacts,proto3" json:"contacts,omitempty"`
-}
-
-func (x *ContactResponse) Reset() {
-	*x = ContactResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_general_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactResponse) ProtoMessage() {}
-
-func (x *ContactResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_general_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactResponse.ProtoReflect.Descriptor instead.
-func (*ContactResponse) Descriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ContactResponse) GetMeta() *Meta {
-	if x != nil {
-		return x.Meta
-	}
-	return nil
-}
-
-func (x *ContactResponse) GetContacts() []*Contact {
-	if x != nil {
-		return x.Contacts
 	}
 	return nil
 }
@@ -428,7 +253,7 @@ type ErrorResponse struct {
 func (x *ErrorResponse) Reset() {
 	*x = ErrorResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_general_proto_msgTypes[6]
+		mi := &file_general_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -441,7 +266,7 @@ func (x *ErrorResponse) String() string {
 func (*ErrorResponse) ProtoMessage() {}
 
 func (x *ErrorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_general_proto_msgTypes[6]
+	mi := &file_general_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +279,7 @@ func (x *ErrorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorResponse.ProtoReflect.Descriptor instead.
 func (*ErrorResponse) Descriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{6}
+	return file_general_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ErrorResponse) GetMeta() *Meta {
@@ -469,53 +294,6 @@ func (x *ErrorResponse) GetErrors() []*Error {
 		return x.Errors
 	}
 	return nil
-}
-
-type Contact_Profile struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-}
-
-func (x *Contact_Profile) Reset() {
-	*x = Contact_Profile{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_general_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *Contact_Profile) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Contact_Profile) ProtoMessage() {}
-
-func (x *Contact_Profile) ProtoReflect() protoreflect.Message {
-	mi := &file_general_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Contact_Profile.ProtoReflect.Descriptor instead.
-func (*Contact_Profile) Descriptor() ([]byte, []int) {
-	return file_general_proto_rawDescGZIP(), []int{1, 0}
-}
-
-func (x *Contact_Profile) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
 }
 
 var File_general_proto protoreflect.FileDescriptor
@@ -533,46 +311,24 @@ var file_general_proto_rawDesc = []byte{
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x64,
 	0x65, 0x74, 0x61, 0x69, 0x6c, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x64, 0x65,
 	0x74, 0x61, 0x69, 0x6c, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x72, 0x65, 0x66, 0x18, 0x04, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x04, 0x68, 0x72, 0x65, 0x66, 0x22, 0xf7, 0x01, 0x0a, 0x07, 0x43, 0x6f,
-	0x6e, 0x74, 0x61, 0x63, 0x74, 0x12, 0x13, 0x0a, 0x05, 0x77, 0x61, 0x5f, 0x69, 0x64, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x77, 0x61, 0x49, 0x64, 0x12, 0x33, 0x0a, 0x07, 0x70, 0x72,
-	0x6f, 0x66, 0x69, 0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x77, 0x68,
-	0x61, 0x74, 0x73, 0x61, 0x70, 0x70, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x2e, 0x50,
-	0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x52, 0x07, 0x70, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x12,
-	0x37, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32,
-	0x1f, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73, 0x61, 0x70, 0x70, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x61,
-	0x63, 0x74, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73,
-	0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x14, 0x0a, 0x05, 0x69, 0x6e, 0x70, 0x75,
-	0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x1a, 0x1d,
-	0x0a, 0x07, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d,
-	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x34, 0x0a,
-	0x0d, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x0b,
-	0x0a, 0x07, 0x75, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x10, 0x00, 0x12, 0x09, 0x0a, 0x05, 0x76,
-	0x61, 0x6c, 0x69, 0x64, 0x10, 0x01, 0x12, 0x0b, 0x0a, 0x07, 0x69, 0x6e, 0x76, 0x61, 0x6c, 0x69,
-	0x64, 0x10, 0x02, 0x22, 0x14, 0x0a, 0x02, 0x49, 0x64, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x5a, 0x0a, 0x0a, 0x49, 0x64, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x28, 0x0a, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x77, 0x68, 0x61, 0x74,
-	0x73, 0x61, 0x70, 0x70, 0x2e, 0x49, 0x64, 0x52, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x12, 0x22, 0x0a, 0x05, 0x6d, 0x65, 0x64, 0x69, 0x61, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b,
-	0x32, 0x0c, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73, 0x61, 0x70, 0x70, 0x2e, 0x49, 0x64, 0x52, 0x05,
-	0x6d, 0x65, 0x64, 0x69, 0x61, 0x22, 0x2e, 0x0a, 0x0c, 0x4d, 0x65, 0x74, 0x61, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1e, 0x0a, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x0b, 0x32, 0x0a, 0x2e, 0x6d, 0x65, 0x74, 0x61, 0x2e, 0x4d, 0x65, 0x74, 0x61, 0x52,
-	0x04, 0x6d, 0x65, 0x74, 0x61, 0x22, 0x60, 0x0a, 0x0f, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1e, 0x0a, 0x04, 0x6d, 0x65, 0x74, 0x61,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0a, 0x2e, 0x6d, 0x65, 0x74, 0x61, 0x2e, 0x4d, 0x65,
-	0x74, 0x61, 0x52, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x12, 0x2d, 0x0a, 0x08, 0x63, 0x6f, 0x6e, 0x74,
-	0x61, 0x63, 0x74, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x77, 0x68, 0x61,
-	0x74, 0x73, 0x61, 0x70, 0x70, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x52, 0x08, 0x63,
-	0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x73, 0x22, 0x58, 0x0a, 0x0d, 0x45, 0x72, 0x72, 0x6f, 0x72,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1e, 0x0a, 0x04, 0x6d, 0x65, 0x74, 0x61,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0a, 0x2e, 0x6d, 0x65, 0x74, 0x61, 0x2e, 0x4d, 0x65,
-	0x74, 0x61, 0x52, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x12, 0x27, 0x0a, 0x06, 0x65, 0x72, 0x72, 0x6f,
-	0x72, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73,
-	0x61, 0x70, 0x70, 0x2e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x52, 0x06, 0x65, 0x72, 0x72, 0x6f, 0x72,
-	0x73, 0x42, 0x08, 0x5a, 0x06, 0x2f, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x68, 0x72, 0x65, 0x66, 0x22, 0x14, 0x0a, 0x02, 0x49, 0x64, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22,
+	0x5a, 0x0a, 0x0a, 0x49, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x28, 0x0a,
+	0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x0c, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73, 0x61, 0x70, 0x70, 0x2e, 0x49, 0x64, 0x52, 0x08, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x12, 0x22, 0x0a, 0x05, 0x6d, 0x65, 0x64, 0x69, 0x61,
+	0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x77, 0x68, 0x61, 0x74, 0x73, 0x61, 0x70,
+	0x70, 0x2e, 0x49, 0x64, 0x52, 0x05, 0x6d, 0x65, 0x64, 0x69, 0x61, 0x22, 0x2e, 0x0a, 0x0c, 0x4d,
+	0x65, 0x74, 0x61, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1e, 0x0a, 0x04, 0x6d,
+	0x65, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0a, 0x2e, 0x6d, 0x65, 0x74, 0x61,
+	0x2e, 0x4d, 0x65, 0x74, 0x61, 0x52, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x22, 0x58, 0x0a, 0x0d, 0x45,
+	0x72, 0x72, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1e, 0x0a, 0x04,
+	0x6d, 0x65, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0a, 0x2e, 0x6d, 0x65, 0x74,
+	0x61, 0x2e, 0x4d, 0x65, 0x74, 0x61, 0x52, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x12, 0x27, 0x0a, 0x06,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x77,
+	0x68, 0x61, 0x74, 0x73, 0x61, 0x70, 0x70, 0x2e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x52, 0x06, 0x65,
+	0x72, 0x72, 0x6f, 0x72, 0x73, 0x42, 0x08, 0x5a, 0x06, 0x2f, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -587,35 +343,26 @@ func file_general_proto_rawDescGZIP() []byte {
 	return file_general_proto_rawDescData
 }
 
-var file_general_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_general_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_general_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_general_proto_goTypes = []interface{}{
-	(Contact_ContactStatus)(0), // 0: whatsapp.Contact.ContactStatus
-	(*Error)(nil),              // 1: whatsapp.Error
-	(*Contact)(nil),            // 2: whatsapp.Contact
-	(*Id)(nil),                 // 3: whatsapp.Id
-	(*IdResponse)(nil),         // 4: whatsapp.IdResponse
-	(*MetaResponse)(nil),       // 5: whatsapp.MetaResponse
-	(*ContactResponse)(nil),    // 6: whatsapp.ContactResponse
-	(*ErrorResponse)(nil),      // 7: whatsapp.ErrorResponse
-	(*Contact_Profile)(nil),    // 8: whatsapp.Contact.Profile
-	(*Meta)(nil),               // 9: meta.Meta
+	(*Error)(nil),         // 0: whatsapp.Error
+	(*Id)(nil),            // 1: whatsapp.Id
+	(*IdResponse)(nil),    // 2: whatsapp.IdResponse
+	(*MetaResponse)(nil),  // 3: whatsapp.MetaResponse
+	(*ErrorResponse)(nil), // 4: whatsapp.ErrorResponse
+	(*Meta)(nil),          // 5: meta.Meta
 }
 var file_general_proto_depIdxs = []int32{
-	8, // 0: whatsapp.Contact.profile:type_name -> whatsapp.Contact.Profile
-	0, // 1: whatsapp.Contact.status:type_name -> whatsapp.Contact.ContactStatus
-	3, // 2: whatsapp.IdResponse.messages:type_name -> whatsapp.Id
-	3, // 3: whatsapp.IdResponse.media:type_name -> whatsapp.Id
-	9, // 4: whatsapp.MetaResponse.meta:type_name -> meta.Meta
-	9, // 5: whatsapp.ContactResponse.meta:type_name -> meta.Meta
-	2, // 6: whatsapp.ContactResponse.contacts:type_name -> whatsapp.Contact
-	9, // 7: whatsapp.ErrorResponse.meta:type_name -> meta.Meta
-	1, // 8: whatsapp.ErrorResponse.errors:type_name -> whatsapp.Error
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	1, // 0: whatsapp.IdResponse.messages:type_name -> whatsapp.Id
+	1, // 1: whatsapp.IdResponse.media:type_name -> whatsapp.Id
+	5, // 2: whatsapp.MetaResponse.meta:type_name -> meta.Meta
+	5, // 3: whatsapp.ErrorResponse.meta:type_name -> meta.Meta
+	0, // 4: whatsapp.ErrorResponse.errors:type_name -> whatsapp.Error
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_general_proto_init() }
@@ -638,18 +385,6 @@ func file_general_proto_init() {
 			}
 		}
 		file_general_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Contact); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_general_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Id); i {
 			case 0:
 				return &v.state
@@ -661,7 +396,7 @@ func file_general_proto_init() {
 				return nil
 			}
 		}
-		file_general_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_general_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IdResponse); i {
 			case 0:
 				return &v.state
@@ -673,7 +408,7 @@ func file_general_proto_init() {
 				return nil
 			}
 		}
-		file_general_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_general_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MetaResponse); i {
 			case 0:
 				return &v.state
@@ -685,32 +420,8 @@ func file_general_proto_init() {
 				return nil
 			}
 		}
-		file_general_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ContactResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_general_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_general_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ErrorResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_general_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Contact_Profile); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -727,14 +438,13 @@ func file_general_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_general_proto_rawDesc,
-			NumEnums:      1,
-			NumMessages:   8,
+			NumEnums:      0,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_general_proto_goTypes,
 		DependencyIndexes: file_general_proto_depIdxs,
-		EnumInfos:         file_general_proto_enumTypes,
 		MessageInfos:      file_general_proto_msgTypes,
 	}.Build()
 	File_general_proto = out.File
