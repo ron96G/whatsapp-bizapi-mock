@@ -20,6 +20,12 @@ var (
 		},
 	}
 
+	contactResponsePool = sync.Pool{
+		New: func() interface{} {
+			return new(model.ContactResponse)
+		},
+	}
+
 	idResponsePool = sync.Pool{
 		New: func() interface{} {
 			return new(model.IdResponse)
@@ -66,6 +72,14 @@ func AcquireLoginResponse() *model.LoginResponse {
 
 func ReleaseLoginResponse(s *model.LoginResponse) {
 	loginResponsePool.Put(s)
+}
+
+func AcquireContactResponse() *model.ContactResponse {
+	return contactResponsePool.Get().(*model.ContactResponse)
+}
+
+func ReleaseContactResponse(s *model.ContactResponse) {
+	contactResponsePool.Put(s)
 }
 
 func AcquireIdResponse() *model.IdResponse {

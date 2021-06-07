@@ -1359,17 +1359,10 @@ func (m *Message) Validate() error {
 
 	// no validation rules for From
 
-	if l := utf8.RuneCountInString(m.GetTo()); l < 12 || l > 20 {
-		return MessageValidationError{
-			field:  "To",
-			reason: "value length must be between 12 and 20 runes, inclusive",
-		}
-	}
-
 	if !_Message_To_Pattern.MatchString(m.GetTo()) {
 		return MessageValidationError{
 			field:  "To",
-			reason: "value does not match regex pattern \"^[0-9]+$\"",
+			reason: "value does not match regex pattern \"^\\\\+(?:[0-9]){6,14}[0-9]$\"",
 		}
 	}
 
@@ -1573,7 +1566,7 @@ var _ interface {
 	ErrorName() string
 } = MessageValidationError{}
 
-var _Message_To_Pattern = regexp.MustCompile("^[0-9]+$")
+var _Message_To_Pattern = regexp.MustCompile("^\\+(?:[0-9]){6,14}[0-9]$")
 
 // Validate checks the field values on TemplateMessage_Language with the rules
 // defined in the proto definition for this message. If any rules are

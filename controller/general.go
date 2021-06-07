@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -8,6 +9,11 @@ import (
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/rgumi/whatsapp-mock/util"
 	"github.com/valyala/fasthttp"
+)
+
+var (
+	regexPhoneNumber = regexp.MustCompile(`^\+(?:[0-9-\(\)] ?){6,14}[0-9]$`)
+	cleanUp          = regexp.MustCompile(`[^\+0-9]`)
 )
 
 func SendMessages(ctx *fasthttp.RequestCtx) {
@@ -32,7 +38,34 @@ func SendMessages(ctx *fasthttp.RequestCtx) {
 	Webhook.AddStati(stati...)
 }
 
-func Contacts(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
+func Contacts(ctx *fasthttp.RequestCtx) {
+	msg := new(model.ContactRequest)
+	msg.Reset()
+	if !unmarshalPayload(ctx, msg) {
+		return
+	}
+
+	resp := AcquireContactResponse()
+	resp.Reset()
+	defer ReleaseContactResponse(resp)
+	resp.Contacts = make([]*model.Contact, len(msg.Contacts))
+
+	for i, phoneNumber := range msg.Contacts {
+		resp.Contacts[i] = new(model.Contact)
+
+		if !regexPhoneNumber.MatchString(phoneNumber) { // TODO check if the contact exists
+			resp.Contacts[i].Input = phoneNumber
+			resp.Contacts[i].Status = model.Contact_invalid
+			continue
+		}
+		resp.Contacts[i].Input = phoneNumber
+		resp.Contacts[i].WaId = cleanUp.ReplaceAllString(phoneNumber, "")
+		resp.Contacts[i].Status = model.Contact_valid
+		// TODO add the contact to a cache to check wether is can be used to send outbound messages to
+	}
+
+	returnJSON(ctx, 200, resp)
+}
 
 func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
 
@@ -58,14 +91,15 @@ func GenerateWebhookRequests(ctx *fasthttp.RequestCtx) {
 	}
 
 	if r > 0 {
+		dur := time.Duration(r)
 		go func() {
 			for {
 				select {
 				case <-cancel:
 					return
 
-				case <-time.After(time.Duration(r) * time.Second):
-					Webhook.GenerateWebhookRequests(n, allowedTypes...)
+				case <-time.After(dur * time.Second):
+					go Webhook.GenerateWebhookRequests(n, allowedTypes...)
 				}
 			}
 		}()

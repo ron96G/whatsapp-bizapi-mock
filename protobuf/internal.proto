@@ -5,6 +5,7 @@ import "settings.proto";
 import "status.proto";
 import "general.proto";
 import "messages.proto";
+import "contacts.proto";
 
 option go_package = "/model";
 

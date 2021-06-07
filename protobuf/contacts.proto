@@ -1,0 +1,39 @@
+syntax = "proto3";
+package whatsapp;
+option go_package = "/model";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+// see https://developers.facebook.com/docs/whatsapp/api/contacts
+
+message Contact {
+    enum StatusEnum {
+        processing = 0;
+        valid = 1;
+        invalid = 2;
+        failed = 3;
+    }
+    message Profile {
+        string name = 1;
+    }
+
+    string wa_id = 1; 
+    string input = 2;
+    StatusEnum status = 3;
+
+    Profile profile = 4;
+}
+
+message ContactRequest {
+    enum BlockingEnum {
+        wait = 0;
+        no_wait = 1;
+    }
+
+    BlockingEnum blocking = 1; 
+    repeated string contacts = 2;
+    bool force_check = 3;
+}
+
+message ContactResponse {
+    repeated Contact contacts = 1;
+}
