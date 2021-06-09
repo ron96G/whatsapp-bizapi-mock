@@ -58,6 +58,9 @@ image: golang:latest
     - rm -rf uploads
 
 .build_template: &build_image
+  tags:
+    - run_docker
+  image: docker
   before_script:
     - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
   script:
@@ -100,8 +103,6 @@ scan:
 
 build latest:
   stage: build
-  tags:
-    - run_shell
   variables:
     TAG: latest
   only:
@@ -113,6 +114,4 @@ build versioned:
   stage: build
   variables:
     TAG: v$VERSION
-  tags:
-    - run_shell
   <<: *build_image
