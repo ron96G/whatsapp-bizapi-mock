@@ -125,6 +125,7 @@ func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 
 func validatePayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 	if err := msg.Validate(); err != nil {
+		util.Log.Warnf("Failed validation of { %s } with '%v'", msg.String(), err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
