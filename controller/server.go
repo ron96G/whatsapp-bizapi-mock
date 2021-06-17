@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/fasthttp/router"
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/rgumi/whatsapp-mock/monitoring"
 	"github.com/valyala/fasthttp"
@@ -18,12 +17,6 @@ var (
 	ApiVersion = "x.xx.x"
 
 	TokenValidDuration = 7 * 24 * time.Hour
-	marsheler          = jsonpb.Marshaler{
-		EmitDefaults: false,
-		EnumsAsInts:  false,
-		OrigName:     true,
-		Indent:       "  ",
-	}
 
 	SigningKey []byte
 	Tokens     = []string{} // all tokens that have been signed and can be used to login
