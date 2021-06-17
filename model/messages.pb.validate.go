@@ -2016,6 +2016,8 @@ func (m *TemplateMessage_Component_Parameters_DateTimeParameter) Validate() erro
 
 	// no validation rules for DayOfMonth
 
+	// no validation rules for Year
+
 	// no validation rules for Month
 
 	// no validation rules for Hour
@@ -2023,6 +2025,8 @@ func (m *TemplateMessage_Component_Parameters_DateTimeParameter) Validate() erro
 	// no validation rules for Minute
 
 	// no validation rules for Timestamp
+
+	// no validation rules for Calender
 
 	return nil
 }
