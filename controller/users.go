@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/rgumi/whatsapp-mock/model"
 	"github.com/valyala/fasthttp"
 )
@@ -33,7 +32,7 @@ func Login(ctx *fasthttp.RequestCtx) {
 		if pwd == password { // check if entered password is correct
 			if pwd == "secret" { // check if the password has been changed, if not, it must be done now
 				chPwdReq := new(model.ChangePwdRequest)
-				err := jsonpb.Unmarshal(bytes.NewReader(ctx.PostBody()), chPwdReq)
+				err := unmarsheler.Unmarshal(bytes.NewReader(ctx.PostBody()), chPwdReq)
 				if err != nil || chPwdReq.NewPassword == "" { // check if the request contained a new password
 					returnError(ctx, 400, model.Error{
 						Code:    400,

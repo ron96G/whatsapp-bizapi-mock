@@ -3,7 +3,6 @@ package controller
 import (
 	"io"
 
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/rgumi/whatsapp-mock/model"
 )
 
@@ -13,5 +12,5 @@ var (
 
 func InitConfig(r io.Reader) error {
 	Config = model.NewConfig()
-	return jsonpb.Unmarshal(r, Config)
+	return unmarsheler.Unmarshal(r, Config)
 }
