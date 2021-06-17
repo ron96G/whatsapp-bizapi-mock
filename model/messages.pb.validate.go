@@ -1362,7 +1362,7 @@ func (m *Message) Validate() error {
 	if !_Message_To_Pattern.MatchString(m.GetTo()) {
 		return MessageValidationError{
 			field:  "To",
-			reason: "value does not match regex pattern \"^\\\\+(?:[0-9]){6,14}[0-9]$\"",
+			reason: "value does not match regex pattern \"^\\\\+?(?:[0-9]){6,14}[0-9]$\"",
 		}
 	}
 
@@ -1566,7 +1566,7 @@ var _ interface {
 	ErrorName() string
 } = MessageValidationError{}
 
-var _Message_To_Pattern = regexp.MustCompile("^\\+(?:[0-9]){6,14}[0-9]$")
+var _Message_To_Pattern = regexp.MustCompile("^\\+?(?:[0-9]){6,14}[0-9]$")
 
 // Validate checks the field values on TemplateMessage_Language with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1664,11 +1664,11 @@ func (m *TemplateMessage_Component) Validate() error {
 		}
 	}
 
-	if m.GetSubtype() != "" {
+	if m.GetSubType() != "" {
 
-		if _, ok := _TemplateMessage_Component_Subtype_InLookup[m.GetSubtype()]; !ok {
+		if _, ok := _TemplateMessage_Component_SubType_InLookup[m.GetSubType()]; !ok {
 			return TemplateMessage_ComponentValidationError{
-				field:  "Subtype",
+				field:  "SubType",
 				reason: "value must be in list [quick_reply url]",
 			}
 		}
@@ -1758,21 +1758,21 @@ var _TemplateMessage_Component_Type_InLookup = map[string]struct{}{
 	"button": {},
 }
 
-var _TemplateMessage_Component_Subtype_InLookup = map[string]struct{}{
+var _TemplateMessage_Component_SubType_InLookup = map[string]struct{}{
 	"quick_reply": {},
 	"url":         {},
 }
 
-// Validate checks the field values on TemplateMessage_Component_Parameters
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, an error is returned.
-func (m *TemplateMessage_Component_Parameters) Validate() error {
+// Validate checks the field values on TemplateMessage_Component_Parameter with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *TemplateMessage_Component_Parameter) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if _, ok := _TemplateMessage_Component_Parameters_Type_InLookup[m.GetType()]; !ok {
-		return TemplateMessage_Component_ParametersValidationError{
+	if _, ok := _TemplateMessage_Component_Parameter_Type_InLookup[m.GetType()]; !ok {
+		return TemplateMessage_Component_ParameterValidationError{
 			field:  "Type",
 			reason: "value must be in list [text image document video currency date_time]",
 		}
@@ -1780,14 +1780,14 @@ func (m *TemplateMessage_Component_Parameters) Validate() error {
 
 	switch m.Spec.(type) {
 
-	case *TemplateMessage_Component_Parameters_Text:
+	case *TemplateMessage_Component_Parameter_Text:
 		// no validation rules for Text
 
-	case *TemplateMessage_Component_Parameters_Currency:
+	case *TemplateMessage_Component_Parameter_Currency:
 
 		if v, ok := interface{}(m.GetCurrency()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return TemplateMessage_Component_ParametersValidationError{
+				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Currency",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1795,11 +1795,11 @@ func (m *TemplateMessage_Component_Parameters) Validate() error {
 			}
 		}
 
-	case *TemplateMessage_Component_Parameters_DateTime:
+	case *TemplateMessage_Component_Parameter_DateTime:
 
 		if v, ok := interface{}(m.GetDateTime()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return TemplateMessage_Component_ParametersValidationError{
+				return TemplateMessage_Component_ParameterValidationError{
 					field:  "DateTime",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1807,11 +1807,11 @@ func (m *TemplateMessage_Component_Parameters) Validate() error {
 			}
 		}
 
-	case *TemplateMessage_Component_Parameters_Image:
+	case *TemplateMessage_Component_Parameter_Image:
 
 		if v, ok := interface{}(m.GetImage()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return TemplateMessage_Component_ParametersValidationError{
+				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Image",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1819,11 +1819,11 @@ func (m *TemplateMessage_Component_Parameters) Validate() error {
 			}
 		}
 
-	case *TemplateMessage_Component_Parameters_Document:
+	case *TemplateMessage_Component_Parameter_Document:
 
 		if v, ok := interface{}(m.GetDocument()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return TemplateMessage_Component_ParametersValidationError{
+				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Document",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1831,11 +1831,11 @@ func (m *TemplateMessage_Component_Parameters) Validate() error {
 			}
 		}
 
-	case *TemplateMessage_Component_Parameters_Video:
+	case *TemplateMessage_Component_Parameter_Video:
 
 		if v, ok := interface{}(m.GetVideo()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return TemplateMessage_Component_ParametersValidationError{
+				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Video",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1843,7 +1843,7 @@ func (m *TemplateMessage_Component_Parameters) Validate() error {
 			}
 		}
 
-	case *TemplateMessage_Component_Parameters_Payload:
+	case *TemplateMessage_Component_Parameter_Payload:
 		// no validation rules for Payload
 
 	}
@@ -1851,10 +1851,10 @@ func (m *TemplateMessage_Component_Parameters) Validate() error {
 	return nil
 }
 
-// TemplateMessage_Component_ParametersValidationError is the validation error
-// returned by TemplateMessage_Component_Parameters.Validate if the designated
+// TemplateMessage_Component_ParameterValidationError is the validation error
+// returned by TemplateMessage_Component_Parameter.Validate if the designated
 // constraints aren't met.
-type TemplateMessage_Component_ParametersValidationError struct {
+type TemplateMessage_Component_ParameterValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1862,24 +1862,24 @@ type TemplateMessage_Component_ParametersValidationError struct {
 }
 
 // Field function returns field value.
-func (e TemplateMessage_Component_ParametersValidationError) Field() string { return e.field }
+func (e TemplateMessage_Component_ParameterValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e TemplateMessage_Component_ParametersValidationError) Reason() string { return e.reason }
+func (e TemplateMessage_Component_ParameterValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e TemplateMessage_Component_ParametersValidationError) Cause() error { return e.cause }
+func (e TemplateMessage_Component_ParameterValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e TemplateMessage_Component_ParametersValidationError) Key() bool { return e.key }
+func (e TemplateMessage_Component_ParameterValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TemplateMessage_Component_ParametersValidationError) ErrorName() string {
-	return "TemplateMessage_Component_ParametersValidationError"
+func (e TemplateMessage_Component_ParameterValidationError) ErrorName() string {
+	return "TemplateMessage_Component_ParameterValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e TemplateMessage_Component_ParametersValidationError) Error() string {
+func (e TemplateMessage_Component_ParameterValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1891,14 +1891,14 @@ func (e TemplateMessage_Component_ParametersValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTemplateMessage_Component_Parameters.%s: %s%s",
+		"invalid %sTemplateMessage_Component_Parameter.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TemplateMessage_Component_ParametersValidationError{}
+var _ error = TemplateMessage_Component_ParameterValidationError{}
 
 var _ interface {
 	Field() string
@@ -1906,9 +1906,9 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TemplateMessage_Component_ParametersValidationError{}
+} = TemplateMessage_Component_ParameterValidationError{}
 
-var _TemplateMessage_Component_Parameters_Type_InLookup = map[string]struct{}{
+var _TemplateMessage_Component_Parameter_Type_InLookup = map[string]struct{}{
 	"text":      {},
 	"image":     {},
 	"document":  {},
@@ -1918,10 +1918,10 @@ var _TemplateMessage_Component_Parameters_Type_InLookup = map[string]struct{}{
 }
 
 // Validate checks the field values on
-// TemplateMessage_Component_Parameters_CurrencyParameter with the rules
+// TemplateMessage_Component_Parameter_CurrencyParameter with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *TemplateMessage_Component_Parameters_CurrencyParameter) Validate() error {
+func (m *TemplateMessage_Component_Parameter_CurrencyParameter) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -1935,11 +1935,11 @@ func (m *TemplateMessage_Component_Parameters_CurrencyParameter) Validate() erro
 	return nil
 }
 
-// TemplateMessage_Component_Parameters_CurrencyParameterValidationError is the
+// TemplateMessage_Component_Parameter_CurrencyParameterValidationError is the
 // validation error returned by
-// TemplateMessage_Component_Parameters_CurrencyParameter.Validate if the
+// TemplateMessage_Component_Parameter_CurrencyParameter.Validate if the
 // designated constraints aren't met.
-type TemplateMessage_Component_Parameters_CurrencyParameterValidationError struct {
+type TemplateMessage_Component_Parameter_CurrencyParameterValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1947,32 +1947,30 @@ type TemplateMessage_Component_Parameters_CurrencyParameterValidationError struc
 }
 
 // Field function returns field value.
-func (e TemplateMessage_Component_Parameters_CurrencyParameterValidationError) Field() string {
+func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Field() string {
 	return e.field
 }
 
 // Reason function returns reason value.
-func (e TemplateMessage_Component_Parameters_CurrencyParameterValidationError) Reason() string {
+func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Reason() string {
 	return e.reason
 }
 
 // Cause function returns cause value.
-func (e TemplateMessage_Component_Parameters_CurrencyParameterValidationError) Cause() error {
+func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Cause() error {
 	return e.cause
 }
 
 // Key function returns key value.
-func (e TemplateMessage_Component_Parameters_CurrencyParameterValidationError) Key() bool {
-	return e.key
-}
+func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TemplateMessage_Component_Parameters_CurrencyParameterValidationError) ErrorName() string {
-	return "TemplateMessage_Component_Parameters_CurrencyParameterValidationError"
+func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) ErrorName() string {
+	return "TemplateMessage_Component_Parameter_CurrencyParameterValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e TemplateMessage_Component_Parameters_CurrencyParameterValidationError) Error() string {
+func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1984,14 +1982,14 @@ func (e TemplateMessage_Component_Parameters_CurrencyParameterValidationError) E
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTemplateMessage_Component_Parameters_CurrencyParameter.%s: %s%s",
+		"invalid %sTemplateMessage_Component_Parameter_CurrencyParameter.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TemplateMessage_Component_Parameters_CurrencyParameterValidationError{}
+var _ error = TemplateMessage_Component_Parameter_CurrencyParameterValidationError{}
 
 var _ interface {
 	Field() string
@@ -1999,13 +1997,13 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TemplateMessage_Component_Parameters_CurrencyParameterValidationError{}
+} = TemplateMessage_Component_Parameter_CurrencyParameterValidationError{}
 
 // Validate checks the field values on
-// TemplateMessage_Component_Parameters_DateTimeParameter with the rules
+// TemplateMessage_Component_Parameter_DateTimeParameter with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *TemplateMessage_Component_Parameters_DateTimeParameter) Validate() error {
+func (m *TemplateMessage_Component_Parameter_DateTimeParameter) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -2026,16 +2024,16 @@ func (m *TemplateMessage_Component_Parameters_DateTimeParameter) Validate() erro
 
 	// no validation rules for Timestamp
 
-	// no validation rules for Calender
+	// no validation rules for Calendar
 
 	return nil
 }
 
-// TemplateMessage_Component_Parameters_DateTimeParameterValidationError is the
+// TemplateMessage_Component_Parameter_DateTimeParameterValidationError is the
 // validation error returned by
-// TemplateMessage_Component_Parameters_DateTimeParameter.Validate if the
+// TemplateMessage_Component_Parameter_DateTimeParameter.Validate if the
 // designated constraints aren't met.
-type TemplateMessage_Component_Parameters_DateTimeParameterValidationError struct {
+type TemplateMessage_Component_Parameter_DateTimeParameterValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2043,32 +2041,30 @@ type TemplateMessage_Component_Parameters_DateTimeParameterValidationError struc
 }
 
 // Field function returns field value.
-func (e TemplateMessage_Component_Parameters_DateTimeParameterValidationError) Field() string {
+func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Field() string {
 	return e.field
 }
 
 // Reason function returns reason value.
-func (e TemplateMessage_Component_Parameters_DateTimeParameterValidationError) Reason() string {
+func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Reason() string {
 	return e.reason
 }
 
 // Cause function returns cause value.
-func (e TemplateMessage_Component_Parameters_DateTimeParameterValidationError) Cause() error {
+func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Cause() error {
 	return e.cause
 }
 
 // Key function returns key value.
-func (e TemplateMessage_Component_Parameters_DateTimeParameterValidationError) Key() bool {
-	return e.key
-}
+func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TemplateMessage_Component_Parameters_DateTimeParameterValidationError) ErrorName() string {
-	return "TemplateMessage_Component_Parameters_DateTimeParameterValidationError"
+func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) ErrorName() string {
+	return "TemplateMessage_Component_Parameter_DateTimeParameterValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e TemplateMessage_Component_Parameters_DateTimeParameterValidationError) Error() string {
+func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2080,14 +2076,14 @@ func (e TemplateMessage_Component_Parameters_DateTimeParameterValidationError) E
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTemplateMessage_Component_Parameters_DateTimeParameter.%s: %s%s",
+		"invalid %sTemplateMessage_Component_Parameter_DateTimeParameter.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TemplateMessage_Component_Parameters_DateTimeParameterValidationError{}
+var _ error = TemplateMessage_Component_Parameter_DateTimeParameterValidationError{}
 
 var _ interface {
 	Field() string
@@ -2095,7 +2091,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TemplateMessage_Component_Parameters_DateTimeParameterValidationError{}
+} = TemplateMessage_Component_Parameter_DateTimeParameterValidationError{}
 
 // Validate checks the field values on InteractiveMessage_HeaderParameter with
 // the rules defined in the proto definition for this message. If any rules

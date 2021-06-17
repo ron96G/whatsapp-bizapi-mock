@@ -112,6 +112,7 @@ func returnError(ctx *fasthttp.RequestCtx, statusCode int, errors ...model.Error
 func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 	err := jsonpb.Unmarshal(bytes.NewReader(ctx.PostBody()), msg)
 	if err != nil {
+		util.Log.Warnf("Failed to unmarshal { %v } with '%v'", msg, err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
@@ -125,7 +126,7 @@ func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 
 func validatePayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 	if err := msg.Validate(); err != nil {
-		util.Log.Warnf("Failed validation of { %s } with '%v'", msg.String(), err)
+		util.Log.Warnf("Failed validation of { %v } with '%v'", msg, err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
