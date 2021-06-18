@@ -27,13 +27,13 @@ image: golang:latest
     - go get google.golang.org/protobuf/cmd/protoc-gen-go
     - go get github.com/envoyproxy/protoc-gen-validate
 
-    - 'protoc 
-        -I . 
-        -I ${GOPATH}/src 
-        -I ${GOPATH}/src/github.com/envoyproxy/protoc-gen-validate 
-        --proto_path="./protobuf" 
-        --go_out=":./" 
-        --validate_out="lang=go:." 
+    - 'protoc
+        -I .
+        -I ${GOPATH}/src
+        -I ${GOPATH}/src/github.com/envoyproxy/protoc-gen-validate
+        --proto_path="./protobuf"
+        --go_out=":./"
+        --validate_out="lang=go:."
         meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
 
     -  chmod 777 -R model

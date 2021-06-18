@@ -1,10 +1,9 @@
+fail_fast: false
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
     - id: pretty-format-json
-- repo: git://github.com/dnephin/pre-commit-golang
-  rev: master
-  hooks:
-    - id: go-mod-tidy
-    - id: go-fmt
+    - id: check-yaml
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
