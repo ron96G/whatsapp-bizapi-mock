@@ -93,10 +93,12 @@ build protoc:
   <<: *pre_build_protoc
 
 unit test:
+  allow_failure: true
   stage: check
   <<: *pre_build_test
 
 scan:
+  allow_failure: true
   stage: check
   <<: *pre_build_scan
 
