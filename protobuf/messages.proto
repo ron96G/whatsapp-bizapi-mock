@@ -91,20 +91,26 @@ message TemplateMessage {
         Code code = 2 [(validate.rules).enum.defined_only = true];
     }
     message Component {
-        message Parameters {
+        message Parameter {
             message CurrencyParameter {
                 string fallback_value = 1;
                 string code = 2;
                 uint32 amount_1000 = 3;
             }
+            enum Calendar {
+                GREGORIAN = 0;
+                SOLAR_HIJRI = 1;
+            }
             message DateTimeParameter {
                 string fallback_value = 1;
                 uint32 day_of_week = 2;
                 uint32 day_of_month = 3;
-                uint32 month = 4;
-                uint32 hour = 5;
-                uint32 minute = 6;
-                uint64 timestamp = 7;
+                uint32 year = 4;
+                uint32 month = 5;
+                uint32 hour = 6;
+                uint32 minute = 7;
+                uint64 timestamp = 8;
+                Calendar calendar = 9;
             }
 
             string type = 1 [(validate.rules).string = {
@@ -123,12 +129,12 @@ message TemplateMessage {
         }
 
         string type = 1 [(validate.rules).string = {in: ["header", "body", "footer", "button"]}];
-        string subtype = 2 [(validate.rules).string = {
-            ignore_empty: true, 
+        string sub_type = 2 [(validate.rules).string = {
+            ignore_empty: true,
             in: ["quick_reply", "url"]
         }];
-        uint32 index = 3;
-        repeated Parameters parameters = 4;
+        string index = 3;
+        repeated Parameter parameters = 4;
     }
 
     string namespace = 1;
@@ -219,7 +225,7 @@ message Message {
     string id = 1;
     string from = 2;
     string to = 3 [(validate.rules).string = {
-        pattern: "^\\+(?:[0-9]){6,14}[0-9]$" // This is not correct for 100% of cases
+        pattern: "^\\+?(?:[0-9]){6,14}[0-9]$" // This is not correct for 100% of cases
     }];
     Context context = 4;
     meta.MessageType type = 5;

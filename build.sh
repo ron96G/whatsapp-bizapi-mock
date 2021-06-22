@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e 
+set -e
 
 go get -u github.com/swaggo/swag/cmd/swag
 go install google.golang.org/protobuf/cmd/protoc-gen-go

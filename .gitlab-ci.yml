@@ -10,7 +10,7 @@ stages:
   - container_scan_stage
 
 cache:
-  key: ${CI_COMMIT_REF_SLUG}
+  key: ${CI_COMMIT_SHORT_SHA}
   paths:
     - "model"
 
@@ -27,13 +27,13 @@ image: golang:latest
     - go get google.golang.org/protobuf/cmd/protoc-gen-go
     - go get github.com/envoyproxy/protoc-gen-validate
 
-    - 'protoc 
-        -I . 
-        -I ${GOPATH}/src 
-        -I ${GOPATH}/src/github.com/envoyproxy/protoc-gen-validate 
-        --proto_path="./protobuf" 
-        --go_out=":./" 
-        --validate_out="lang=go:." 
+    - 'protoc
+        -I .
+        -I ${GOPATH}/src
+        -I ${GOPATH}/src/github.com/envoyproxy/protoc-gen-validate
+        --proto_path="./protobuf"
+        --go_out=":./"
+        --validate_out="lang=go:."
         meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
 
     -  chmod 777 -R model
@@ -58,6 +58,9 @@ image: golang:latest
     - rm -rf uploads
 
 .build_template: &build_image
+  tags:
+    - run_docker
+  image: docker
   before_script:
     - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
   script:
@@ -100,8 +103,6 @@ scan:
 
 build latest:
   stage: build
-  tags:
-    - run_shell
   variables:
     TAG: latest
   only:
@@ -113,6 +114,4 @@ build versioned:
   stage: build
   variables:
     TAG: v$VERSION
-  tags:
-    - run_shell
   <<: *build_image

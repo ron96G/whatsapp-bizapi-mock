@@ -29,6 +29,7 @@ var (
 	soReuseport            = flag.Bool("reuseport", false, "(experimental) uses SO_REUSEPORT option to start TCP listener") // see https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/
 	compressWebhookContent = flag.Bool("compress-webhook", false, "compress the content of the webhook requests using gzip")
 	compressMinsize        = flag.Int("compress-minsize", 2048, "the minimum uncompressed sized that is required to use gzip compression")
+	allowUnknownFields     = flag.Bool("allow-unknown-fields", true, "Whether to allow unknown fields in the incoming message request")
 
 	staticAPIToken = os.Getenv("WA_API_KEY")
 
@@ -64,6 +65,7 @@ func main() {
 	controller.SigningKey = signingKey
 	controller.Compress = *compressWebhookContent
 	controller.CompressMinsize = *compressMinsize
+	controller.UpdateUnmarshaler(*allowUnknownFields)
 
 	contacts := make([]*model.Contact, len(controller.Config.Contacts))
 	for i, c := range controller.Config.Contacts {

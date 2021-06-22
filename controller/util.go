@@ -22,8 +22,20 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// readLimit is the maximum number of bytes from the input used when detecting the MimeType
-var readLimit uint32 = 512
+var (
+	// readLimit is the maximum number of bytes from the input used when detecting the MimeType
+	readLimit uint32 = 512
+
+	marsheler = jsonpb.Marshaler{
+		EmitDefaults: false,
+		EnumsAsInts:  false,
+		OrigName:     true,
+		Indent:       "  ",
+	}
+	unmarsheler = jsonpb.Unmarshaler{
+		AllowUnknownFields: true,
+	}
+)
 
 type CustomClaims struct {
 	Role string `json:"role"`
@@ -110,8 +122,9 @@ func returnError(ctx *fasthttp.RequestCtx, statusCode int, errors ...model.Error
 }
 
 func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
-	err := jsonpb.Unmarshal(bytes.NewReader(ctx.PostBody()), msg)
+	err := unmarsheler.Unmarshal(bytes.NewReader(ctx.PostBody()), msg)
 	if err != nil {
+		util.Log.Warnf("Failed to unmarshal { %v } with '%v'", msg, err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
@@ -125,6 +138,7 @@ func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 
 func validatePayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 	if err := msg.Validate(); err != nil {
+		util.Log.Warnf("Failed validation of { %v } with '%v'", msg, err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
@@ -339,4 +353,10 @@ func SaveToJSONFile(in proto.Message, path string) error {
 
 func isEncodingAllowed(ctx *fasthttp.RequestCtx, encoding string) bool {
 	return ctx.Request.Header.HasAcceptEncoding(encoding)
+}
+
+func UpdateUnmarshaler(allowUnknownFields bool) {
+	unmarsheler = jsonpb.Unmarshaler{
+		AllowUnknownFields: allowUnknownFields,
+	}
 }

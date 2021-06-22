@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	regexPhoneNumber = regexp.MustCompile(`^\+(?:[0-9-\(\)] ?){6,14}[0-9]$`)
+	regexPhoneNumber = regexp.MustCompile(`^\+?(?:[0-9-\(\)] ?){6,14}[0-9]$`)
 	cleanUp          = regexp.MustCompile(`[^\+0-9]`)
 )
 
