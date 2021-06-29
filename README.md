@@ -1,6 +1,6 @@
 # WhatsApp Business API Mockserver
 
-This repository contains the mockserver for the WhatsApp Business API (WABiz). 
+This repository contains the mockserver for the WhatsApp Business API (WABiz).
 It is used to perform integration-, system- and load-testing.
 
 
@@ -33,7 +33,7 @@ The following list shows the core functionality that is currently supported.
 1. Generate inbound traffic with different messages and media
 2. Generate stati for outbound traffic
 3. Rate limiting
-4. (TBD) Validate outbound traffic 
+4. (TBD) Validate outbound traffic
 5. (TBD) strict validation (only allow outbound messages to users that have sent a inbound message)
 
 ## Supported Messages

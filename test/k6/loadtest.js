@@ -17,7 +17,7 @@ export default function () {
     },
   };
   let res = http.post(baseUrl+'/users/login', {},params);
-  
+
   check(res, {
     'status is 200': (r) => r.status === 200
   });
