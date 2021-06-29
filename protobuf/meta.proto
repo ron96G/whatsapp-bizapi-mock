@@ -14,7 +14,7 @@ enum MessageType {
     audio = 8;
     template = 9;
     interactive = 10;
-} 
+}
 
 message Meta {
     string version = 1;

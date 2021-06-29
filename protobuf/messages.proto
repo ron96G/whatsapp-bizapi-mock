@@ -130,7 +130,7 @@ message TemplateMessage {
 
         string type = 1 [(validate.rules).string = {in: ["header", "body", "footer", "button"]}];
         string sub_type = 2 [(validate.rules).string = {
-            ignore_empty: true, 
+            ignore_empty: true,
             in: ["quick_reply", "url"]
         }];
         string index = 3;

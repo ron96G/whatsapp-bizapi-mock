@@ -16,7 +16,7 @@ message Contact {
         string name = 1;
     }
 
-    string wa_id = 1; 
+    string wa_id = 1;
     string input = 2;
     StatusEnum status = 3;
 
@@ -29,7 +29,7 @@ message ContactRequest {
         no_wait = 1;
     }
 
-    BlockingEnum blocking = 1; 
+    BlockingEnum blocking = 1;
     repeated string contacts = 2;
     bool force_check = 3;
 }
