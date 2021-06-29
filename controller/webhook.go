@@ -53,8 +53,10 @@ func NewWebhookConfig(url string, g *model.Generators) *WebhookConfig {
 }
 
 func (wc *WebhookConfig) Send(req *fasthttp.Request) (*fasthttp.Response, error) {
+	start := time.Now()
 	resp := fasthttp.AcquireResponse()
 	err := util.DefaultClient.Do(req, resp)
+	monitoring.AvgWebhookResponseTime.Observe(float64(time.Since(start).Milliseconds()))
 	return resp, err
 }
 

@@ -8,19 +8,13 @@ import (
 )
 
 func All(h fasthttp.RequestHandler) fasthttp.RequestHandler {
-	return ResponseTime(ContentLength(CountRequest(h)))
-}
-
-func CountRequest(h fasthttp.RequestHandler) fasthttp.RequestHandler {
-	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		h(ctx)
-		atomic.AddUint64(&currentRequestCount, 1)
-	})
+	return ResponseTime(ContentLength(h))
 }
 
 func ContentLength(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		h(ctx)
+		atomic.AddUint64(&currentRequestCount, 1)
 		atomic.StoreUint64(
 			&currentAvgContentLength,
 			floatingAverage(currentAvgContentLength, uint64(ctx.Request.Header.ContentLength()), currentRequestCount),
@@ -32,14 +26,8 @@ func ResponseTime(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		start := ctx.Time()
 		h(ctx)
-		HTTPResponseTime.Observe(time.Since(start).Seconds())
-
-		/*
-			atomic.StoreUint64(
-				&currentAvgResponseTime,
-				floatingAverage(currentAvgResponseTime, uint64(time.Since(start).Milliseconds()), currentRequestCount),
-			)
-		*/
+		delta := float64(time.Since(start).Milliseconds())
+		HTTPResponseTime.Observe(delta)
 	})
 }
 
