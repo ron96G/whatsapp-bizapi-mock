@@ -12,10 +12,10 @@ import (
 
 	"github.com/valyala/fasthttp/reuseport"
 
-	"github.com/rgumi/whatsapp-mock/controller"
-	"github.com/rgumi/whatsapp-mock/docs"
-	"github.com/rgumi/whatsapp-mock/model"
-	"github.com/rgumi/whatsapp-mock/util"
+	"github.com/ron96G/whatsapp-bizapi-mock/controller"
+	"github.com/ron96G/whatsapp-bizapi-mock/docs"
+	"github.com/ron96G/whatsapp-bizapi-mock/model"
+	"github.com/ron96G/whatsapp-bizapi-mock/util"
 )
 
 var (

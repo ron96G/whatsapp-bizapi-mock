@@ -17,8 +17,8 @@ import (
 	jwt "github.com/dgrijalva/jwt-go/v4"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"github.com/rgumi/whatsapp-mock/model"
-	"github.com/rgumi/whatsapp-mock/util"
+	"github.com/ron96G/whatsapp-bizapi-mock/model"
+	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
 )
 

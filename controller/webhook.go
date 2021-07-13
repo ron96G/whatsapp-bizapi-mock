@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/rgumi/whatsapp-mock/model"
-	"github.com/rgumi/whatsapp-mock/monitoring"
-	"github.com/rgumi/whatsapp-mock/util"
+	"github.com/ron96G/whatsapp-bizapi-mock/model"
+	"github.com/ron96G/whatsapp-bizapi-mock/monitoring"
+	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
@@ -53,8 +53,10 @@ func NewWebhookConfig(url string, g *model.Generators) *WebhookConfig {
 }
 
 func (wc *WebhookConfig) Send(req *fasthttp.Request) (*fasthttp.Response, error) {
+	start := time.Now()
 	resp := fasthttp.AcquireResponse()
 	err := util.DefaultClient.Do(req, resp)
+	monitoring.AvgWebhookResponseTime.Observe(float64(time.Since(start).Milliseconds()))
 	return resp, err
 }
 

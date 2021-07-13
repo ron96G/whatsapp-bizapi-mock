@@ -10,7 +10,7 @@ import (
 	sync "sync"
 	"time"
 
-	"github.com/rgumi/whatsapp-mock/util"
+	"github.com/ron96G/whatsapp-bizapi-mock/util"
 
 	"github.com/google/uuid"
 )
