@@ -2,12 +2,17 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rgumi/whatsapp-mock/util"
+	"github.com/ron96G/whatsapp-bizapi-mock/util"
+	"github.com/uber/jaeger-client-go/config"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/time/rate"
+
+	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
 )
 
 var (
@@ -101,5 +106,67 @@ func SetConnID(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 		}
 
 		h(ctx)
+	})
+}
+
+func Tracer(h fasthttp.RequestHandler) fasthttp.RequestHandler {
+	serviceName := "wabiz-mockserver"
+	componentName := "fasthttp"
+
+	defcfg := config.Configuration{
+		ServiceName: serviceName,
+		Sampler: &config.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+		Reporter: &config.ReporterConfig{
+			LogSpans:            true,
+			BufferFlushInterval: 1 * time.Second,
+		},
+	}
+
+	config, err := defcfg.FromEnv()
+	if err != nil {
+		panic("Could not parse Jaeger env vars: " + err.Error())
+	}
+
+	tr, _, err := config.NewTracer()
+	if err != nil {
+		panic("Could not initialize jaeger tracer: " + err.Error())
+	}
+
+	opentracing.SetGlobalTracer(tr)
+	util.Log.Info("Successfully initialized tracer")
+
+	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+
+		req := ctx.Request
+		method := string(ctx.Method())
+		url := string(ctx.Path())
+		opname := "HTTP " + method + " URL: " + url
+		var sp opentracing.Span
+		carrier := util.NewCarrier(&req.Header)
+
+		if c, err := tr.Extract(opentracing.HTTPHeaders, carrier); err != nil {
+			sp = tr.StartSpan(opname)
+		} else {
+			sp = tr.StartSpan(opname, ext.RPCServerOption(c))
+		}
+
+		ext.HTTPMethod.Set(sp, method)
+		ext.HTTPUrl.Set(sp, url)
+		ext.Component.Set(sp, componentName)
+
+		ctx.SetUserValue("activeSpan", sp)
+
+		h(ctx)
+		status := uint16(ctx.Response.StatusCode())
+		ext.HTTPStatusCode.Set(sp, status)
+
+		if status >= http.StatusInternalServerError {
+			ext.Error.Set(sp, true)
+		}
+
+		sp.Finish()
 	})
 }

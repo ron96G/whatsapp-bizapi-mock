@@ -5,7 +5,7 @@ import (
 	"compress/gzip"
 	"sync"
 
-	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/ron96G/whatsapp-bizapi-mock/model"
 )
 
 /*

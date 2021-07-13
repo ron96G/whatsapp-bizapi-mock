@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/rgumi/whatsapp-mock/model"
-	"github.com/rgumi/whatsapp-mock/util"
+	"github.com/ron96G/whatsapp-bizapi-mock/model"
+	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
