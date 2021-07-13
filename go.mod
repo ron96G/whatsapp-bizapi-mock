@@ -1,26 +1,31 @@
-module github.com/rgumi/whatsapp-mock
+module github.com/ron96G/whatsapp-bizapi-mock
 
-go 1.15
+go 1.16
 
 require (
+	github.com/HdrHistogram/hdrhistogram-go v1.1.0 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/envoyproxy/protoc-gen-validate v0.6.1
-	github.com/fasthttp/router v1.3.14
+	github.com/fasthttp/router v1.4.0
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.2
-	github.com/google/uuid v1.2.0
+	github.com/google/uuid v1.3.0
+	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.29.0
-	github.com/rgumi/go-fasthttp-swagger v0.0.0-20210527153122-d4f60e096189
+	github.com/ron96G/go-fasthttp-swagger v0.0.0-20210713131343-ea0c9423e54f
 	github.com/sirupsen/logrus v1.8.1
 	github.com/swaggo/swag v1.7.0
-	github.com/valyala/fasthttp v1.26.0
-	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+	github.com/uber/jaeger-client-go v2.29.1+incompatible
+	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
+	github.com/valyala/fasthttp v1.28.0
+	go.uber.org/atomic v1.8.0 // indirect
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
-	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
+	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 	golang.org/x/time v0.0.0-20210611083556-38a9dc6acbc6
-	golang.org/x/tools v0.1.3 // indirect
-	google.golang.org/protobuf v1.26.0
+	golang.org/x/tools v0.1.4 // indirect
+	google.golang.org/protobuf v1.27.1
 )

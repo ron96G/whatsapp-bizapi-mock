@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-	"github.com/rgumi/whatsapp-mock/model"
+	"github.com/ron96G/whatsapp-bizapi-mock/model"
 	"github.com/valyala/fasthttp"
 )
 
