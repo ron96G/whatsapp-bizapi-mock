@@ -1,5 +1,5 @@
 FROM golang:latest as appBuilder
-WORKDIR /go/src/github.com/ron96G/whatsapp-mock
+WORKDIR /go/src/github.com/ron96G/whatsapp-bizapi-mock
 COPY . .
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -o app ./cmd/main.go
 

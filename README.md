@@ -60,6 +60,6 @@ Outbound types are accepted by the messages resource and validated.
 
 ### Generate model code
 ```bash
-cd whatsapp-mock
+cd whatsapp-bizapi-mock
 ./build.sh
 ```
