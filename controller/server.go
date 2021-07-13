@@ -4,12 +4,12 @@ import (
 	"time"
 
 	"github.com/fasthttp/router"
-	"github.com/rgumi/whatsapp-mock/model"
-	"github.com/rgumi/whatsapp-mock/monitoring"
+	"github.com/ron96G/whatsapp-bizapi-mock/model"
+	"github.com/ron96G/whatsapp-bizapi-mock/monitoring"
 	"github.com/valyala/fasthttp"
 
-	swagger "github.com/rgumi/go-fasthttp-swagger"
-	_ "github.com/rgumi/whatsapp-mock/docs"
+	swagger "github.com/ron96G/go-fasthttp-swagger"
+	_ "github.com/ron96G/whatsapp-bizapi-mock/docs"
 )
 
 var (
@@ -98,7 +98,7 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 
 	r.PanicHandler = PanicHandler
 	server := &fasthttp.Server{
-		Handler:                       Log(r.Handler),
+		Handler:                       Log(Tracer(r.Handler)),
 		Name:                          "WhatsAppMockserver",
 		Concurrency:                   256 * 1024,
 		DisableKeepalive:              false,
