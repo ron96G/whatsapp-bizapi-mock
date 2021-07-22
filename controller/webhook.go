@@ -110,7 +110,7 @@ func (wc *WebhookConfig) GenerateWebhookRequests(numberOfEntries int, types ...s
 	}
 	whReq.Messages = append(whReq.Messages, messages...)
 	whReq.Contacts = append(whReq.Contacts, wc.Generators.Contacts...)
-	whReq.Errors = append(whReq.Errors, nil)
+	whReq.Errors = nil // Set the errors array to nil to skip it in marshalling
 	whReq.Statuses = wc.StatusQueue
 	wc.StatusQueue = []*model.Status{}
 	wc.Queue <- whReq
