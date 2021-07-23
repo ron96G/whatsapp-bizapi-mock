@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/ron96G/go-certificate-util/util"
 )
 
 func webhook(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +31,7 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/webhook", webhook)
-	s, _ := GenerateServerTLS()
+	s, _ := util.GenerateServerTLS(util.Options{})
 	l, _ := tls.Listen("tcp", "0.0.0.0:9000", s)
 	http.Serve(l, nil)
 }
