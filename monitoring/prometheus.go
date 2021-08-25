@@ -29,36 +29,14 @@ var (
 	registry  *prometheus.Registry
 	namespace = "whatsapp_mock"
 
-	currentRequestCount, currentAvgContentLength uint64
-
-	// AvgContentLength is the average content length of requests
-	AvgContentLength = prometheus.NewGaugeFunc(
-		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Name:      "average_content_length",
-			Help:      "the average content length of the response body",
-		},
-		func() float64 {
-			return float64(currentAvgContentLength)
-		},
-	)
-
-	HTTPResponseTime = prometheus.NewHistogram(
+	ApiRequestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Namespace: namespace,
-			Name:      "http_response_time",
-			Help:      "the response time of the webserver in milliseconds",
+			Name:      "request_duration_milliseconds",
+			Help:      "The HTTP request latencies in milliseconds.",
 			Buckets:   []float64{1, 5, 10, 100, 500},
 		},
-	)
-
-	TotalGeneratedMessages = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: namespace,
-			Name:      "webhook_total_messages",
-			Help:      "the total amount of webhook messages generated",
-		},
-		[]string{},
+		[]string{"code", "method", "url"},
 	)
 
 	WebhookQueueLength = prometheus.NewGaugeVec(
@@ -70,13 +48,14 @@ var (
 		[]string{"type"},
 	)
 
-	AvgWebhookResponseTime = prometheus.NewHistogram(
+	WebhookRequestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Namespace: namespace,
-			Name:      "webhook_response_time",
-			Help:      "the response time of a webook request in milliseconds",
+			Name:      "webhook_duration_milliseconds",
+			Help:      "The HTTP request latencies of the webhook in milliseconds.",
 			Buckets:   []float64{1, 5, 10, 100, 500},
 		},
+		[]string{"code", "url"},
 	)
 )
 
@@ -86,14 +65,12 @@ func init() {
 	coll := collectors.NewGoCollector()
 	registry.MustRegister(coll)
 
-	// HTTP
-	registry.MustRegister(AvgContentLength)
-	registry.MustRegister(HTTPResponseTime)
+	// API
+	registry.MustRegister(ApiRequestDuration)
 
 	// Webhook
-	registry.MustRegister(TotalGeneratedMessages)
 	registry.MustRegister(WebhookQueueLength)
-	registry.MustRegister(AvgWebhookResponseTime)
+	registry.MustRegister(WebhookRequestDuration)
 
 }
 
