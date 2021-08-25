@@ -1,25 +1,14 @@
 package monitoring
 
 import (
-	"sync/atomic"
+	"strconv"
 	"time"
 
 	"github.com/valyala/fasthttp"
 )
 
 func All(h fasthttp.RequestHandler) fasthttp.RequestHandler {
-	return ResponseTime(ContentLength(h))
-}
-
-func ContentLength(h fasthttp.RequestHandler) fasthttp.RequestHandler {
-	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		h(ctx)
-		atomic.AddUint64(&currentRequestCount, 1)
-		atomic.StoreUint64(
-			&currentAvgContentLength,
-			floatingAverage(currentAvgContentLength, uint64(ctx.Request.Header.ContentLength()), currentRequestCount),
-		)
-	})
+	return ResponseTime(h)
 }
 
 func ResponseTime(h fasthttp.RequestHandler) fasthttp.RequestHandler {
@@ -27,7 +16,11 @@ func ResponseTime(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 		start := ctx.Time()
 		h(ctx)
 		delta := float64(time.Since(start).Milliseconds())
-		HTTPResponseTime.Observe(delta)
+		statusStr := strconv.Itoa(ctx.Response.StatusCode())
+		methodStr := string(ctx.Request.Header.Method())
+		urlStr := ctx.Request.URI().String()
+
+		ApiRequestDuration.WithLabelValues(statusStr, methodStr, urlStr).Observe(delta)
 	})
 }
 

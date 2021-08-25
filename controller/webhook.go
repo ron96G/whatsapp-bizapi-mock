@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"sync"
 	"time"
 
@@ -56,7 +57,13 @@ func (wc *WebhookConfig) Send(req *fasthttp.Request) (*fasthttp.Response, error)
 	start := time.Now()
 	resp := fasthttp.AcquireResponse()
 	err := util.DefaultClient.Do(req, resp)
-	monitoring.AvgWebhookResponseTime.Observe(float64(time.Since(start).Milliseconds()))
+	if err != nil {
+		return nil, err
+	}
+	delta := float64(time.Since(start).Milliseconds())
+	statusStr := strconv.Itoa(resp.StatusCode())
+	urlStr := req.URI().String()
+	monitoring.WebhookRequestDuration.WithLabelValues(statusStr, urlStr).Observe(delta)
 	return resp, err
 }
 
@@ -116,7 +123,6 @@ func (wc *WebhookConfig) GenerateWebhookRequests(numberOfEntries int, types ...s
 	wc.Queue <- whReq
 
 	fCount := float64(numberOfEntries)
-	monitoring.TotalGeneratedMessages.With(nil).Add(fCount)
 	monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "message"}).Add(fCount)
 	return messages
 }
