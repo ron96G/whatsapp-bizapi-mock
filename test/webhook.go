@@ -8,12 +8,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ron96G/go-certificate-util/util"
 )
 
 func webhook(w http.ResponseWriter, r *http.Request) {
 
+	time.Sleep(500 * time.Millisecond)
 	w.WriteHeader(200)
 
 	fmt.Printf("Header:\n %v\n", r.Header)

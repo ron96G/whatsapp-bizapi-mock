@@ -55,14 +55,16 @@ func NewWebhookConfig(url string, g *model.Generators) *WebhookConfig {
 
 func (wc *WebhookConfig) Send(req *fasthttp.Request) (*fasthttp.Response, error) {
 	start := time.Now()
+	urlStr := string(req.URI().Path())
 	resp := fasthttp.AcquireResponse()
 	err := util.DefaultClient.Do(req, resp)
+	delta := float64(time.Since(start).Milliseconds())
 	if err != nil {
+		monitoring.WebhookRequestDuration.WithLabelValues("failed", urlStr).Observe(delta)
 		return nil, err
 	}
-	delta := float64(time.Since(start).Milliseconds())
+
 	statusStr := strconv.Itoa(resp.StatusCode())
-	urlStr := req.URI().String()
 	monitoring.WebhookRequestDuration.WithLabelValues(statusStr, urlStr).Observe(delta)
 	return resp, err
 }
@@ -71,7 +73,9 @@ func (wc *WebhookConfig) AddStati(stati ...*model.Status) {
 	wc.mux.Lock()
 	wc.StatusQueue = append(wc.StatusQueue, stati...)
 	wc.mux.Unlock()
-	monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "status"}).Add(float64(len(stati)))
+	amount := float64(len(stati))
+	monitoring.WebhookGeneratedMessages.With(prometheus.Labels{"type": "status"}).Add(amount)
+	monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "status"}).Add(amount)
 }
 
 // collect all stati of outbound messages and send them to webhook
@@ -122,8 +126,9 @@ func (wc *WebhookConfig) GenerateWebhookRequests(numberOfEntries int, types ...s
 	wc.StatusQueue = []*model.Status{}
 	wc.Queue <- whReq
 
-	fCount := float64(numberOfEntries)
-	monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "message"}).Add(fCount)
+	amount := float64(numberOfEntries)
+	monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "message"}).Add(amount)
+	monitoring.WebhookGeneratedMessages.With(prometheus.Labels{"type": "message"}).Add(amount)
 	return messages
 }
 

@@ -34,16 +34,24 @@ var (
 			Namespace: namespace,
 			Name:      "request_duration_milliseconds",
 			Help:      "The HTTP request latencies in milliseconds.",
-			Buckets:   []float64{1, 5, 10, 100, 500},
+			Buckets:   []float64{10, 50, 100, 500, 1000},
 		},
 		[]string{"code", "method", "url"},
 	)
 
+	WebhookGeneratedMessages = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Name:      "webhook_generated",
+			Help:      "The amount of generated objects by the webhook",
+		},
+		[]string{"type"},
+	)
 	WebhookQueueLength = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
-			Name:      "webhook_message_queue_length",
-			Help:      "the current length of the webhook queue",
+			Name:      "webhook_queue_length",
+			Help:      "The current length of the webhook queue",
 		},
 		[]string{"type"},
 	)
@@ -53,9 +61,9 @@ var (
 			Namespace: namespace,
 			Name:      "webhook_duration_milliseconds",
 			Help:      "The HTTP request latencies of the webhook in milliseconds.",
-			Buckets:   []float64{1, 5, 10, 100, 500},
+			Buckets:   []float64{10, 50, 100, 500, 1000},
 		},
-		[]string{"code", "url"},
+		[]string{"status", "url"},
 	)
 )
 
@@ -71,7 +79,7 @@ func init() {
 	// Webhook
 	registry.MustRegister(WebhookQueueLength)
 	registry.MustRegister(WebhookRequestDuration)
-
+	registry.MustRegister(WebhookGeneratedMessages)
 }
 
 func PrometheusHandler(ctx *fasthttp.RequestCtx) {

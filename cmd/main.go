@@ -25,11 +25,12 @@ var (
 	signingKey             = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
 	webhookURL             = flag.String("webhook", "", "URL of the webhook")
 	enableTLS              = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
-	insecureSkipVerify     = flag.Bool("insecure-skip-verify", false, "skip the validation of the certificate of webhook")
+	insecureSkipVerify     = flag.Bool("insecureSkipVerify", false, "skip the validation of the certificate of webhook")
 	soReuseport            = flag.Bool("reuseport", false, "(experimental) uses SO_REUSEPORT option to start TCP listener") // see https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/
-	compressWebhookContent = flag.Bool("compress-webhook", false, "compress the content of the webhook requests using gzip")
-	compressMinsize        = flag.Int("compress-minsize", 2048, "the minimum uncompressed sized that is required to use gzip compression")
-	allowUnknownFields     = flag.Bool("allow-unknown-fields", true, "Whether to allow unknown fields in the incoming message request")
+	compressWebhookContent = flag.Bool("compressWebhook", false, "compress the content of the webhook requests using gzip")
+	compressMinsize        = flag.Int("compressMinsize", 2048, "the minimum uncompressed sized that is required to use gzip compression")
+	allowUnknownFields     = flag.Bool("allowUnknownFields", true, "Whether to allow unknown fields in the incoming message request")
+	logLevel               = flag.Uint("loglevel", 4, "set the loglevel for the app (4=INFO, 5=DEBUG)")
 
 	staticAPIToken = os.Getenv("WA_API_KEY")
 
@@ -52,7 +53,7 @@ func setupConfig(path string) {
 func main() {
 	start := time.Now()
 	flag.Parse()
-	util.SetupLog(4)
+	util.SetupLog(*logLevel)
 
 	setupConfig(*configFile)
 	util.NewClient(controller.Config.WebhookCA)
