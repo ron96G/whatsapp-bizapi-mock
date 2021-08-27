@@ -58,7 +58,7 @@ func (wc *WebhookConfig) Send(req *fasthttp.Request) (*fasthttp.Response, error)
 	urlStr := string(req.URI().Path())
 	resp := fasthttp.AcquireResponse()
 	err := util.DefaultClient.Do(req, resp)
-	delta := float64(time.Since(start).Milliseconds())
+	delta := float64(time.Since(start)) / float64(time.Second)
 	if err != nil {
 		monitoring.WebhookRequestDuration.WithLabelValues("failed", urlStr).Observe(delta)
 		return nil, err
