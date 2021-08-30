@@ -34,7 +34,7 @@ var (
 			Namespace: namespace,
 			Name:      "request_duration_seconds",
 			Help:      "The HTTP request latencies in seconds.",
-			Buckets:   []float64{0.5, 1, 2, 5},
+			Buckets:   []float64{0.2, 0.5, 1, 2, 5},
 		},
 		[]string{"code", "method", "url"},
 	)
@@ -61,7 +61,7 @@ var (
 			Namespace: namespace,
 			Name:      "webhook_duration_seconds",
 			Help:      "The HTTP request latencies of the webhook in seconds.",
-			Buckets:   []float64{0.5, 1, 2, 5},
+			Buckets:   []float64{0.2, 0.5, 1, 2, 5},
 		},
 		[]string{"status", "url"},
 	)
