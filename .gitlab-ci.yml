@@ -1,5 +1,5 @@
 variables:
-  VERSION: "2.35.2"
+  VERSION: "2.35"
   IMAGE_NAME: "wabizapi-mock"
   TAG: "dev"
 
@@ -115,5 +115,5 @@ build latest:
 build versioned:
   stage: build
   variables:
-    TAG: v$VERSION
+    TAG: $CI_COMMIT_REF_SLUG
   <<: *build_image

@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,10 +17,17 @@ var (
 	Log *log.Entry
 
 	hostname, node string
-	formatter      = &log.TextFormatter{
-		ForceColors:   true,
-		ForceQuote:    true,
-		FullTimestamp: true,
+
+	DefaultFormatter       = "json"
+	DefaultTimestampFormat = time.RFC3339
+
+	formatters = map[string]log.Formatter{
+		"text": &log.TextFormatter{
+			TimestampFormat: DefaultTimestampFormat,
+		},
+		"json": &log.JSONFormatter{
+			TimestampFormat: DefaultTimestampFormat,
+		},
 	}
 
 	// context  keys
@@ -30,11 +38,12 @@ var (
 func init() {
 	Loglevel = uint(4)
 	log.SetLevel(log.Level(Loglevel))
-	log.SetFormatter(formatter)
+	log.SetFormatter(formatters[DefaultFormatter])
 	Log = NewLogger(nil)
 }
 
-func ifEmptySetDash(val string) string {
+// IfEmptySetDash returns '-' if val is empty
+func IfEmptySetDash(val string) string {
 	if val == "" {
 		return "-"
 	}
@@ -42,20 +51,21 @@ func ifEmptySetDash(val string) string {
 }
 
 // SetupLog starts the central default logger
-func SetupLog(loglevel uint) {
+func SetupLog(loglevel uint, formatter string) {
 	var err error
+	DefaultFormatter = formatter
 	hostname, err = os.Hostname() //  why does os.Getenv("HOSTNAME") not work?
 	if err != nil {
 		hostname = "-"
 	}
-	node = ifEmptySetDash(os.Getenv("POD_NODE"))
+	node = IfEmptySetDash(os.Getenv("POD_NODE"))
 
 	if loglevel > 0 {
 		Loglevel = loglevel
 	}
 
 	log.SetLevel(log.Level(Loglevel))
-	log.SetFormatter(formatter)
+	log.SetFormatter(formatters[DefaultFormatter])
 
 	Log.Debugf("Creating new central logger (level=%d)", Loglevel)
 
@@ -78,13 +88,13 @@ func NewContextLogger(ctx context.Context, requestID string) context.Context {
 
 	base := log.New()
 	base.SetLevel(log.Level(Loglevel))
-	base.SetFormatter(formatter)
+	base.SetFormatter(formatters[DefaultFormatter])
 
 	logger := base.WithFields(
 		log.Fields{
 			"hostname": hostname,
 			"node":     node,
-			"id":       ifEmptySetDash(requestID),
+			"id":       IfEmptySetDash(requestID),
 		},
 	)
 

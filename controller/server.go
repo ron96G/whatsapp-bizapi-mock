@@ -91,10 +91,10 @@ func NewServer(apiPrefix string, staticApiToken string) *fasthttp.Server {
 
 	// stats resources
 	subR.ANY("/stats/{path:*}", monitoring.All(NotImplementedHandler))
-	subR.GET("/metrics", monitoring.PrometheusHandler)
+	subR.GET("/metrics", monitoring.All(monitoring.PrometheusHandler))
 
 	r.GET("/swagger/{path:*}", swagger.SwaggerHandler())
-	r.GET("/metrics", monitoring.PrometheusHandler)
+	r.GET("/metrics", monitoring.All(monitoring.PrometheusHandler))
 
 	r.PanicHandler = PanicHandler
 	server := &fasthttp.Server{

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -25,11 +26,13 @@ var (
 	signingKey             = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
 	webhookURL             = flag.String("webhook", "", "URL of the webhook")
 	enableTLS              = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
-	insecureSkipVerify     = flag.Bool("insecure-skip-verify", false, "skip the validation of the certificate of webhook")
+	insecureSkipVerify     = flag.Bool("insecureSkipVerify", false, "skip the validation of the certificate of webhook")
 	soReuseport            = flag.Bool("reuseport", false, "(experimental) uses SO_REUSEPORT option to start TCP listener") // see https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/
-	compressWebhookContent = flag.Bool("compress-webhook", false, "compress the content of the webhook requests using gzip")
-	compressMinsize        = flag.Int("compress-minsize", 2048, "the minimum uncompressed sized that is required to use gzip compression")
-	allowUnknownFields     = flag.Bool("allow-unknown-fields", true, "Whether to allow unknown fields in the incoming message request")
+	compressWebhookContent = flag.Bool("compressWebhook", false, "compress the content of the webhook requests using gzip")
+	compressMinsize        = flag.Int("compressMinsize", 2048, "the minimum uncompressed sized that is required to use gzip compression")
+	allowUnknownFields     = flag.Bool("allowUnknownFields", true, "Whether to allow unknown fields in the incoming message request")
+	logLevel               = flag.Uint("loglevel", 4, "set the loglevel for the app (4=INFO, 5=DEBUG)")
+	logFormatter           = flag.String("logformat", "json", "set the logformatter of the application (either 'text' or 'json')")
 
 	staticAPIToken = os.Getenv("WA_API_KEY")
 
@@ -52,7 +55,7 @@ func setupConfig(path string) {
 func main() {
 	start := time.Now()
 	flag.Parse()
-	util.SetupLog(4)
+	util.SetupLog(*logLevel, strings.ToLower(*logFormatter))
 
 	setupConfig(*configFile)
 	util.NewClient(controller.Config.WebhookCA)
@@ -77,7 +80,7 @@ func main() {
 		}
 	}
 
-	util.Log.Infof("Current config: \n %v", controller.Config.String())
+	util.Log.Infof("Current config: %v", controller.Config.String())
 
 	// setup  swagger
 
@@ -89,7 +92,7 @@ func main() {
 	docs.SwaggerInfo.BasePath = *apiPrefix
 	docs.SwaggerInfo.Title = "WhatsAppMockServer"
 
-	util.Log.Infof("Creating new webserver with prefix %v\n", *apiPrefix)
+	util.Log.Infof("Creating new webserver with prefix %v", *apiPrefix)
 	server := controller.NewServer(*apiPrefix, staticAPIToken)
 	controller.ApiVersion = controller.Config.Version
 	generators := model.NewGenerators(controller.Config.UploadDir, contacts, controller.Config.InboundMedia)
@@ -133,7 +136,7 @@ func main() {
 		util.Log.Infof("Setup completed after %v", time.Since(start))
 		util.Log.Infof("Starting webserver with addr %v", *addr)
 		if err := server.Serve(ln); err != nil {
-			util.Log.Fatalf("Server listen failed with %v\n", err)
+			util.Log.Fatalf("Server listen failed with %v", err)
 		}
 	}()
 

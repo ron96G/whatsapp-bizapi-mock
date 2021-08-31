@@ -29,54 +29,41 @@ var (
 	registry  *prometheus.Registry
 	namespace = "whatsapp_mock"
 
-	currentRequestCount, currentAvgContentLength uint64
-
-	// AvgContentLength is the average content length of requests
-	AvgContentLength = prometheus.NewGaugeFunc(
-		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Name:      "average_content_length",
-			Help:      "the average content length of the response body",
-		},
-		func() float64 {
-			return float64(currentAvgContentLength)
-		},
-	)
-
-	HTTPResponseTime = prometheus.NewHistogram(
+	ApiRequestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Namespace: namespace,
-			Name:      "http_response_time",
-			Help:      "the response time of the webserver in milliseconds",
-			Buckets:   []float64{1, 5, 10, 100, 500},
+			Name:      "request_duration_seconds",
+			Help:      "The HTTP request latencies in seconds.",
+			Buckets:   []float64{0.2, 0.5, 1, 2, 5},
 		},
+		[]string{"code", "method", "url"},
 	)
 
-	TotalGeneratedMessages = prometheus.NewCounterVec(
+	WebhookGeneratedMessages = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
-			Name:      "webhook_total_messages",
-			Help:      "the total amount of webhook messages generated",
+			Name:      "webhook_generated",
+			Help:      "The amount of generated objects by the webhook.",
 		},
-		[]string{},
+		[]string{"type"},
 	)
-
 	WebhookQueueLength = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
-			Name:      "webhook_message_queue_length",
-			Help:      "the current length of the webhook queue",
+			Name:      "webhook_queue_length",
+			Help:      "The current length of the webhook queue.",
 		},
 		[]string{"type"},
 	)
 
-	AvgWebhookResponseTime = prometheus.NewHistogram(
+	WebhookRequestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Namespace: namespace,
-			Name:      "webhook_response_time",
-			Help:      "the response time of a webook request in milliseconds",
-			Buckets:   []float64{1, 5, 10, 100, 500},
+			Name:      "webhook_duration_seconds",
+			Help:      "The HTTP request latencies of the webhook in seconds.",
+			Buckets:   []float64{0.2, 0.5, 1, 2, 5},
 		},
+		[]string{"status", "url"},
 	)
 )
 
@@ -86,15 +73,13 @@ func init() {
 	coll := collectors.NewGoCollector()
 	registry.MustRegister(coll)
 
-	// HTTP
-	registry.MustRegister(AvgContentLength)
-	registry.MustRegister(HTTPResponseTime)
+	// API
+	registry.MustRegister(ApiRequestDuration)
 
 	// Webhook
-	registry.MustRegister(TotalGeneratedMessages)
 	registry.MustRegister(WebhookQueueLength)
-	registry.MustRegister(AvgWebhookResponseTime)
-
+	registry.MustRegister(WebhookRequestDuration)
+	registry.MustRegister(WebhookGeneratedMessages)
 }
 
 func PrometheusHandler(ctx *fasthttp.RequestCtx) {
