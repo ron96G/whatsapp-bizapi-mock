@@ -80,7 +80,7 @@ func main() {
 		}
 	}
 
-	util.Log.Infof("Current config: \n %v", controller.Config.String())
+	util.Log.Infof("Current config: %v", controller.Config.String())
 
 	// setup  swagger
 
@@ -92,7 +92,7 @@ func main() {
 	docs.SwaggerInfo.BasePath = *apiPrefix
 	docs.SwaggerInfo.Title = "WhatsAppMockServer"
 
-	util.Log.Infof("Creating new webserver with prefix %v\n", *apiPrefix)
+	util.Log.Infof("Creating new webserver with prefix %v", *apiPrefix)
 	server := controller.NewServer(*apiPrefix, staticAPIToken)
 	controller.ApiVersion = controller.Config.Version
 	generators := model.NewGenerators(controller.Config.UploadDir, contacts, controller.Config.InboundMedia)
@@ -136,7 +136,7 @@ func main() {
 		util.Log.Infof("Setup completed after %v", time.Since(start))
 		util.Log.Infof("Starting webserver with addr %v", *addr)
 		if err := server.Serve(ln); err != nil {
-			util.Log.Fatalf("Server listen failed with %v\n", err)
+			util.Log.Fatalf("Server listen failed with %v", err)
 		}
 	}()
 
