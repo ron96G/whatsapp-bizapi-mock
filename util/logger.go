@@ -23,9 +23,6 @@ var (
 
 	formatters = map[string]log.Formatter{
 		"text": &log.TextFormatter{
-			ForceColors:     true,
-			ForceQuote:      true,
-			FullTimestamp:   true,
 			TimestampFormat: DefaultTimestampFormat,
 		},
 		"json": &log.JSONFormatter{
@@ -45,7 +42,8 @@ func init() {
 	Log = NewLogger(nil)
 }
 
-func ifEmptySetDash(val string) string {
+// IfEmptySetDash returns '-' if val is empty
+func IfEmptySetDash(val string) string {
 	if val == "" {
 		return "-"
 	}
@@ -60,7 +58,7 @@ func SetupLog(loglevel uint, formatter string) {
 	if err != nil {
 		hostname = "-"
 	}
-	node = ifEmptySetDash(os.Getenv("POD_NODE"))
+	node = IfEmptySetDash(os.Getenv("POD_NODE"))
 
 	if loglevel > 0 {
 		Loglevel = loglevel
@@ -96,7 +94,7 @@ func NewContextLogger(ctx context.Context, requestID string) context.Context {
 		log.Fields{
 			"hostname": hostname,
 			"node":     node,
-			"id":       ifEmptySetDash(requestID),
+			"id":       IfEmptySetDash(requestID),
 		},
 	)
 

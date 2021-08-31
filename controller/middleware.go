@@ -67,18 +67,19 @@ func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		start := ctx.Time()
 		h(ctx)
+		accessLogger := util.Log.WithFields(map[string]interface{}{
+			"type":    "access",
+			"client":  ctx.RemoteAddr().String(),
+			"host":    string(ctx.Host()),
+			"method":  string(ctx.Method()),
+			"uri":     string(ctx.RequestURI()),
+			"id":      util.IfEmptySetDash(string(ctx.Response.Header.Peek(requestIDHeader))),
+			"agent":   string(ctx.Request.Header.UserAgent()),
+			"code":    ctx.Response.StatusCode(),
+			"elapsed": float64(time.Since(start)) / float64(time.Second),
+		})
 
-		util.Log.Infof("%s - %s - %s \"%s %s %s\" %d %v",
-			string(ctx.Response.Header.Peek(requestIDHeader)),
-			ctx.RemoteAddr().String(),
-			string(ctx.Host()),
-			string(ctx.Method()),
-			string(ctx.RequestURI()),
-			string(ctx.Request.Header.UserAgent()),
-			ctx.Response.StatusCode(),
-			time.Since(start),
-		)
-
+		accessLogger.Println()
 	})
 }
 

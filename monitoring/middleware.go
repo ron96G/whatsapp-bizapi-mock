@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
@@ -20,8 +19,6 @@ func ResponseTime(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 		statusStr := strconv.Itoa(ctx.Response.StatusCode())
 		methodStr := string(ctx.Request.Header.Method())
 		urlStr := string(ctx.Request.URI().Path())
-		util.Log.Debugf("requiest computed in %v", delta)
-
 		ApiRequestDuration.WithLabelValues(statusStr, methodStr, urlStr).Observe(delta)
 	})
 }
