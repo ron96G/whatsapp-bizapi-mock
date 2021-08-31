@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,10 +17,20 @@ var (
 	Log *log.Entry
 
 	hostname, node string
-	formatter      = &log.TextFormatter{
-		ForceColors:   true,
-		ForceQuote:    true,
-		FullTimestamp: true,
+
+	DefaultFormatter       = "json"
+	DefaultTimestampFormat = time.RFC3339
+
+	formatters = map[string]log.Formatter{
+		"text": &log.TextFormatter{
+			ForceColors:     true,
+			ForceQuote:      true,
+			FullTimestamp:   true,
+			TimestampFormat: DefaultTimestampFormat,
+		},
+		"json": &log.JSONFormatter{
+			TimestampFormat: DefaultTimestampFormat,
+		},
 	}
 
 	// context  keys
@@ -30,7 +41,7 @@ var (
 func init() {
 	Loglevel = uint(4)
 	log.SetLevel(log.Level(Loglevel))
-	log.SetFormatter(formatter)
+	log.SetFormatter(formatters[DefaultFormatter])
 	Log = NewLogger(nil)
 }
 
@@ -42,8 +53,9 @@ func ifEmptySetDash(val string) string {
 }
 
 // SetupLog starts the central default logger
-func SetupLog(loglevel uint) {
+func SetupLog(loglevel uint, formatter string) {
 	var err error
+	DefaultFormatter = formatter
 	hostname, err = os.Hostname() //  why does os.Getenv("HOSTNAME") not work?
 	if err != nil {
 		hostname = "-"
@@ -55,7 +67,7 @@ func SetupLog(loglevel uint) {
 	}
 
 	log.SetLevel(log.Level(Loglevel))
-	log.SetFormatter(formatter)
+	log.SetFormatter(formatters[DefaultFormatter])
 
 	Log.Debugf("Creating new central logger (level=%d)", Loglevel)
 
@@ -78,7 +90,7 @@ func NewContextLogger(ctx context.Context, requestID string) context.Context {
 
 	base := log.New()
 	base.SetLevel(log.Level(Loglevel))
-	base.SetFormatter(formatter)
+	base.SetFormatter(formatters[DefaultFormatter])
 
 	logger := base.WithFields(
 		log.Fields{

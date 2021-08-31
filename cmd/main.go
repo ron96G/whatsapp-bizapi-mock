@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -31,6 +32,7 @@ var (
 	compressMinsize        = flag.Int("compressMinsize", 2048, "the minimum uncompressed sized that is required to use gzip compression")
 	allowUnknownFields     = flag.Bool("allowUnknownFields", true, "Whether to allow unknown fields in the incoming message request")
 	logLevel               = flag.Uint("loglevel", 4, "set the loglevel for the app (4=INFO, 5=DEBUG)")
+	logFormatter           = flag.String("logformat", "json", "set the logformatter of the application (either 'text' or 'json')")
 
 	staticAPIToken = os.Getenv("WA_API_KEY")
 
@@ -53,7 +55,7 @@ func setupConfig(path string) {
 func main() {
 	start := time.Now()
 	flag.Parse()
-	util.SetupLog(*logLevel)
+	util.SetupLog(*logLevel, strings.ToLower(*logFormatter))
 
 	setupConfig(*configFile)
 	util.NewClient(controller.Config.WebhookCA)
