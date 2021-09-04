@@ -13,17 +13,17 @@ import (
 
 	"github.com/valyala/fasthttp/reuseport"
 
-	"github.com/ron96G/whatsapp-bizapi-mock/controller"
+	"github.com/ron96G/whatsapp-bizapi-mock/api"
 	"github.com/ron96G/whatsapp-bizapi-mock/docs"
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
 	"github.com/ron96G/whatsapp-bizapi-mock/util"
+	"github.com/ron96G/whatsapp-bizapi-mock/webhook"
 )
 
 var (
 	apiPrefix              = flag.String("apiprefix", "/v1", "the prefix for the API")
-	configFile             = flag.String("configfile", "./data/config.json", "the application config")
+	configFile             = flag.String("configfile", "", "the application config")
 	addr                   = flag.String("addr", "0.0.0.0:9090", "port the webserver listens on")
-	signingKey             = []byte(*flag.String("skey", "abcde", "key which is used to sign jwt"))
 	webhookURL             = flag.String("webhook", "", "URL of the webhook")
 	enableTLS              = flag.Bool("tls", true, "run the API with TLS (HTTPS) enabled")
 	insecureSkipVerify     = flag.Bool("insecureSkipVerify", false, "skip the validation of the certificate of webhook")
@@ -47,7 +47,7 @@ func setupConfig(path string) {
 	}
 	defer f.Close()
 
-	if err = controller.InitConfig(f); err != nil {
+	if err = api.InitConfig(f); err != nil {
 		util.Log.Fatalf("Error in provided config (%v)", err)
 	}
 }
@@ -57,21 +57,25 @@ func main() {
 	flag.Parse()
 	util.SetupLog(*logLevel, strings.ToLower(*logFormatter))
 
-	setupConfig(*configFile)
-	util.NewClient(controller.Config.WebhookCA)
+	if *configFile != "" {
+		setupConfig(*configFile)
+	} else {
+		util.Log.Infof("No configfile set. Using default config")
+	}
+
+	util.NewClient(api.Config.WebhookCA)
 
 	if *webhookURL != "" {
-		controller.Config.ApplicationSettings.Webhooks.Url = *webhookURL
+		api.Config.ApplicationSettings.Webhooks.Url = *webhookURL
 	}
 
 	util.DefaultClient.TLSConfig.InsecureSkipVerify = *insecureSkipVerify
-	controller.SigningKey = signingKey
-	controller.Compress = *compressWebhookContent
-	controller.CompressMinsize = *compressMinsize
-	controller.UpdateUnmarshaler(*allowUnknownFields)
+	webhook.Compress = *compressWebhookContent
+	webhook.CompressMinsize = *compressMinsize
+	api.UpdateUnmarshaler(*allowUnknownFields)
 
-	contacts := make([]*model.Contact, len(controller.Config.Contacts))
-	for i, c := range controller.Config.Contacts {
+	contacts := make([]*model.Contact, len(api.Config.Contacts))
+	for i, c := range api.Config.Contacts {
 		contacts[i] = &model.Contact{
 			WaId: c.Id,
 			Profile: &model.Contact_Profile{
@@ -79,8 +83,6 @@ func main() {
 			},
 		}
 	}
-
-	util.Log.Infof("Current config: %v", controller.Config.String())
 
 	// setup  swagger
 
@@ -93,12 +95,11 @@ func main() {
 	docs.SwaggerInfo.Title = "WhatsAppMockServer"
 
 	util.Log.Infof("Creating new webserver with prefix %v", *apiPrefix)
-	server := controller.NewServer(*apiPrefix, staticAPIToken)
-	controller.ApiVersion = controller.Config.Version
-	generators := model.NewGenerators(controller.Config.UploadDir, contacts, controller.Config.InboundMedia)
-	webhook := controller.NewWebhookConfig(controller.Config.ApplicationSettings.Webhooks.Url, generators)
 
-	controller.Webhook = webhook
+	generators := model.NewGenerators(api.Config.UploadDir, contacts, api.Config.InboundMedia)
+	webhook := webhook.NewWebhook(api.Config.ApplicationSettings.Webhooks.Url, api.Config.Version, generators)
+	apiServer := api.NewAPI(*apiPrefix, staticAPIToken, api.Config, webhook)
+
 	errors := make(chan error, 5)
 	stopWebhook := webhook.Run(errors)
 
@@ -135,7 +136,7 @@ func main() {
 	go func() {
 		util.Log.Infof("Setup completed after %v", time.Since(start))
 		util.Log.Infof("Starting webserver with addr %v", *addr)
-		if err := server.Serve(ln); err != nil {
+		if err := apiServer.Server.Serve(ln); err != nil {
 			util.Log.Fatalf("Server listen failed with %v", err)
 		}
 	}()
@@ -155,7 +156,7 @@ func main() {
 	util.Log.Info("Shutting down application")
 	ln.Close()
 	stopWebhook <- 1
-	if err = controller.SaveToJSONFile(controller.Config, *configFile); err != nil {
+	if err = api.SaveToJSONFile(apiServer.Config, *configFile); err != nil {
 		util.Log.Panicf("Unable to save current config (%v)", err)
 	}
 	util.Log.Info("Successfully shutdown application")

@@ -117,5 +117,5 @@ func GetLoggerFromContext(ctx context.Context) *log.Entry {
 	if entryLogger != nil {
 		return entryLogger.(*log.Entry)
 	}
-	return log.NewEntry(log.New())
+	return Log.WithContext(ctx)
 }
