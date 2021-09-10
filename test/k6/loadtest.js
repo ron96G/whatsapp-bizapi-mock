@@ -5,25 +5,27 @@ import { check } from 'k6';
 const username = 'admin';
 const password = 'topsecret123!';
 const baseUrl = 'https://localhost:9090/v1'
+const credentials = `${username}:${password}`;
+const encodedCredentials = encoding.b64encode(credentials);
+const params = {
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Basic ${encodedCredentials}`
+  },
+};
 
-export default function () {
-  const credentials = `${username}:${password}`;
-  const encodedCredentials = encoding.b64encode(credentials);
 
-  var params = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Basic ${encodedCredentials}`
-    },
-  };
-  let res = http.post(baseUrl+'/users/login', {},params);
+export function setup() {
+  let res = http.post(baseUrl+'/users/login', {}, params);
 
   check(res, {
     'status is 200': (r) => r.status === 200
   });
 
-  let bearerToken = res.json().users[0].token
+  return {bearerToken : res.json().users[0].token}
+}
 
+export default function (data) {
   let payload = JSON.stringify({
     "to": "49170123123123",
     "type": "text",
@@ -32,12 +34,15 @@ export default function () {
       "body": "This is a sample text!"
     }
   });
-  params = {
+  let params = {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${bearerToken}`
+      'Authorization': `Bearer ${data.bearerToken}`
     },
   };
 
-  res = http.post(baseUrl+'/messages', payload, params);
+  let res = http.post(baseUrl+'/messages', payload, params);
+  check(res, {
+    'status is 200': (r) => r.status === 200
+  });
 }

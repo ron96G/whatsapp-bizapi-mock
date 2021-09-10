@@ -14,6 +14,7 @@ var (
 	}
 )
 
+// NewConfig returns a new InternalConfig object which has some required default values set
 func NewConfig() *InternalConfig {
 	return &InternalConfig{
 		ApplicationSettings: &ApplicationSettings{

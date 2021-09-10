@@ -39,7 +39,7 @@ func (a *API) SetApplicationSettings(ctx *fasthttp.RequestCtx) {
 	a.Config.ApplicationSettings.Media.AutoDownload = appSettings.Media.AutoDownload
 
 	a.Webhook.URL = parsedUrl.String()
-	util.Log.Infof("Updated webhook URL to %s", a.Webhook.URL)
+	a.Log.Info("Updated webhook URL", "url", a.Webhook.URL)
 	returnJSON(ctx, 200, nil)
 }
 
@@ -58,12 +58,13 @@ func (a *API) BackupSettings(ctx *fasthttp.RequestCtx) {
 	marsheler.Marshal(buf, a.Config)
 	ciphertext, err := util.Encrypt(req.Password, buf)
 	if err != nil {
-		util.Log.Error(err)
+		a.Log.Error("Failed to encrypt settings", "error", err)
 		returnError(ctx, 500, model.Error{
 			Code:    500,
 			Title:   "Unable to encrypt settings",
 			Details: err.Error(),
 		})
+		return
 	}
 	resp := &model.BackupResponse{
 		Settings: &model.BackupResponse_SettingsData{
@@ -74,7 +75,7 @@ func (a *API) BackupSettings(ctx *fasthttp.RequestCtx) {
 	returnJSON(ctx, 200, resp)
 }
 
-func RestoreSettings(ctx *fasthttp.RequestCtx) {
+func (a *API) RestoreSettings(ctx *fasthttp.RequestCtx) {
 	req := &model.RestoreRequest{}
 	if !unmarshalPayload(ctx, req) {
 		return
@@ -82,23 +83,27 @@ func RestoreSettings(ctx *fasthttp.RequestCtx) {
 	buf := bytes.NewBuffer(req.Data)
 	ciphertext, err := util.Decrypt(req.Password, buf)
 	if err != nil {
-		util.Log.Error(err)
+		a.Log.Error("Failed to decrypt settings", "error", err)
 		returnError(ctx, 500, model.Error{
 			Code:    500,
 			Title:   "Unable to decrypt settings",
 			Details: err.Error(),
 		})
+		return
 	}
 	buf.Reset()
 	buf = bytes.NewBuffer(ciphertext)
-	err = InitConfig(buf)
+	cfg := new(model.InternalConfig)
+	err = unmarsheler.Unmarshal(buf, cfg)
 	if err != nil {
-		util.Log.Error(err)
+		a.Log.Error("Failed to update settings", "error", err)
 		returnError(ctx, 500, model.Error{
 			Code:    500,
 			Title:   "Unable to set settings",
 			Details: err.Error(),
 		})
+		return
 	}
+	a.Config = cfg
 	ctx.SetStatusCode(200)
 }

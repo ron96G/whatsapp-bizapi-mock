@@ -3,6 +3,7 @@ package model
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"math/rand"
 	"os"
@@ -10,9 +11,9 @@ import (
 	sync "sync"
 	"time"
 
-	"github.com/ron96G/whatsapp-bizapi-mock/util"
-
 	"github.com/google/uuid"
+
+	log "github.com/ron96G/go-common-utils/log"
 )
 
 var (
@@ -33,6 +34,7 @@ type Generators struct {
 	UploadDir string
 	Contacts  []*Contact
 	Media     map[string]string
+	Log       log.Logger
 	Types     []MessageType
 	Sha256    map[string]string
 }
@@ -41,41 +43,59 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-func NewGenerators(uploadDir string, c []*Contact, m map[string]string) *Generators {
+func NewGenerators(uploadDir string, contacts []*Contact, media map[string]string) (*Generators, error) {
+
+	absUploadDir, err := filepath.Abs(uploadDir)
+	if err != nil {
+		return nil, err
+	}
+	absUploadDir += "/"
+
+	if uploadDir == "" {
+		return nil, fmt.Errorf("uploaddir cannot be empty")
+	}
+	if len(contacts) == 0 {
+		return nil, fmt.Errorf("contacts cannot be empty")
+	}
+	if len(media) == 0 {
+		return nil, fmt.Errorf("media cannot be empty")
+	}
+
 	g := &Generators{
-		UploadDir: uploadDir,
-		Contacts:  c,
-		Media:     m,
+		UploadDir: absUploadDir,
+		Contacts:  contacts,
+		Log:       log.New("generators_logger", "component", "generators"),
+		Media:     media,
 		Types: []MessageType{
 			MessageType_audio, MessageType_image, MessageType_text, MessageType_document, MessageType_video,
 		},
 		Sha256: map[string]string{},
 	}
-	var err error
 	for k, f := range g.Media {
 		g.Sha256[k], err = g.generateSha256(g.UploadDir + f)
 		if err != nil {
-			util.Log.Printf("Unable to generate sha256 from media %s due to %v", f, err)
+			g.Log.Error("Unable to generate sha256 from media file", "file", f, "error", err)
 		}
 	}
-	return g
+	return g, nil
 }
 
 func (g *Generators) generateSha256(path string) (string, error) {
 	filePath := filepath.Clean(path)
 	f, err := os.Open(filePath)
 	if err != nil {
-		util.Log.Fatal(err)
+		return "", err
 	}
 	defer f.Close()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		util.Log.Fatal(err)
+		return "", err
 	}
 
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
+
 func AcquireStatus() *Status {
 	return statusPool.Get().(*Status)
 }
@@ -98,7 +118,7 @@ func (g *Generators) selectRndContact() *Contact {
 
 func (g *Generators) generateMedia(t string) string {
 	id := uuid.New().String()
-	util.Log.Infof("Generating new media file of type %s with id %s\n", t, id)
+	g.Log.Info("Generating new media file", "media_type", t, "media_id", id)
 	if err := os.Symlink(g.UploadDir+g.Media[t], g.UploadDir+id); err != nil {
 		panic(err)
 	}
@@ -137,7 +157,7 @@ func (g *Generators) GenerateMessages(n int, types ...string) []*Message {
 		case "document":
 			out[i] = g.GenerateDocumentMessage()
 		default:
-			util.Log.Warnf("Unsupported message type '%s'\n", typ)
+			g.Log.Warn("Unsupported message type", "message_type", typ)
 		}
 	}
 	return out

@@ -15,9 +15,10 @@ var (
 )
 
 func AcquireWebhookRequest() *model.WebhookRequest {
-	return webhookReqPool.Get().(*model.WebhookRequest)
+	return new(model.WebhookRequest)
+	// return webhookReqPool.Get().(*model.WebhookRequest)
 }
 
 func ReleaseWebhookRequest(s *model.WebhookRequest) {
-	webhookReqPool.Put(s)
+	//webhookReqPool.Put(s)
 }

@@ -1,8 +1,8 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,78 +13,112 @@ import (
 
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
+
+	log "github.com/ron96G/go-common-utils/log"
 )
 
-var (
+const (
+	serviceName     = "wabiz-mockserver"
+	componentName   = "fasthttp"
 	requestIDHeader = "X-Request-ID"
 )
 
 func (a *API) Authorize(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		token, err := parseToken(ctx)
+		logger := a.LoggerFromCtx(ctx)
+		token, err := parseTokenWithClaims(ctx)
 		if err != nil {
-			util.Log.Warn(err)
+			logger.Warn("Failed to authorize user", "reason", "failed to parse token", "error", err)
+
 		} else if token.Valid && a.Tokens.Contains(token.Raw) {
+			logger.Info("Successfully authorized user",
+				"subject", token.Claims.(*CustomClaims).Subject,
+			)
 			h(ctx)
 			return
+
+		} else {
+			logger.Warn("Failed to authorize user", "reason", "token is invalid")
 		}
+
 		ctx.SetStatusCode(401)
 	})
 }
 
 func (a *API) AuthorizeWithRoles(h fasthttp.RequestHandler, roles []string) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+		logger := a.LoggerFromCtx(ctx)
 		token, err := parseTokenWithClaims(ctx)
-		if err == nil {
-			if claims, ok := token.Claims.(*CustomClaims); ok &&
-				token.Valid &&
-				a.Tokens.Contains(token.Raw) {
+		if err != nil {
+			logger.Warn("Failed to authorize user", "reason", "failed to parse token", "error", err)
 
-				if contains(roles, claims.Role) {
-					h(ctx)
-					return
-				}
+		} else if claims, ok := token.Claims.(*CustomClaims); ok &&
+			token.Valid &&
+			a.Tokens.Contains(token.Raw) {
+
+			if contains(roles, claims.Role) {
+				logger.Info("Successfully authorized user",
+					"subject", claims.Subject,
+					"role", claims.Role,
+				)
+				h(ctx)
+				return
+
+			} else {
+				logger.Warn("Failed to authorize user",
+					"reason", "access denied due to role",
+					"subject", claims.Subject,
+					"role", claims.Role,
+				)
 			}
-			err = fmt.Errorf("invalid role or token")
+
+		} else {
+			a.Log.Warn("Failed to authorize user", "reason", "token is invalid")
 		}
-		util.Log.Warn(err)
+
 		ctx.SetStatusCode(401)
 	})
 }
 
 func AuthorizeStaticToken(h fasthttp.RequestHandler, staticToken string) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+		logger := log.FromContext(ctx)
 		token, _ := extractAuthToken(ctx, "Apikey")
 		if staticToken != "" && token != staticToken {
+			logger.Warn("Failed to authorize user", "reason", "invalid apikey")
 			ctx.SetStatusCode(401)
 			return
 		}
+
+		logger.Info("Successfully authorized user with apikey")
 		h(ctx)
 	})
 }
 
+// TODO replace this with a actual access logger TBD
 func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
+	accessLogger := log.New("access_logger")
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		start := ctx.Time()
 		h(ctx)
-		accessLogger := util.Log.WithFields(map[string]interface{}{
-			"type":    "access",
-			"client":  ctx.RemoteAddr().String(),
-			"host":    string(ctx.Host()),
-			"method":  string(ctx.Method()),
-			"uri":     string(ctx.RequestURI()),
-			"id":      util.IfEmptySetDash(string(ctx.Response.Header.Peek(requestIDHeader))),
-			"agent":   string(ctx.Request.Header.UserAgent()),
-			"code":    ctx.Response.StatusCode(),
-			"elapsed": float64(time.Since(start)) / float64(time.Second),
-		})
+		reqLen, _ := strconv.Atoi(string(ctx.Request.Header.Peek("Content-Length")))
 
-		accessLogger.Println()
+		accessLogger.Warn("",
+			"type", "access",
+			"remote_ip", ctx.RemoteAddr().String(),
+			"method", string(ctx.Method()),
+			"path", string(ctx.RequestURI()),
+			"id", string(ctx.Response.Header.Peek(requestIDHeader)),
+			"user_agent", string(ctx.Request.Header.UserAgent()),
+			"status_code", ctx.Response.StatusCode(),
+			"elapsed_time", float64(time.Since(start))/float64(time.Second),
+			"request_length", reqLen,
+		)
 	})
 }
 
-func Limiter(h fasthttp.RequestHandler, concurrencyLimit int) fasthttp.RequestHandler {
-	limiter := rate.NewLimiter(rate.Limit(concurrencyLimit), concurrencyLimit)
+func Limiter(h fasthttp.RequestHandler, concurrencyLimit uint) fasthttp.RequestHandler {
+	limiter := rate.NewLimiter(rate.Limit(concurrencyLimit), int(concurrencyLimit))
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		if !limiter.Allow() {
 			ctx.SetStatusCode(429)
@@ -94,25 +128,26 @@ func Limiter(h fasthttp.RequestHandler, concurrencyLimit int) fasthttp.RequestHa
 	})
 }
 
-func SetConnID(h fasthttp.RequestHandler) fasthttp.RequestHandler {
+func (a *API) SetConnID(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 
 		reqID := ctx.Request.Header.Peek(requestIDHeader)
+
 		if len(reqID) == 0 {
 			reqID = []byte(uuid.New().String())
 			ctx.Request.Header.SetBytesV(requestIDHeader, reqID)
 			ctx.Response.Header.SetBytesV(requestIDHeader, reqID)
+
 		} else {
 			ctx.Response.Header.SetBytesV(requestIDHeader, reqID)
 		}
 
+		LoggerToCtx(ctx, a.Log.New("id", string(reqID)))
 		h(ctx)
 	})
 }
 
 func Tracer(h fasthttp.RequestHandler) fasthttp.RequestHandler {
-	serviceName := "wabiz-mockserver"
-	componentName := "fasthttp"
 
 	defcfg := config.Configuration{
 		ServiceName: serviceName,
@@ -137,7 +172,6 @@ func Tracer(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	}
 
 	opentracing.SetGlobalTracer(tr)
-	util.Log.Info("Successfully initialized tracer")
 
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 

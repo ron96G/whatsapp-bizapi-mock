@@ -13,51 +13,61 @@ import (
 	"github.com/ron96G/whatsapp-bizapi-mock/monitoring"
 	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
+
+	log "github.com/ron96G/go-common-utils/log"
 )
 
+// StatusMergeInterval determines the duration in which the status queue of outbound messages
+// is checked (>0) and merged into a new webhook-request, which is then added to the webhook queue.
+// This should never be set below 2 seconds to avoid starvation of the webhook queue
+//
+// 1. A shorter duration means that more webhook requests are created with just status-information rather than
+// generated inbound messages aswell. However, status-information will be quicker to be sent to the webhook.
+//
+// 2. A longer duration means that more status-information will be merged with generated inbound messages.
+// However, with little generated inbound messages, the status-information will take longer to be sent to the webhook
+// (Max is the here defined duration).
+
 var (
-	Compress        = false
-	CompressMinsize = 2048
-
-	// StatusMergeInterval determines the duration in which the status queue of outbound messages
-	// is checked (>0) and merged into a new webhook-request, which is then added to the webhook queue.
-	// This should never be set below 2 seconds to avoid starvation of the webhook queue
-	//
-	// 1. A shorter duration means that more webhook requests are created with just status-information rather than
-	// generated inbound messages aswell. However, status-information will be quicker to be sent to the webhook.
-	//
-	// 2. A longer duration means that more status-information will be merged with generated inbound messages.
-	// However, with little generated inbound messages, the status-information will take longer to be sent to the webhook
-	// (Max is the here defined duration).
-	StatusMergeInterval = 3 * time.Second
-
 	marsheler = jsonpb.Marshaler{
 		EmitDefaults: false,
 		EnumsAsInts:  false,
 		OrigName:     true,
 		Indent:       "  ",
 	}
+
+	MaxQueueLength = 1000
 )
 
 type Webhook struct {
-	URL          string
-	Generators   *model.Generators
-	StatusQueue  []*model.Status
-	MessageQueue []*model.Message
-	Queue        chan *model.WebhookRequest
-	WaitInterval time.Duration
-	userAgent    string
-	mux          sync.Mutex
+	URL                       string
+	Generators                *model.Generators
+	StatusQueue               []*model.Status
+	MessageQueue              []*model.Message
+	Queue                     chan *model.WebhookRequest
+	Log                       log.Logger
+	WaitInterval              time.Duration
+	userAgent                 string
+	Compress                  bool
+	CompressMinsize           int
+	MaxStatiPerWebhookRequest int
+	StatusMergeInterval       time.Duration
+	mux                       sync.Mutex
 }
 
 func NewWebhook(url, version string, g *model.Generators) *Webhook {
 	return &Webhook{
-		URL:          url,
-		Generators:   g,
-		Queue:        make(chan *model.WebhookRequest, 100),
-		userAgent:    "WhatsappMockserver/" + version,
-		StatusQueue:  []*model.Status{},
-		WaitInterval: 0 * time.Second,
+		URL:                       url,
+		Generators:                g,
+		Queue:                     make(chan *model.WebhookRequest, 100),
+		Log:                       log.New("webhook_logger", "component", "webhook"),
+		userAgent:                 "WhatsappMockserver/" + version,
+		StatusQueue:               []*model.Status{},
+		WaitInterval:              0 * time.Second,
+		Compress:                  false,
+		CompressMinsize:           2048,
+		MaxStatiPerWebhookRequest: 2048,
+		StatusMergeInterval:       3 * time.Second,
 	}
 }
 
@@ -94,18 +104,20 @@ func (w *Webhook) statusRunner() (stop chan int) {
 			select {
 			case <-stop:
 				return
-			case <-time.After(StatusMergeInterval):
+			case <-time.After(w.StatusMergeInterval):
 				w.mux.Lock()
 
-				if len(w.StatusQueue) == 0 {
+				curLen := len(w.StatusQueue)
+				if curLen == 0 {
 					w.mux.Unlock()
 					continue
 				}
 
 				whReq := AcquireWebhookRequest()
 				whReq.Reset()
-				whReq.Statuses = w.StatusQueue
-				w.StatusQueue = []*model.Status{}
+
+				whReq.Statuses = w.getStati()
+
 				w.Queue <- whReq
 				w.mux.Unlock()
 			}
@@ -114,11 +126,31 @@ func (w *Webhook) statusRunner() (stop chan int) {
 	return
 }
 
+// getStati returns elements from the internal webhook status storage.
+// If current buffer > MaxStatiPerWebhookRequest then MaxStatiPerWebhookRequest elements
+// are returned. Otherwise all elements are returned
+// This is done to reduce the webhook request length when load is heavy
+func (w *Webhook) getStati() []*model.Status {
+	curLen := len(w.StatusQueue)
+
+	if curLen >= w.MaxStatiPerWebhookRequest {
+		t := make([]*model.Status, w.MaxStatiPerWebhookRequest)
+		copy(t, w.StatusQueue[:w.MaxStatiPerWebhookRequest-1])
+		w.StatusQueue = w.StatusQueue[w.MaxStatiPerWebhookRequest:]
+		return t
+	}
+
+	t := make([]*model.Status, curLen)
+	copy(t, w.StatusQueue[:curLen-1])
+	w.StatusQueue = w.StatusQueue[:0]
+	return t
+}
+
 func (w *Webhook) GenerateWebhookRequests(numberOfEntries int, types ...string) []*model.Message {
 	w.mux.Lock()
 	defer w.mux.Unlock()
 
-	whReq := webhookReqPool.Get().(*model.WebhookRequest)
+	whReq := AcquireWebhookRequest()
 	whReq.Reset()
 	var messages []*model.Message
 
@@ -130,8 +162,7 @@ func (w *Webhook) GenerateWebhookRequests(numberOfEntries int, types ...string) 
 	whReq.Messages = append(whReq.Messages, messages...)
 	whReq.Contacts = append(whReq.Contacts, w.Generators.Contacts...)
 	whReq.Errors = nil // Set the errors array to nil to skip it in marshalling
-	whReq.Statuses = w.StatusQueue
-	w.StatusQueue = []*model.Status{}
+	whReq.Statuses = w.getStati()
 	w.Queue <- whReq
 
 	amount := float64(numberOfEntries)
@@ -159,13 +190,11 @@ func (w *Webhook) Run(errors chan error) (stop chan int) {
 
 				time.Sleep(w.WaitInterval)
 				req := fasthttp.AcquireRequest()
-				defer fasthttp.ReleaseRequest(req)
 
 				writer := req.BodyWriter()
 
 				buf := util.AcquireBuffer()
 				buf.Reset()
-				defer util.ReleaseBuffer(buf)
 
 				if err := marsheler.Marshal(buf, whReq); err != nil {
 					w.WaitInterval = w.WaitInterval + 3*time.Second
@@ -174,13 +203,15 @@ func (w *Webhook) Run(errors chan error) (stop chan int) {
 					continue
 				}
 
-				if Compress && buf.Len() > CompressMinsize {
+				if w.Compress && buf.Len() > w.CompressMinsize {
 					gz := util.AcquireGzip()
-					defer util.ReleaseGzip(gz)
 
 					gz.Reset(writer)
 					_, err = io.Copy(gz, buf)
 					gz.Close()
+
+					util.ReleaseBuffer(buf)
+					util.ReleaseGzip(gz)
 
 					if err != nil {
 						errors <- err
@@ -212,21 +243,23 @@ func (w *Webhook) Run(errors chan error) (stop chan int) {
 					w.Queue <- whReq
 					continue
 				}
-				defer fasthttp.ReleaseResponse(resp)
 
-				if resp.StatusCode() >= 300 || resp.StatusCode() < 200 {
+				code := resp.StatusCode()
+				fasthttp.ReleaseResponse(resp)
+				fasthttp.ReleaseRequest(req)
+
+				if code >= 300 || code < 200 {
 					w.WaitInterval = w.WaitInterval + 3*time.Second
-					errors <- fmt.Errorf("webook-request to %s failed with status %d", w.URL, resp.StatusCode())
+					errors <- fmt.Errorf("webook to %s failed with status %d", w.URL, code)
 					w.Queue <- whReq
 					continue
 				}
+				w.WaitInterval = 2
 
 				monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "message"}).Sub(float64(msgCount))
 				monitoring.WebhookQueueLength.With(prometheus.Labels{"type": "status"}).Sub(float64(staCount))
 
-				w.WaitInterval = 2
-				ReleaseWebhookRequest(whReq)
-				util.Log.Infof("Webook-request to %s successfully returned status 2xx\n", w.URL)
+				w.Log.Info("Webhook succeeded", "url", w.URL, "status_code", code)
 
 				for _, msg := range whReq.Messages {
 					model.ReleaseMessage(msg)
@@ -234,6 +267,7 @@ func (w *Webhook) Run(errors chan error) (stop chan int) {
 				for _, s := range whReq.Statuses {
 					model.ReleaseStatus(s)
 				}
+				ReleaseWebhookRequest(whReq)
 			}
 		}
 	}()

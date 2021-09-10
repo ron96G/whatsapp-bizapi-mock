@@ -18,8 +18,9 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
-	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
+
+	log "github.com/ron96G/go-common-utils/log"
 )
 
 var (
@@ -37,7 +38,9 @@ var (
 	}
 
 	TokenValidDuration = 7 * 24 * time.Hour
-	SigningKey         = []byte("foobar123!")
+	SigningKey         = []byte("e555f49db14afa8244ab4ccf630bd0020144b124217dd56781b00a6e024cb836")
+
+	TimeFormatTokenExpiration = "2006-01-02 15:04:05+00:00"
 )
 
 type CustomClaims struct {
@@ -127,7 +130,7 @@ func returnError(ctx *fasthttp.RequestCtx, statusCode int, errors ...model.Error
 func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 	err := unmarsheler.Unmarshal(bytes.NewReader(ctx.PostBody()), msg)
 	if err != nil {
-		util.Log.Warnf("Failed to unmarshal { %v } with '%v'", msg, err)
+		log.Warn("Unmarshal failed", "object", msg, "error", err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
@@ -141,7 +144,7 @@ func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 
 func validatePayload(ctx *fasthttp.RequestCtx, msg Message) bool {
 	if err := msg.Validate(); err != nil {
-		util.Log.Warnf("Failed validation of { %v } with '%v'", msg, err)
+		log.Warn("Validation failed", "object", msg, "error", err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
@@ -175,11 +178,12 @@ func NotImplementedHandler(ctx *fasthttp.RequestCtx) {
 func (a *API) GenerateToken(user string, role string) (string, error) {
 
 	// https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#rfc.section.4.1.7
+	now := time.Now()
 	atClaims := jwt.MapClaims{}
 	atClaims["iss"] = "WhatsAppMockserver"
 	atClaims["sub"] = user
-	atClaims["exp"] = time.Now().Add(TokenValidDuration).Unix()
-	atClaims["iat"] = time.Now().Unix()
+	atClaims["exp"] = now.Add(TokenValidDuration).Unix()
+	atClaims["iat"] = now.Unix()
 	atClaims["role"] = role
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	token, err := at.SignedString(SigningKey)
@@ -194,7 +198,7 @@ func returnToken(ctx *fasthttp.RequestCtx, token string) {
 	response := AcquireLoginResponse()
 	defer ReleaseLoginResponse(response)
 	response.Reset()
-	expires := time.Now().Add(TokenValidDuration).Format("2006-01-02 15:04:05+00:00")
+	expires := time.Now().Add(TokenValidDuration).Format(TimeFormatTokenExpiration)
 	response.Users = append(response.Users,
 		&model.TokenResponse{
 			Token:        token,
@@ -322,7 +326,6 @@ func respondWithFile(ctx *fasthttp.RequestCtx, statusCode int, fpath string) (ok
 
 	contentType, err := getFileContentType(f)
 	if err == nil {
-		util.Log.Infof("Setting Content-Type %s", contentType)
 		ctx.SetContentType(contentType)
 		ctx.SetStatusCode(statusCode)
 
@@ -359,4 +362,16 @@ func UpdateUnmarshaler(allowUnknownFields bool) {
 	unmarsheler = jsonpb.Unmarshaler{
 		AllowUnknownFields: allowUnknownFields,
 	}
+}
+
+func LoggerToCtx(ctx *fasthttp.RequestCtx, logger log.Logger) {
+	ctx.SetUserValue("logger", logger)
+}
+
+func (a *API) LoggerFromCtx(ctx *fasthttp.RequestCtx) log.Logger {
+	logger, ok := ctx.UserValue("logger").(log.Logger)
+	if !ok {
+		logger = a.Log
+	}
+	return logger
 }

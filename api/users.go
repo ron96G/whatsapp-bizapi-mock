@@ -23,7 +23,7 @@ func (a *API) Login(ctx *fasthttp.RequestCtx) {
 	if err != nil {
 		returnError(ctx, 401, model.Error{
 			Code:    401,
-			Details: err.Error(),
+			Details: "Missing Authorization",
 			Title:   "Client Error",
 		})
 		return
@@ -83,6 +83,7 @@ func (a *API) Login(ctx *fasthttp.RequestCtx) {
 func (a *API) Logout(ctx *fasthttp.RequestCtx) {
 	auth := string(ctx.Request.Header.Peek("Authorization"))
 	token := strings.TrimPrefix(auth, "Bearer ")
+	token = strings.TrimSpace(token)
 	a.Tokens.Del(token)
 }
 
@@ -112,7 +113,7 @@ func (a *API) CreateUser(ctx *fasthttp.RequestCtx) {
 	if _, exists := a.Config.Users[user.Username]; exists {
 		returnError(ctx, 400, model.Error{
 			Code:    400,
-			Title:   "User  already  exists",
+			Title:   "User already exists",
 			Details: fmt.Sprintf("The requested user %s already exists", user.Username),
 		})
 		return
@@ -137,7 +138,7 @@ func (a *API) DeleteUser(ctx *fasthttp.RequestCtx) {
 	if name == "admin" {
 		returnError(ctx, 400, model.Error{
 			Code:    400,
-			Details: fmt.Errorf("The user %s cannot be deleted", name).Error(),
+			Details: fmt.Sprintf("The user %s cannot be deleted", name),
 			Title:   "Client Error",
 			Href:    "",
 		})
@@ -149,7 +150,7 @@ func (a *API) DeleteUser(ctx *fasthttp.RequestCtx) {
 	} else {
 		returnError(ctx, 404, model.Error{
 			Code:    404,
-			Details: fmt.Errorf("could not find user with name %s", name).Error(),
+			Details: fmt.Sprintf("Could not find user with name %s", name),
 			Title:   "Client Error",
 			Href:    "",
 		})
