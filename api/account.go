@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
-	"github.com/ron96G/whatsapp-bizapi-mock/util"
 
 	"github.com/valyala/fasthttp"
 )
@@ -23,7 +22,7 @@ func init() {
 }
 
 // RegisterAccount mocks the registration of  an account for this instance
-func RegisterAccount(ctx *fasthttp.RequestCtx) {
+func (a *API) RegisterAccount(ctx *fasthttp.RequestCtx) {
 
 	req := new(model.RegistrationRequest)
 	if !unmarshalPayload(ctx, req) {
@@ -43,7 +42,7 @@ func RegisterAccount(ctx *fasthttp.RequestCtx) {
 	// in reality only 1 code can be requested at a time
 	if expectedVerifyCode == "" {
 		expectedVerifyCode = generateRandomCode(6)
-		util.Log.Warnf("GENERATED VERIFY CODE %s", expectedVerifyCode)
+		a.Log.Warn("GENERATED VERIFY CODE", "code", expectedVerifyCode)
 	}
 
 	resp := &model.MetaResponse{
@@ -55,7 +54,7 @@ func RegisterAccount(ctx *fasthttp.RequestCtx) {
 }
 
 // VerifyAccount mocks the verification to finish the registration of an account
-func VerifyAccount(ctx *fasthttp.RequestCtx) {
+func (a *API) VerifyAccount(ctx *fasthttp.RequestCtx) {
 
 	req := new(model.VerifyRequest)
 	if !unmarshalPayload(ctx, req) {
@@ -72,7 +71,7 @@ func VerifyAccount(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	util.Log.Print("Successfully verified account")
+	a.Log.Info("Successfully verified account")
 	Verified = true
 	expectedVerifyCode = "" // reset code
 	ctx.SetStatusCode(201)

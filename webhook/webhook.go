@@ -13,6 +13,8 @@ import (
 	"github.com/ron96G/whatsapp-bizapi-mock/monitoring"
 	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
+
+	log "github.com/ron96G/go-common-utils/log"
 )
 
 var (
@@ -45,6 +47,7 @@ type Webhook struct {
 	StatusQueue  []*model.Status
 	MessageQueue []*model.Message
 	Queue        chan *model.WebhookRequest
+	Log          log.Logger
 	WaitInterval time.Duration
 	userAgent    string
 	mux          sync.Mutex
@@ -55,6 +58,7 @@ func NewWebhook(url, version string, g *model.Generators) *Webhook {
 		URL:          url,
 		Generators:   g,
 		Queue:        make(chan *model.WebhookRequest, 100),
+		Log:          log.New("webhook_logger", "component", "webhook"),
 		userAgent:    "WhatsappMockserver/" + version,
 		StatusQueue:  []*model.Status{},
 		WaitInterval: 0 * time.Second,
@@ -213,10 +217,11 @@ func (w *Webhook) Run(errors chan error) (stop chan int) {
 					continue
 				}
 				defer fasthttp.ReleaseResponse(resp)
+				code := resp.StatusCode()
 
-				if resp.StatusCode() >= 300 || resp.StatusCode() < 200 {
+				if code >= 300 || code < 200 {
 					w.WaitInterval = w.WaitInterval + 3*time.Second
-					errors <- fmt.Errorf("webook-request to %s failed with status %d", w.URL, resp.StatusCode())
+					errors <- fmt.Errorf("webook to %s failed with status %d", w.URL, code)
 					w.Queue <- whReq
 					continue
 				}
@@ -226,7 +231,7 @@ func (w *Webhook) Run(errors chan error) (stop chan int) {
 
 				w.WaitInterval = 2
 				ReleaseWebhookRequest(whReq)
-				util.Log.Infof("Webook-request to %s successfully returned status 2xx\n", w.URL)
+				w.Log.Info("Webhook succeeded", "url", w.URL, "status_code", code)
 
 				for _, msg := range whReq.Messages {
 					model.ReleaseMessage(msg)

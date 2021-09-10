@@ -3,8 +3,10 @@ package api_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
@@ -14,7 +16,10 @@ import (
 	w_api "github.com/ron96G/whatsapp-bizapi-mock/api"
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
 	"github.com/ron96G/whatsapp-bizapi-mock/webhook"
+	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttputil"
+
+	log "github.com/ron96G/go-common-utils/log"
 )
 
 var (
@@ -22,9 +27,10 @@ var (
 	apiPrefix      = "/v1"
 	baseUrl        = "http://localhost:8080" + apiPrefix
 	contacts       = []*model.Contact{}
-	generators     = model.NewGenerators(w_api.Config.UploadDir, contacts, w_api.Config.InboundMedia)
+	generators, _  = model.NewGenerators(w_api.Config.UploadDir, contacts, w_api.Config.InboundMedia)
 	w              = webhook.NewWebhook(w_api.Config.ApplicationSettings.Webhooks.Url, w_api.Config.Version, generators)
 	api            = w_api.NewAPI(apiPrefix, staticAPIToken, w_api.Config, w)
+	client         = StartNewServer(api.Server)
 
 	marsheler = jsonpb.Marshaler{
 		EmitDefaults: false,
@@ -38,6 +44,10 @@ var (
 	}
 )
 
+func init() {
+	log.Configure("debug", "json", os.Stdout)
+}
+
 func TestAPI(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "API Suite")
@@ -49,11 +59,11 @@ func PanicIfNotNil(err error) {
 	}
 }
 
-func StartNewServer() (client *http.Client) {
+func StartNewServer(s *fasthttp.Server) (client *http.Client) {
 	ln := fasthttputil.NewInmemoryListener()
 
 	go func() {
-		if err := api.Server.Serve(ln); err != nil {
+		if err := s.Serve(ln); err != nil {
 			panic(err)
 		}
 	}()
@@ -72,7 +82,6 @@ func StartNewServer() (client *http.Client) {
 var _ = Describe("Users API", func() {
 	defer GinkgoRecover()
 
-	client := StartNewServer()
 	buf := bytes.NewBuffer(nil)
 	password := "newPassword123!"
 
@@ -94,9 +103,9 @@ var _ = Describe("Users API", func() {
 		}
 
 		buf.Reset()
-		marsheler.Marshal(buf, &requestBody)
 
-		Context("Missing Authorization", func() {
+		Context("Missing Authorization Header", func() {
+			marsheler.Marshal(buf, &requestBody)
 			req, _ := http.NewRequest("POST", baseUrl+"/users/login", buf)
 			resp, err := client.Do(req)
 			PanicIfNotNil(err)
@@ -112,17 +121,66 @@ var _ = Describe("Users API", func() {
 				Expect(errResp.Errors).To(HaveLen(1))
 				Expect(errResp.Errors[0].Code).To(Equal(int32(401)))
 				Expect(errResp.Errors[0].Title).To(Equal("Client Error"))
-				Expect(errResp.Errors[0].Details).To(Equal("unable to find Authorization header"))
+				Expect(errResp.Errors[0].Details).To(Equal("Missing Authorization"))
 			})
 		})
 
 		buf.Reset()
-		marsheler.Marshal(buf, &requestBody)
 
-		Context("Successful first login", func() {
+		Context("Incorrect Authorization", func() {
+			marsheler.Marshal(buf, &requestBody)
 			req, _ := http.NewRequest("POST", baseUrl+"/users/login", buf)
+			req.SetBasicAuth("admin", "wrongPassword")
 
+			resp, err := client.Do(req)
+			PanicIfNotNil(err)
+
+			It("Should have status code 401", func() {
+				Expect(resp.StatusCode).To(Equal(401))
+			})
+
+			It("Should have an error response body", func() {
+				errResp := new(model.ErrorResponse)
+				PanicIfNotNil(unmarsheler.Unmarshal(resp.Body, errResp))
+
+				Expect(errResp.Errors).To(HaveLen(1))
+				Expect(errResp.Errors[0].Code).To(Equal(int32(401)))
+				Expect(errResp.Errors[0].Title).To(Equal("Client Error"))
+				Expect(errResp.Errors[0].Details).To(Equal("Username or password is invalid"))
+			})
+		})
+
+		buf.Reset()
+
+		Context("Missing Password Change", func() {
+			req, _ := http.NewRequest("POST", baseUrl+"/users/login", buf)
 			req.SetBasicAuth("admin", "secret")
+
+			resp, err := client.Do(req)
+			PanicIfNotNil(err)
+
+			It("Should have status code 400", func() {
+				Expect(resp.StatusCode).To(Equal(400))
+			})
+
+			It("Should have an error response body", func() {
+				errResp := new(model.ErrorResponse)
+				PanicIfNotNil(unmarsheler.Unmarshal(resp.Body, errResp))
+
+				Expect(errResp.Errors).To(HaveLen(1))
+				Expect(errResp.Errors[0].Code).To(Equal(int32(400)))
+				Expect(errResp.Errors[0].Title).To(Equal("Client Error"))
+				Expect(errResp.Errors[0].Details).To(Equal("Password change required"))
+			})
+		})
+
+		buf.Reset()
+
+		Context("Successful First Login", func() {
+			marsheler.Marshal(buf, &requestBody)
+			req, _ := http.NewRequest("POST", baseUrl+"/users/login", buf)
+			req.SetBasicAuth("admin", "secret")
+
 			resp, err := client.Do(req)
 			PanicIfNotNil(err)
 
@@ -141,19 +199,16 @@ var _ = Describe("Users API", func() {
 		})
 	})
 
-	Context("Login & Logout", func() {
+	buf.Reset()
 
-		buf.Reset()
+	Context("Login & Logout", func() {
 
 		Context("Login", func() {
 			req, _ := http.NewRequest("POST", baseUrl+"/users/login", buf)
 
 			req.SetBasicAuth("admin", password)
 			resp, err := client.Do(req)
-
-			It("Should not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
-			})
+			PanicIfNotNil(err)
 
 			It("Should have status code 200", func() {
 				Expect(resp.StatusCode).To(Equal(200))
@@ -185,7 +240,7 @@ var _ = Describe("Users API", func() {
 				Expect(resp.StatusCode).To(Equal(200))
 			})
 
-			Context("Check that logout worked", func() {
+			Context("Verify that logout worked", func() {
 
 				requestBody := model.User{
 					Username: "username",
@@ -202,7 +257,102 @@ var _ = Describe("Users API", func() {
 				})
 
 			})
+
 		})
 	})
 
-})
+	Context("Creating and Deleting Users", func() {
+
+		adminAuthToken, err := api.GenerateToken("admin", "ADMIN")
+		PanicIfNotNil(err)
+
+		username := "username"
+		requestBody := &model.User{
+			Username: username,
+			Password: "password",
+		}
+
+		buf.Reset()
+
+		Context("Creating a new User", func() {
+
+			marsheler.Marshal(buf, requestBody)
+
+			req, _ := http.NewRequest("POST", baseUrl+"/users", buf)
+			req.Header.Set("Authorization", "Bearer "+adminAuthToken)
+
+			resp, err := client.Do(req)
+			PanicIfNotNil(err)
+
+			It("Should have status code 201", func() {
+				Expect(resp.StatusCode).To(Equal(201))
+			})
+		})
+
+		buf.Reset()
+
+		Context("Creating an already existing User", func() {
+
+			marsheler.Marshal(buf, requestBody)
+
+			req, _ := http.NewRequest("POST", baseUrl+"/users", buf)
+			req.Header.Set("Authorization", "Bearer "+adminAuthToken)
+
+			resp, err := client.Do(req)
+			PanicIfNotNil(err)
+
+			It("Should have status code 400", func() {
+				Expect(resp.StatusCode).To(Equal(400))
+			})
+
+			It("Should have an error response body", func() {
+				errResp := new(model.ErrorResponse)
+				PanicIfNotNil(unmarsheler.Unmarshal(resp.Body, errResp))
+
+				Expect(errResp.Errors).To(HaveLen(1))
+				Expect(errResp.Errors[0].Code).To(Equal(int32(400)))
+				Expect(errResp.Errors[0].Title).To(Equal("User already exists"))
+				Expect(errResp.Errors[0].Details).To(Equal(fmt.Sprintf("The requested user %s already exists", username)))
+			})
+		})
+
+		buf.Reset()
+
+		Context("Deleting a User", func() {
+			req, _ := http.NewRequest("DELETE", baseUrl+"/users/"+username, buf)
+			req.Header.Set("Authorization", "Bearer "+adminAuthToken)
+
+			resp, err := client.Do(req)
+			PanicIfNotNil(err)
+
+			It("Should have status code 200", func() {
+				Expect(resp.StatusCode).To(Equal(200))
+			})
+		})
+
+		buf.Reset()
+
+		Context("Deleting nonexistent User", func() {
+			req, _ := http.NewRequest("DELETE", baseUrl+"/users/"+username, buf)
+			req.Header.Set("Authorization", "Bearer "+adminAuthToken)
+
+			resp, err := client.Do(req)
+			PanicIfNotNil(err)
+
+			It("Should have status code 404", func() {
+				Expect(resp.StatusCode).To(Equal(404))
+			})
+
+			It("Should have an error response body", func() {
+				errResp := new(model.ErrorResponse)
+				PanicIfNotNil(unmarsheler.Unmarshal(resp.Body, errResp))
+
+				Expect(errResp.Errors).To(HaveLen(1))
+				Expect(errResp.Errors[0].Code).To(Equal(int32(404)))
+				Expect(errResp.Errors[0].Title).To(Equal("Client Error"))
+				Expect(errResp.Errors[0].Details).To(Equal(fmt.Sprintf("Could not find user with name %s", username)))
+			})
+		})
+	})
+
+}) // Users API

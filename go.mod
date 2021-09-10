@@ -17,8 +17,8 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.29.0
+	github.com/ron96G/go-common-utils v0.1.6
 	github.com/ron96G/go-fasthttp-swagger v0.0.0-20210713131343-ea0c9423e54f
-	github.com/sirupsen/logrus v1.8.1
 	github.com/swaggo/swag v1.7.0
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
@@ -32,4 +32,5 @@ require (
 	golang.org/x/time v0.0.0-20210611083556-38a9dc6acbc6
 	golang.org/x/tools v0.1.5 // indirect
 	google.golang.org/protobuf v1.27.1
+	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )

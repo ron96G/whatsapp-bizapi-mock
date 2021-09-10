@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
-	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
 )
 
@@ -23,10 +22,11 @@ func (a *API) SendMessages(ctx *fasthttp.RequestCtx) {
 	if !unmarshalPayload(ctx, msg) {
 		return
 	}
+	logger := a.LoggerFromCtx(ctx)
 
 	// return
 	id := uuid.New().String()
-	util.Log.Infof("Generated message id " + id)
+	logger.Info("Generated message ", "msg_id", id)
 	msg.Id = id
 	resp := AcquireIdResponse()
 	resp.Reset()
@@ -123,8 +123,8 @@ func (a *API) CancelGenerateWebhookRquests(ctx *fasthttp.RequestCtx) {
 	a.cancel <- 1
 }
 
-func PanicHandler(ctx *fasthttp.RequestCtx, in interface{}) {
-	util.Log.Errorf("%v", in)
+func (a *API) PanicHandler(ctx *fasthttp.RequestCtx, in interface{}) {
+	a.Log.Crit("Panic handler catched error", "error", in)
 	returnError(ctx, 500, model.Error{
 		Code:    500,
 		Details: "An unexpected error occured",

@@ -12,20 +12,24 @@ import (
 
 	swagger "github.com/ron96G/go-fasthttp-swagger"
 	_ "github.com/ron96G/whatsapp-bizapi-mock/docs"
+
+	log "github.com/ron96G/go-common-utils/log"
 )
 
-var (
-	ApiStatus = model.Meta_experimental
-	Version   = "2.35"
+const (
+	ApiStatus  = model.Meta_experimental
+	Version    = "2.35"
+	Servername = "WhatsAppMockserver/v" + Version
 )
 
 type API struct {
 	Server       *fasthttp.Server
 	Status       string
 	Config       *model.InternalConfig
-	Tokens       *util.LockedList
+	Tokens       *util.Set
 	Webhook      *webhook.Webhook
 	RequestLimit int
+	Log          log.Logger
 	cancel       chan int
 }
 
@@ -33,9 +37,10 @@ func NewAPI(apiPrefix, staticApiToken string, cfg *model.InternalConfig, webhook
 	api := &API{
 		Status:       model.Meta_experimental.String(),
 		Config:       cfg,
-		Tokens:       util.NewLockedList(),
+		Tokens:       util.NewSet(),
 		Webhook:      webhook,
 		RequestLimit: 20,
+		Log:          log.New("api_logger", "component", "api"),
 		cancel:       make(chan int, 1),
 	}
 	api.NewServer(apiPrefix, staticApiToken)
@@ -64,8 +69,8 @@ func (a *API) NewServer(apiPrefix string, staticApiToken string) {
 	// general resources
 	subR.POST("/generate", Limiter(a.GenerateWebhookRequests, 2))
 	subR.POST("/generate/cancel", a.CancelGenerateWebhookRquests)
-	subR.POST("/messages", monitoring.All(Limiter(SetConnID(a.Authorize(a.SendMessages)), a.RequestLimit)))
-	subR.POST("/contacts", monitoring.All(Limiter(SetConnID(a.Authorize(Contacts)), a.RequestLimit)))
+	subR.POST("/messages", monitoring.All(Limiter(a.Authorize(a.SendMessages), a.RequestLimit)))
+	subR.POST("/contacts", monitoring.All(Limiter(a.Authorize(Contacts), a.RequestLimit)))
 
 	subR.GET("/health", Limiter(AuthorizeStaticToken(HealthCheck, staticApiToken), 5))
 
@@ -86,11 +91,11 @@ func (a *API) NewServer(apiPrefix string, staticApiToken string) {
 	subR.DELETE("/settings/application", monitoring.All(a.Authorize(ResetApplicationSettings)))
 	subR.POST("/certificates/webhooks/ca", monitoring.All(a.Authorize(a.UploadWebhookCA)))
 	subR.POST("/settings/backup", monitoring.All(a.Authorize(a.BackupSettings)))
-	subR.POST("/settings/restore", monitoring.All(a.Authorize(RestoreSettings)))
+	subR.POST("/settings/restore", monitoring.All(a.Authorize(a.RestoreSettings)))
 
 	// registration resources
-	subR.POST("/account/verify", monitoring.All(a.Authorize(VerifyAccount)))
-	subR.POST("/account", monitoring.All(a.Authorize(RegisterAccount)))
+	subR.POST("/account/verify", monitoring.All(a.Authorize(a.VerifyAccount)))
+	subR.POST("/account", monitoring.All(a.Authorize(a.RegisterAccount)))
 
 	// profile resources
 	subR.PATCH("/settings/profile/about", monitoring.All(a.Authorize(a.SetProfileAbout)))
@@ -110,15 +115,15 @@ func (a *API) NewServer(apiPrefix string, staticApiToken string) {
 	r.GET("/swagger/{path:*}", swagger.SwaggerHandler())
 	r.GET("/metrics", monitoring.All(monitoring.PrometheusHandler))
 
-	r.PanicHandler = PanicHandler
+	r.PanicHandler = a.PanicHandler
 	server := &fasthttp.Server{
-		Handler:                       Log(Tracer(r.Handler)),
-		Name:                          "WhatsAppMockserver",
+		Handler:                       Log(Tracer(a.SetConnID(r.Handler))),
+		Name:                          Servername,
 		Concurrency:                   256 * 1024,
 		DisableKeepalive:              false,
 		ReadTimeout:                   5 * time.Second,
 		WriteTimeout:                  5 * time.Second,
-		IdleTimeout:                   30 * time.Second,
+		IdleTimeout:                   15 * time.Second,
 		MaxConnsPerIP:                 0,
 		MaxRequestsPerConn:            0,
 		TCPKeepalive:                  false,
