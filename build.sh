@@ -21,6 +21,6 @@ protoc \
 
 gosec -exclude G104,G404,G307,G402 ./...
 
-swag init -g server.go -d controller --parseDependency --parseInternal #--parseDepth 1
+swag init -g server.go -d api --parseDependency --parseInternal #--parseDepth 1
 
 go build cmd/main.go
