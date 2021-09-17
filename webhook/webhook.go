@@ -139,13 +139,13 @@ func (w *Webhook) getStati() []*model.Status {
 
 	if curLen >= w.MaxStatiPerWebhookRequest {
 		t := make([]*model.Status, w.MaxStatiPerWebhookRequest)
-		copy(t, w.StatusQueue[:w.MaxStatiPerWebhookRequest-1])
+		copy(t, w.StatusQueue[:w.MaxStatiPerWebhookRequest])
 		w.StatusQueue = w.StatusQueue[w.MaxStatiPerWebhookRequest:]
 		return t
 	}
 
 	t := make([]*model.Status, curLen)
-	copy(t, w.StatusQueue[:curLen-1])
+	copy(t, w.StatusQueue[:curLen])
 	w.StatusQueue = w.StatusQueue[:0]
 	return t
 }
