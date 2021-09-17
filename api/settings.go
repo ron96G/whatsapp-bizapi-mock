@@ -12,7 +12,9 @@ import (
 
 func (a *API) SetApplicationSettings(ctx *fasthttp.RequestCtx) {
 	appSettings := &model.ApplicationSettings{}
-	if !unmarshalPayload(ctx, appSettings) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, appSettings); err != nil {
+		logger.Warn("Unable to set application settings", "error", err)
 		return
 	}
 
@@ -51,7 +53,9 @@ func ResetApplicationSettings(ctx *fasthttp.RequestCtx) { notImplemented(ctx) }
 
 func (a *API) BackupSettings(ctx *fasthttp.RequestCtx) {
 	req := &model.BackupRequest{}
-	if !unmarshalPayload(ctx, req) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, req); err != nil {
+		logger.Warn("Unable to backup application settings", "error", err)
 		return
 	}
 	buf := &bytes.Buffer{}
@@ -77,7 +81,9 @@ func (a *API) BackupSettings(ctx *fasthttp.RequestCtx) {
 
 func (a *API) RestoreSettings(ctx *fasthttp.RequestCtx) {
 	req := &model.RestoreRequest{}
-	if !unmarshalPayload(ctx, req) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, req); err != nil {
+		logger.Warn("Unable to restore application settings", "error", err)
 		return
 	}
 	buf := bytes.NewBuffer(req.Data)

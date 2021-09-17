@@ -19,10 +19,11 @@ func (a *API) SendMessages(ctx *fasthttp.RequestCtx) {
 	msg := model.AcquireMessage()
 	msg.Reset()
 	defer model.ReleaseMessage(msg)
-	if !unmarshalPayload(ctx, msg) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, msg); err != nil {
+		logger.Warn("Unable to send message", "error", err)
 		return
 	}
-	logger := a.LoggerFromCtx(ctx)
 
 	// return
 	id := uuid.New().String()
@@ -38,10 +39,12 @@ func (a *API) SendMessages(ctx *fasthttp.RequestCtx) {
 	a.Webhook.AddStati(stati...)
 }
 
-func Contacts(ctx *fasthttp.RequestCtx) {
+func (a *API) Contacts(ctx *fasthttp.RequestCtx) {
 	msg := new(model.ContactRequest)
 	msg.Reset()
-	if !unmarshalPayload(ctx, msg) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, msg); err != nil {
+		logger.Warn("Unable to send message", "error", err)
 		return
 	}
 

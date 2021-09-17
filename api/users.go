@@ -100,7 +100,9 @@ func (a *API) Logout(ctx *fasthttp.RequestCtx) {
 // @Security BearerAuth
 func (a *API) CreateUser(ctx *fasthttp.RequestCtx) {
 	user := &model.User{}
-	if !unmarshalPayload(ctx, user) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, user); err != nil {
+		logger.Warn("Unable to create user", "error", err)
 		return
 	}
 	response := AcquireLoginResponse()

@@ -12,7 +12,9 @@ import (
 
 func (a *API) SetProfileAbout(ctx *fasthttp.RequestCtx) {
 	about := &model.ProfileAbout{}
-	if !unmarshalPayload(ctx, about) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, about); err != nil {
+		logger.Warn("Unable to set profile about", "error", err)
 		return
 	}
 	a.Config.ProfileAbout = about
@@ -44,7 +46,9 @@ func (a *API) GetProfilePhoto(ctx *fasthttp.RequestCtx) {
 
 func (a *API) SetBusinessProfile(ctx *fasthttp.RequestCtx) {
 	businessProfile := &model.BusinessProfile{}
-	if !unmarshalPayload(ctx, businessProfile) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, businessProfile); err != nil {
+		logger.Warn("Unable to set business profile", "error", err)
 		return
 	}
 

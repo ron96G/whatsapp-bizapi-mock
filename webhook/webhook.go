@@ -133,6 +133,10 @@ func (w *Webhook) statusRunner() (stop chan int) {
 func (w *Webhook) getStati() []*model.Status {
 	curLen := len(w.StatusQueue)
 
+	if curLen == 0 {
+		return nil
+	}
+
 	if curLen >= w.MaxStatiPerWebhookRequest {
 		t := make([]*model.Status, w.MaxStatiPerWebhookRequest)
 		copy(t, w.StatusQueue[:w.MaxStatiPerWebhookRequest-1])

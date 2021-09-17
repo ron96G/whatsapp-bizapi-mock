@@ -23,9 +23,10 @@ func init() {
 
 // RegisterAccount mocks the registration of  an account for this instance
 func (a *API) RegisterAccount(ctx *fasthttp.RequestCtx) {
-
 	req := new(model.RegistrationRequest)
-	if !unmarshalPayload(ctx, req) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, req); err != nil {
+		logger.Warn("Unable to register account", "error", err)
 		return
 	}
 
@@ -55,9 +56,10 @@ func (a *API) RegisterAccount(ctx *fasthttp.RequestCtx) {
 
 // VerifyAccount mocks the verification to finish the registration of an account
 func (a *API) VerifyAccount(ctx *fasthttp.RequestCtx) {
-
 	req := new(model.VerifyRequest)
-	if !unmarshalPayload(ctx, req) {
+	logger := a.LoggerFromCtx(ctx)
+	if err := unmarshalPayload(ctx, req); err != nil {
+		logger.Warn("Unable to verify account", "error", err)
 		return
 	}
 

@@ -72,7 +72,7 @@ func (a *API) NewServer(apiPrefix string, staticApiToken string) {
 	subR.POST("/generate", Limiter(a.GenerateWebhookRequests, 2))
 	subR.POST("/generate/cancel", a.CancelGenerateWebhookRquests)
 	subR.POST("/messages", monitoring.All(Limiter(a.Authorize(a.SendMessages), a.RequestLimit)))
-	subR.POST("/contacts", monitoring.All(Limiter(a.Authorize(Contacts), a.RequestLimit)))
+	subR.POST("/contacts", monitoring.All(Limiter(a.Authorize(a.Contacts), a.RequestLimit)))
 
 	subR.GET("/health", Limiter(AuthorizeStaticToken(HealthCheck, staticApiToken), 5))
 

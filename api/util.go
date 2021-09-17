@@ -127,33 +127,35 @@ func returnError(ctx *fasthttp.RequestCtx, statusCode int, errors ...model.Error
 	returnJSON(ctx, statusCode, response)
 }
 
-func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) bool {
+func unmarshalPayload(ctx *fasthttp.RequestCtx, msg Message) error {
 	err := unmarsheler.Unmarshal(bytes.NewReader(ctx.PostBody()), msg)
 	if err != nil {
-		log.Warn("Unmarshal failed", "object", msg, "error", err)
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
 			Title:   "Unable to unmarshal payload",
 			Href:    "",
 		})
-		return false
+		return fmt.Errorf("unmarshal payload: %v", err)
 	}
-	return validatePayload(ctx, msg)
-}
-
-func validatePayload(ctx *fasthttp.RequestCtx, msg Message) bool {
-	if err := msg.Validate(); err != nil {
-		log.Warn("Validation failed", "object", msg, "error", err)
+	err = validatePayload(ctx, msg)
+	if err != nil {
 		returnError(ctx, 400, model.Error{
 			Code:    400,
 			Details: err.Error(),
 			Title:   "Validation of input failed",
 			Href:    "",
 		})
-		return false
+		return err
 	}
-	return true
+	return nil
+}
+
+func validatePayload(ctx *fasthttp.RequestCtx, msg Message) error {
+	if err := msg.Validate(); err != nil {
+		return fmt.Errorf("validate payload: %v", err)
+	}
+	return nil
 }
 
 func returnJSON(ctx *fasthttp.RequestCtx, statusCode int, out proto.Message) {
