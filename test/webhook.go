@@ -13,10 +13,19 @@ import (
 	"github.com/ron96G/go-certificate-util/util"
 )
 
+const (
+	printBody = true
+)
+
 func webhook(w http.ResponseWriter, r *http.Request) {
 
 	time.Sleep(500 * time.Millisecond)
 	w.WriteHeader(200)
+
+	if !printBody {
+		fmt.Println("Received request with length " + r.Header.Get("Content-Length"))
+		return
+	}
 
 	fmt.Printf("Header:\n %v\n", r.Header)
 	content, _ := ioutil.ReadAll(r.Body)
