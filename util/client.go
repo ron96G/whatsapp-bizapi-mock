@@ -15,7 +15,7 @@ var (
 		DisablePathNormalizing:        false,
 		DisableHeaderNamesNormalizing: false,
 		ReadTimeout:                   5 * time.Second,
-		WriteTimeout:                  5 * time.Second,
+		WriteTimeout:                  10 * time.Second,
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: true, // per default certificates are not validated
 			MinVersion:         tls.VersionTLS12,
