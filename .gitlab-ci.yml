@@ -19,6 +19,10 @@ image: golang:latest
 .pre_build_protoc: &pre_build_protoc
   tags:
     - run_docker
+  artifacts:
+    paths:
+      - $PWD/model
+    expire_in: 1 hour
   script:
     - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
     - export GO111MODULE=off
@@ -96,12 +100,6 @@ unit test:
   allow_failure: true
   stage: check
   <<: *pre_build_test
-
-scan:
-  allow_failure: true
-  stage: check
-  <<: *pre_build_scan
-
 
 build latest:
   stage: build
