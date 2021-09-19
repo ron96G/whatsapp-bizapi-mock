@@ -4,7 +4,6 @@ go 1.16
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.0 // indirect
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/envoyproxy/protoc-gen-validate v0.6.1
 	github.com/fasthttp/router v1.4.0
