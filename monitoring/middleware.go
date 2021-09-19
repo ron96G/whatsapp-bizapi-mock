@@ -22,11 +22,3 @@ func ResponseTime(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 		ApiRequestDuration.WithLabelValues(statusStr, methodStr, urlStr).Observe(delta)
 	})
 }
-
-// https://math.stackexchange.com/questions/106700/incremental-averageing
-func floatingAverage(a, x, k uint64) uint64 {
-	if a == 0 {
-		return x
-	}
-	return a + (x-a)/k
-}
