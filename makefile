@@ -1,11 +1,11 @@
 GOCMD=go
 GOTEST=$(GOCMD) test
 GOVET=$(GOCMD) vet
-BINARY_NAME=wabiz-mock
+BINARY_NAME=whatsapp-business-api-mock
 VERSION?=0.1.0
 SERVICE_PORT?=8080
-DOCKER_REGISTRY?= #if set it should finished by /
-EXPORT_RESULT?=true # for CI please set EXPORT_RESULT to true
+DOCKER_REGISTRY?=rgummich/#if set it should finished by /
+EXPORT_RESULT?=true# for CI please set EXPORT_RESULT to true
 
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
@@ -16,6 +16,13 @@ RESET  := $(shell tput -Txterm sgr0)
 .PHONY: all test build vendor
 
 all: help
+
+build-protoc: ## Build the protocol buffer model
+	mkdir -p model
+	docker run --rm -v $(shell pwd):/app -w /app rgummich/protoc-builder:latest \
+		-I /go/src -I /go/src/github.com/envoyproxy/protoc-gen-validate \
+		--proto_path=protobuf --gogofast_out=":./" --validate_out="lang=go:." \
+		meta.proto general.proto contacts.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto
 
 ## Build:
 build: ## Build your project and put the output binary in out/bin/

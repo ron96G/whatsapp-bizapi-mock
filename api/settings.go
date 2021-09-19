@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"net/url"
 
+	"github.com/gogo/protobuf/proto"
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
 	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/valyala/fasthttp"
-	"google.golang.org/protobuf/proto"
 )
 
 func (a *API) SetApplicationSettings(ctx *fasthttp.RequestCtx) {

@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,22 +32,57 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on InternalContact with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *InternalContact) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InternalContact with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InternalContactMultiError, or nil if none found.
+func (m *InternalContact) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InternalContact) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Id
 
 	// no validation rules for Name
 
+	if len(errors) > 0 {
+		return InternalContactMultiError(errors)
+	}
 	return nil
 }
+
+// InternalContactMultiError is an error wrapping multiple validation errors
+// returned by InternalContact.ValidateAll() if the designated constraints
+// aren't met.
+type InternalContactMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InternalContactMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InternalContactMultiError) AllErrors() []error { return m }
 
 // InternalContactValidationError is the validation error returned by
 // InternalContact.Validate if the designated constraints aren't met.
@@ -103,12 +139,26 @@ var _ interface {
 } = InternalContactValidationError{}
 
 // Validate checks the field values on InternalConfig with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *InternalConfig) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InternalConfig with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in InternalConfigMultiError,
+// or nil if none found.
+func (m *InternalConfig) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InternalConfig) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Version
 
@@ -117,7 +167,26 @@ func (m *InternalConfig) Validate() error {
 	for idx, item := range m.GetContacts() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, InternalConfigValidationError{
+						field:  fmt.Sprintf("Contacts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, InternalConfigValidationError{
+						field:  fmt.Sprintf("Contacts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return InternalConfigValidationError{
 					field:  fmt.Sprintf("Contacts[%v]", idx),
@@ -135,7 +204,26 @@ func (m *InternalConfig) Validate() error {
 
 	// no validation rules for InboundMedia
 
-	if v, ok := interface{}(m.GetApplicationSettings()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetApplicationSettings()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InternalConfigValidationError{
+					field:  "ApplicationSettings",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InternalConfigValidationError{
+					field:  "ApplicationSettings",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetApplicationSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InternalConfigValidationError{
 				field:  "ApplicationSettings",
@@ -145,7 +233,26 @@ func (m *InternalConfig) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetProfileAbout()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetProfileAbout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InternalConfigValidationError{
+					field:  "ProfileAbout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InternalConfigValidationError{
+					field:  "ProfileAbout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProfileAbout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InternalConfigValidationError{
 				field:  "ProfileAbout",
@@ -155,7 +262,26 @@ func (m *InternalConfig) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetBusinessProfile()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetBusinessProfile()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InternalConfigValidationError{
+					field:  "BusinessProfile",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InternalConfigValidationError{
+					field:  "BusinessProfile",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBusinessProfile()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InternalConfigValidationError{
 				field:  "BusinessProfile",
@@ -171,8 +297,28 @@ func (m *InternalConfig) Validate() error {
 
 	// no validation rules for WebhookCA
 
+	if len(errors) > 0 {
+		return InternalConfigMultiError(errors)
+	}
 	return nil
 }
+
+// InternalConfigMultiError is an error wrapping multiple validation errors
+// returned by InternalConfig.ValidateAll() if the designated constraints
+// aren't met.
+type InternalConfigMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InternalConfigMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InternalConfigMultiError) AllErrors() []error { return m }
 
 // InternalConfigValidationError is the validation error returned by
 // InternalConfig.Validate if the designated constraints aren't met.
@@ -229,17 +375,50 @@ var _ interface {
 } = InternalConfigValidationError{}
 
 // Validate checks the field values on WebhookRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *WebhookRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WebhookRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in WebhookRequestMultiError,
+// or nil if none found.
+func (m *WebhookRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WebhookRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	for idx, item := range m.GetContacts() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Contacts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Contacts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return WebhookRequestValidationError{
 					field:  fmt.Sprintf("Contacts[%v]", idx),
@@ -254,7 +433,26 @@ func (m *WebhookRequest) Validate() error {
 	for idx, item := range m.GetMessages() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return WebhookRequestValidationError{
 					field:  fmt.Sprintf("Messages[%v]", idx),
@@ -269,7 +467,26 @@ func (m *WebhookRequest) Validate() error {
 	for idx, item := range m.GetStatuses() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Statuses[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Statuses[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return WebhookRequestValidationError{
 					field:  fmt.Sprintf("Statuses[%v]", idx),
@@ -284,7 +501,26 @@ func (m *WebhookRequest) Validate() error {
 	for idx, item := range m.GetErrors() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Errors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WebhookRequestValidationError{
+						field:  fmt.Sprintf("Errors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return WebhookRequestValidationError{
 					field:  fmt.Sprintf("Errors[%v]", idx),
@@ -298,8 +534,28 @@ func (m *WebhookRequest) Validate() error {
 
 	// no validation rules for ErrorCounter
 
+	if len(errors) > 0 {
+		return WebhookRequestMultiError(errors)
+	}
 	return nil
 }
+
+// WebhookRequestMultiError is an error wrapping multiple validation errors
+// returned by WebhookRequest.ValidateAll() if the designated constraints
+// aren't met.
+type WebhookRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WebhookRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WebhookRequestMultiError) AllErrors() []error { return m }
 
 // WebhookRequestValidationError is the validation error returned by
 // WebhookRequest.Validate if the designated constraints aren't met.

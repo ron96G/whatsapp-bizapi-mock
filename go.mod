@@ -10,7 +10,6 @@ require (
 	github.com/fasthttp/router v1.4.0
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/gogo/protobuf v1.3.2
-	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.16.0

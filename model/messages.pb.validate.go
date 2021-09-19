@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,14 +32,29 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on Context with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Context) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Context with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in ContextMultiError, or nil if none found.
+func (m *Context) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Context) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for From
 
@@ -48,8 +64,27 @@ func (m *Context) Validate() error {
 
 	// no validation rules for FrequentlyForwarded
 
+	if len(errors) > 0 {
+		return ContextMultiError(errors)
+	}
 	return nil
 }
+
+// ContextMultiError is an error wrapping multiple validation errors returned
+// by Context.ValidateAll() if the designated constraints aren't met.
+type ContextMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContextMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContextMultiError) AllErrors() []error { return m }
 
 // ContextValidationError is the validation error returned by Context.Validate
 // if the designated constraints aren't met.
@@ -106,16 +141,50 @@ var _ interface {
 } = ContextValidationError{}
 
 // Validate checks the field values on Provider with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Provider) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Provider with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ProviderMultiError, or nil
+// if none found.
+func (m *Provider) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Provider) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Name
 
+	if len(errors) > 0 {
+		return ProviderMultiError(errors)
+	}
 	return nil
 }
+
+// ProviderMultiError is an error wrapping multiple validation errors returned
+// by Provider.ValidateAll() if the designated constraints aren't met.
+type ProviderMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ProviderMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ProviderMultiError) AllErrors() []error { return m }
 
 // ProviderValidationError is the validation error returned by
 // Provider.Validate if the designated constraints aren't met.
@@ -172,22 +241,59 @@ var _ interface {
 } = ProviderValidationError{}
 
 // Validate checks the field values on TextMessage with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *TextMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TextMessage with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TextMessageMultiError, or
+// nil if none found.
+func (m *TextMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TextMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if utf8.RuneCountInString(m.GetBody()) < 1 {
-		return TextMessageValidationError{
+		err := TextMessageValidationError{
 			field:  "Body",
 			reason: "value length must be at least 1 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
+	if len(errors) > 0 {
+		return TextMessageMultiError(errors)
+	}
 	return nil
 }
+
+// TextMessageMultiError is an error wrapping multiple validation errors
+// returned by TextMessage.ValidateAll() if the designated constraints aren't met.
+type TextMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TextMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TextMessageMultiError) AllErrors() []error { return m }
 
 // TextMessageValidationError is the validation error returned by
 // TextMessage.Validate if the designated constraints aren't met.
@@ -244,20 +350,38 @@ var _ interface {
 } = TextMessageValidationError{}
 
 // Validate checks the field values on ImageMessage with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *ImageMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ImageMessage with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ImageMessageMultiError, or
+// nil if none found.
+func (m *ImageMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ImageMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for File
 
 	if utf8.RuneCountInString(m.GetId()) < 10 {
-		return ImageMessageValidationError{
+		err := ImageMessageValidationError{
 			field:  "Id",
 			reason: "value length must be at least 10 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Link
@@ -268,7 +392,26 @@ func (m *ImageMessage) Validate() error {
 
 	// no validation rules for Caption
 
-	if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetProvider()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ImageMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ImageMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ImageMessageValidationError{
 				field:  "Provider",
@@ -278,8 +421,27 @@ func (m *ImageMessage) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return ImageMessageMultiError(errors)
+	}
 	return nil
 }
+
+// ImageMessageMultiError is an error wrapping multiple validation errors
+// returned by ImageMessage.ValidateAll() if the designated constraints aren't met.
+type ImageMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ImageMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ImageMessageMultiError) AllErrors() []error { return m }
 
 // ImageMessageValidationError is the validation error returned by
 // ImageMessage.Validate if the designated constraints aren't met.
@@ -336,20 +498,38 @@ var _ interface {
 } = ImageMessageValidationError{}
 
 // Validate checks the field values on AudioMessage with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *AudioMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AudioMessage with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in AudioMessageMultiError, or
+// nil if none found.
+func (m *AudioMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AudioMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for File
 
 	if utf8.RuneCountInString(m.GetId()) < 10 {
-		return AudioMessageValidationError{
+		err := AudioMessageValidationError{
 			field:  "Id",
 			reason: "value length must be at least 10 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Link
@@ -358,7 +538,26 @@ func (m *AudioMessage) Validate() error {
 
 	// no validation rules for Sha256
 
-	if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetProvider()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AudioMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AudioMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AudioMessageValidationError{
 				field:  "Provider",
@@ -368,8 +567,27 @@ func (m *AudioMessage) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return AudioMessageMultiError(errors)
+	}
 	return nil
 }
+
+// AudioMessageMultiError is an error wrapping multiple validation errors
+// returned by AudioMessage.ValidateAll() if the designated constraints aren't met.
+type AudioMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AudioMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AudioMessageMultiError) AllErrors() []error { return m }
 
 // AudioMessageValidationError is the validation error returned by
 // AudioMessage.Validate if the designated constraints aren't met.
@@ -426,20 +644,38 @@ var _ interface {
 } = AudioMessageValidationError{}
 
 // Validate checks the field values on VideoMessage with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *VideoMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on VideoMessage with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in VideoMessageMultiError, or
+// nil if none found.
+func (m *VideoMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *VideoMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for File
 
 	if utf8.RuneCountInString(m.GetId()) < 10 {
-		return VideoMessageValidationError{
+		err := VideoMessageValidationError{
 			field:  "Id",
 			reason: "value length must be at least 10 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Link
@@ -450,7 +686,26 @@ func (m *VideoMessage) Validate() error {
 
 	// no validation rules for Caption
 
-	if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetProvider()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, VideoMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, VideoMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VideoMessageValidationError{
 				field:  "Provider",
@@ -460,8 +715,27 @@ func (m *VideoMessage) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return VideoMessageMultiError(errors)
+	}
 	return nil
 }
+
+// VideoMessageMultiError is an error wrapping multiple validation errors
+// returned by VideoMessage.ValidateAll() if the designated constraints aren't met.
+type VideoMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m VideoMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m VideoMessageMultiError) AllErrors() []error { return m }
 
 // VideoMessageValidationError is the validation error returned by
 // VideoMessage.Validate if the designated constraints aren't met.
@@ -518,20 +792,38 @@ var _ interface {
 } = VideoMessageValidationError{}
 
 // Validate checks the field values on VoiceMessage with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *VoiceMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on VoiceMessage with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in VoiceMessageMultiError, or
+// nil if none found.
+func (m *VoiceMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *VoiceMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for File
 
 	if utf8.RuneCountInString(m.GetId()) < 10 {
-		return VoiceMessageValidationError{
+		err := VoiceMessageValidationError{
 			field:  "Id",
 			reason: "value length must be at least 10 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Link
@@ -540,8 +832,27 @@ func (m *VoiceMessage) Validate() error {
 
 	// no validation rules for Sha256
 
+	if len(errors) > 0 {
+		return VoiceMessageMultiError(errors)
+	}
 	return nil
 }
+
+// VoiceMessageMultiError is an error wrapping multiple validation errors
+// returned by VoiceMessage.ValidateAll() if the designated constraints aren't met.
+type VoiceMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m VoiceMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m VoiceMessageMultiError) AllErrors() []error { return m }
 
 // VoiceMessageValidationError is the validation error returned by
 // VoiceMessage.Validate if the designated constraints aren't met.
@@ -598,20 +909,38 @@ var _ interface {
 } = VoiceMessageValidationError{}
 
 // Validate checks the field values on DocumentMessage with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *DocumentMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DocumentMessage with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DocumentMessageMultiError, or nil if none found.
+func (m *DocumentMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DocumentMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for File
 
 	if utf8.RuneCountInString(m.GetId()) < 10 {
-		return DocumentMessageValidationError{
+		err := DocumentMessageValidationError{
 			field:  "Id",
 			reason: "value length must be at least 10 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Link
@@ -624,7 +953,26 @@ func (m *DocumentMessage) Validate() error {
 
 	// no validation rules for Filename
 
-	if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetProvider()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DocumentMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DocumentMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DocumentMessageValidationError{
 				field:  "Provider",
@@ -634,8 +982,28 @@ func (m *DocumentMessage) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return DocumentMessageMultiError(errors)
+	}
 	return nil
 }
+
+// DocumentMessageMultiError is an error wrapping multiple validation errors
+// returned by DocumentMessage.ValidateAll() if the designated constraints
+// aren't met.
+type DocumentMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DocumentMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DocumentMessageMultiError) AllErrors() []error { return m }
 
 // DocumentMessageValidationError is the validation error returned by
 // DocumentMessage.Validate if the designated constraints aren't met.
@@ -692,26 +1060,64 @@ var _ interface {
 } = DocumentMessageValidationError{}
 
 // Validate checks the field values on MediaParameter with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *MediaParameter) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MediaParameter with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MediaParameterMultiError,
+// or nil if none found.
+func (m *MediaParameter) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MediaParameter) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if utf8.RuneCountInString(m.GetId()) < 10 {
-		return MediaParameterValidationError{
+		err := MediaParameterValidationError{
 			field:  "Id",
 			reason: "value length must be at least 10 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Filename
 
 	// no validation rules for Caption
 
+	if len(errors) > 0 {
+		return MediaParameterMultiError(errors)
+	}
 	return nil
 }
+
+// MediaParameterMultiError is an error wrapping multiple validation errors
+// returned by MediaParameter.ValidateAll() if the designated constraints
+// aren't met.
+type MediaParameterMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MediaParameterMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MediaParameterMultiError) AllErrors() []error { return m }
 
 // MediaParameterValidationError is the validation error returned by
 // MediaParameter.Validate if the designated constraints aren't met.
@@ -768,18 +1174,51 @@ var _ interface {
 } = MediaParameterValidationError{}
 
 // Validate checks the field values on TemplateMessage with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *TemplateMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TemplateMessage with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TemplateMessageMultiError, or nil if none found.
+func (m *TemplateMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Namespace
 
 	// no validation rules for Name
 
-	if v, ok := interface{}(m.GetLanguage()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetLanguage()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TemplateMessageValidationError{
+					field:  "Language",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TemplateMessageValidationError{
+					field:  "Language",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLanguage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TemplateMessageValidationError{
 				field:  "Language",
@@ -792,7 +1231,26 @@ func (m *TemplateMessage) Validate() error {
 	for idx, item := range m.GetComponents() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateMessageValidationError{
+						field:  fmt.Sprintf("Components[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateMessageValidationError{
+						field:  fmt.Sprintf("Components[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateMessageValidationError{
 					field:  fmt.Sprintf("Components[%v]", idx),
@@ -804,8 +1262,28 @@ func (m *TemplateMessage) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return TemplateMessageMultiError(errors)
+	}
 	return nil
 }
+
+// TemplateMessageMultiError is an error wrapping multiple validation errors
+// returned by TemplateMessage.ValidateAll() if the designated constraints
+// aren't met.
+type TemplateMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateMessageMultiError) AllErrors() []error { return m }
 
 // TemplateMessageValidationError is the validation error returned by
 // TemplateMessage.Validate if the designated constraints aren't met.
@@ -863,20 +1341,57 @@ var _ interface {
 
 // Validate checks the field values on InteractiveMessage with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *InteractiveMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InteractiveMessage with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InteractiveMessageMultiError, or nil if none found.
+func (m *InteractiveMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if _, ok := _InteractiveMessage_Type_InLookup[m.GetType()]; !ok {
-		return InteractiveMessageValidationError{
+		err := InteractiveMessageValidationError{
 			field:  "Type",
 			reason: "value must be in list [list button]",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
-	if v, ok := interface{}(m.GetHeader()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetHeader()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Header",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Header",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetHeader()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessageValidationError{
 				field:  "Header",
@@ -886,7 +1401,26 @@ func (m *InteractiveMessage) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetBody()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetBody()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Body",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Body",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBody()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessageValidationError{
 				field:  "Body",
@@ -896,7 +1430,26 @@ func (m *InteractiveMessage) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetFooter()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetFooter()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Footer",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Footer",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFooter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessageValidationError{
 				field:  "Footer",
@@ -906,7 +1459,26 @@ func (m *InteractiveMessage) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetAction()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Action",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessageValidationError{
+					field:  "Action",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessageValidationError{
 				field:  "Action",
@@ -916,8 +1488,28 @@ func (m *InteractiveMessage) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return InteractiveMessageMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessageMultiError is an error wrapping multiple validation errors
+// returned by InteractiveMessage.ValidateAll() if the designated constraints
+// aren't met.
+type InteractiveMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessageMultiError) AllErrors() []error { return m }
 
 // InteractiveMessageValidationError is the validation error returned by
 // InteractiveMessage.Validate if the designated constraints aren't met.
@@ -981,12 +1573,26 @@ var _InteractiveMessage_Type_InLookup = map[string]struct{}{
 }
 
 // Validate checks the field values on LocationMessage with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *LocationMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LocationMessage with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LocationMessageMultiError, or nil if none found.
+func (m *LocationMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LocationMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Address
 
@@ -996,8 +1602,28 @@ func (m *LocationMessage) Validate() error {
 
 	// no validation rules for Name
 
+	if len(errors) > 0 {
+		return LocationMessageMultiError(errors)
+	}
 	return nil
 }
+
+// LocationMessageMultiError is an error wrapping multiple validation errors
+// returned by LocationMessage.ValidateAll() if the designated constraints
+// aren't met.
+type LocationMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LocationMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LocationMessageMultiError) AllErrors() []error { return m }
 
 // LocationMessageValidationError is the validation error returned by
 // LocationMessage.Validate if the designated constraints aren't met.
@@ -1054,17 +1680,51 @@ var _ interface {
 } = LocationMessageValidationError{}
 
 // Validate checks the field values on SystemMessage with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *SystemMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SystemMessage with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SystemMessageMultiError, or
+// nil if none found.
+func (m *SystemMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SystemMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Body
 
+	if len(errors) > 0 {
+		return SystemMessageMultiError(errors)
+	}
 	return nil
 }
+
+// SystemMessageMultiError is an error wrapping multiple validation errors
+// returned by SystemMessage.ValidateAll() if the designated constraints
+// aren't met.
+type SystemMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SystemMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SystemMessageMultiError) AllErrors() []error { return m }
 
 // SystemMessageValidationError is the validation error returned by
 // SystemMessage.Validate if the designated constraints aren't met.
@@ -1121,18 +1781,51 @@ var _ interface {
 } = SystemMessageValidationError{}
 
 // Validate checks the field values on StickerMessage with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *StickerMessage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StickerMessage with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in StickerMessageMultiError,
+// or nil if none found.
+func (m *StickerMessage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StickerMessage) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Id
 
 	// no validation rules for Link
 
-	if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetProvider()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StickerMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StickerMessageValidationError{
+					field:  "Provider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProvider()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StickerMessageValidationError{
 				field:  "Provider",
@@ -1142,8 +1835,28 @@ func (m *StickerMessage) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return StickerMessageMultiError(errors)
+	}
 	return nil
 }
+
+// StickerMessageMultiError is an error wrapping multiple validation errors
+// returned by StickerMessage.ValidateAll() if the designated constraints
+// aren't met.
+type StickerMessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StickerMessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StickerMessageMultiError) AllErrors() []error { return m }
 
 // StickerMessageValidationError is the validation error returned by
 // StickerMessage.Validate if the designated constraints aren't met.
@@ -1200,17 +1913,50 @@ var _ interface {
 } = StickerMessageValidationError{}
 
 // Validate checks the field values on MessageWrapper with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *MessageWrapper) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MessageWrapper with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MessageWrapperMultiError,
+// or nil if none found.
+func (m *MessageWrapper) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MessageWrapper) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	for idx, item := range m.GetMessages() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MessageWrapperValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MessageWrapperValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return MessageWrapperValidationError{
 					field:  fmt.Sprintf("Messages[%v]", idx),
@@ -1222,8 +1968,28 @@ func (m *MessageWrapper) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return MessageWrapperMultiError(errors)
+	}
 	return nil
 }
+
+// MessageWrapperMultiError is an error wrapping multiple validation errors
+// returned by MessageWrapper.ValidateAll() if the designated constraints
+// aren't met.
+type MessageWrapperMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MessageWrapperMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MessageWrapperMultiError) AllErrors() []error { return m }
 
 // MessageWrapperValidationError is the validation error returned by
 // MessageWrapper.Validate if the designated constraints aren't met.
@@ -1280,19 +2046,52 @@ var _ interface {
 } = MessageWrapperValidationError{}
 
 // Validate checks the field values on Messagemeta with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Messagemeta) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Messagemeta with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MessagemetaMultiError, or
+// nil if none found.
+func (m *Messagemeta) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Messagemeta) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for To
 
 	// no validation rules for Type
 
+	if len(errors) > 0 {
+		return MessagemetaMultiError(errors)
+	}
 	return nil
 }
+
+// MessagemetaMultiError is an error wrapping multiple validation errors
+// returned by Messagemeta.ValidateAll() if the designated constraints aren't met.
+type MessagemetaMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MessagemetaMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MessagemetaMultiError) AllErrors() []error { return m }
 
 // MessagemetaValidationError is the validation error returned by
 // Messagemeta.Validate if the designated constraints aren't met.
@@ -1349,24 +2148,61 @@ var _ interface {
 } = MessagemetaValidationError{}
 
 // Validate checks the field values on Message with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Message) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Message with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in MessageMultiError, or nil if none found.
+func (m *Message) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Message) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Id
 
 	// no validation rules for From
 
 	if !_Message_To_Pattern.MatchString(m.GetTo()) {
-		return MessageValidationError{
+		err := MessageValidationError{
 			field:  "To",
 			reason: "value does not match regex pattern \"^\\\\+?(?:[0-9]){6,14}[0-9]$\"",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
-	if v, ok := interface{}(m.GetContext()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetContext()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetContext()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Context",
@@ -1383,7 +2219,26 @@ func (m *Message) Validate() error {
 	for idx, item := range m.GetErrors() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MessageValidationError{
+						field:  fmt.Sprintf("Errors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MessageValidationError{
+						field:  fmt.Sprintf("Errors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return MessageValidationError{
 					field:  fmt.Sprintf("Errors[%v]", idx),
@@ -1395,7 +2250,26 @@ func (m *Message) Validate() error {
 
 	}
 
-	if v, ok := interface{}(m.GetText()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetText()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Text",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Text",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetText()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Text",
@@ -1405,7 +2279,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetImage()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetImage()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Image",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Image",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetImage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Image",
@@ -1415,7 +2308,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetAudio()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetAudio()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Audio",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Audio",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAudio()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Audio",
@@ -1425,7 +2337,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetVideo()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetVideo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Video",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Video",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetVideo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Video",
@@ -1435,7 +2366,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetVoice()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetVoice()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Voice",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Voice",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetVoice()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Voice",
@@ -1445,7 +2395,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetDocument()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetDocument()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Document",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Document",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDocument()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Document",
@@ -1455,7 +2424,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetLocation()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetLocation()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Location",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Location",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLocation()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Location",
@@ -1465,7 +2453,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetSystem()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetSystem()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "System",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "System",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSystem()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "System",
@@ -1475,7 +2482,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetSticker()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetSticker()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Sticker",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Sticker",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSticker()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Sticker",
@@ -1485,7 +2511,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetTemplate()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Template",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Template",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Template",
@@ -1495,7 +2540,26 @@ func (m *Message) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetInteractive()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetInteractive()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Interactive",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MessageValidationError{
+					field:  "Interactive",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetInteractive()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MessageValidationError{
 				field:  "Interactive",
@@ -1509,8 +2573,27 @@ func (m *Message) Validate() error {
 
 	// no validation rules for PreviewUrl
 
+	if len(errors) > 0 {
+		return MessageMultiError(errors)
+	}
 	return nil
 }
+
+// MessageMultiError is an error wrapping multiple validation errors returned
+// by Message.ValidateAll() if the designated constraints aren't met.
+type MessageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MessageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MessageMultiError) AllErrors() []error { return m }
 
 // MessageValidationError is the validation error returned by Message.Validate
 // if the designated constraints aren't met.
@@ -1570,28 +2653,70 @@ var _Message_To_Pattern = regexp.MustCompile("^\\+?(?:[0-9]){6,14}[0-9]$")
 
 // Validate checks the field values on TemplateMessage_Language with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *TemplateMessage_Language) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TemplateMessage_Language with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TemplateMessage_LanguageMultiError, or nil if none found.
+func (m *TemplateMessage_Language) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateMessage_Language) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if _, ok := TemplateMessage_Language_Policy_name[int32(m.GetPolicy())]; !ok {
-		return TemplateMessage_LanguageValidationError{
+		err := TemplateMessage_LanguageValidationError{
 			field:  "Policy",
 			reason: "value must be one of the defined enum values",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if _, ok := TemplateMessage_Language_Code_name[int32(m.GetCode())]; !ok {
-		return TemplateMessage_LanguageValidationError{
+		err := TemplateMessage_LanguageValidationError{
 			field:  "Code",
 			reason: "value must be one of the defined enum values",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
+	if len(errors) > 0 {
+		return TemplateMessage_LanguageMultiError(errors)
+	}
 	return nil
 }
+
+// TemplateMessage_LanguageMultiError is an error wrapping multiple validation
+// errors returned by TemplateMessage_Language.ValidateAll() if the designated
+// constraints aren't met.
+type TemplateMessage_LanguageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateMessage_LanguageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateMessage_LanguageMultiError) AllErrors() []error { return m }
 
 // TemplateMessage_LanguageValidationError is the validation error returned by
 // TemplateMessage_Language.Validate if the designated constraints aren't met.
@@ -1651,26 +2776,48 @@ var _ interface {
 
 // Validate checks the field values on TemplateMessage_Component with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *TemplateMessage_Component) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TemplateMessage_Component with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TemplateMessage_ComponentMultiError, or nil if none found.
+func (m *TemplateMessage_Component) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateMessage_Component) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if _, ok := _TemplateMessage_Component_Type_InLookup[m.GetType()]; !ok {
-		return TemplateMessage_ComponentValidationError{
+		err := TemplateMessage_ComponentValidationError{
 			field:  "Type",
 			reason: "value must be in list [header body footer button]",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if m.GetSubType() != "" {
 
 		if _, ok := _TemplateMessage_Component_SubType_InLookup[m.GetSubType()]; !ok {
-			return TemplateMessage_ComponentValidationError{
+			err := TemplateMessage_ComponentValidationError{
 				field:  "SubType",
 				reason: "value must be in list [quick_reply url]",
 			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
 
 	}
@@ -1680,7 +2827,26 @@ func (m *TemplateMessage_Component) Validate() error {
 	for idx, item := range m.GetParameters() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateMessage_ComponentValidationError{
+						field:  fmt.Sprintf("Parameters[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateMessage_ComponentValidationError{
+						field:  fmt.Sprintf("Parameters[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateMessage_ComponentValidationError{
 					field:  fmt.Sprintf("Parameters[%v]", idx),
@@ -1692,8 +2858,28 @@ func (m *TemplateMessage_Component) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return TemplateMessage_ComponentMultiError(errors)
+	}
 	return nil
 }
+
+// TemplateMessage_ComponentMultiError is an error wrapping multiple validation
+// errors returned by TemplateMessage_Component.ValidateAll() if the
+// designated constraints aren't met.
+type TemplateMessage_ComponentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateMessage_ComponentMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateMessage_ComponentMultiError) AllErrors() []error { return m }
 
 // TemplateMessage_ComponentValidationError is the validation error returned by
 // TemplateMessage_Component.Validate if the designated constraints aren't met.
@@ -1765,17 +2951,36 @@ var _TemplateMessage_Component_SubType_InLookup = map[string]struct{}{
 
 // Validate checks the field values on TemplateMessage_Component_Parameter with
 // the rules defined in the proto definition for this message. If any rules
-// are violated, an error is returned.
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
 func (m *TemplateMessage_Component_Parameter) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TemplateMessage_Component_Parameter
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// TemplateMessage_Component_ParameterMultiError, or nil if none found.
+func (m *TemplateMessage_Component_Parameter) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateMessage_Component_Parameter) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if _, ok := _TemplateMessage_Component_Parameter_Type_InLookup[m.GetType()]; !ok {
-		return TemplateMessage_Component_ParameterValidationError{
+		err := TemplateMessage_Component_ParameterValidationError{
 			field:  "Type",
 			reason: "value must be in list [text image document video currency date_time]",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	switch m.Spec.(type) {
@@ -1785,7 +2990,26 @@ func (m *TemplateMessage_Component_Parameter) Validate() error {
 
 	case *TemplateMessage_Component_Parameter_Currency:
 
-		if v, ok := interface{}(m.GetCurrency()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetCurrency()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Currency",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Currency",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCurrency()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Currency",
@@ -1797,7 +3021,26 @@ func (m *TemplateMessage_Component_Parameter) Validate() error {
 
 	case *TemplateMessage_Component_Parameter_DateTime:
 
-		if v, ok := interface{}(m.GetDateTime()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetDateTime()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "DateTime",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "DateTime",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetDateTime()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateMessage_Component_ParameterValidationError{
 					field:  "DateTime",
@@ -1809,7 +3052,26 @@ func (m *TemplateMessage_Component_Parameter) Validate() error {
 
 	case *TemplateMessage_Component_Parameter_Image:
 
-		if v, ok := interface{}(m.GetImage()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetImage()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Image",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Image",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetImage()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Image",
@@ -1821,7 +3083,26 @@ func (m *TemplateMessage_Component_Parameter) Validate() error {
 
 	case *TemplateMessage_Component_Parameter_Document:
 
-		if v, ok := interface{}(m.GetDocument()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetDocument()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Document",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Document",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetDocument()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Document",
@@ -1833,7 +3114,26 @@ func (m *TemplateMessage_Component_Parameter) Validate() error {
 
 	case *TemplateMessage_Component_Parameter_Video:
 
-		if v, ok := interface{}(m.GetVideo()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetVideo()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Video",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateMessage_Component_ParameterValidationError{
+						field:  "Video",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetVideo()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateMessage_Component_ParameterValidationError{
 					field:  "Video",
@@ -1848,8 +3148,29 @@ func (m *TemplateMessage_Component_Parameter) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return TemplateMessage_Component_ParameterMultiError(errors)
+	}
 	return nil
 }
+
+// TemplateMessage_Component_ParameterMultiError is an error wrapping multiple
+// validation errors returned by
+// TemplateMessage_Component_Parameter.ValidateAll() if the designated
+// constraints aren't met.
+type TemplateMessage_Component_ParameterMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateMessage_Component_ParameterMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateMessage_Component_ParameterMultiError) AllErrors() []error { return m }
 
 // TemplateMessage_Component_ParameterValidationError is the validation error
 // returned by TemplateMessage_Component_Parameter.Validate if the designated
@@ -1920,11 +3241,27 @@ var _TemplateMessage_Component_Parameter_Type_InLookup = map[string]struct{}{
 // Validate checks the field values on
 // TemplateMessage_Component_Parameter_CurrencyParameter with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *TemplateMessage_Component_Parameter_CurrencyParameter) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// TemplateMessage_Component_Parameter_CurrencyParameter with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TemplateMessage_Component_Parameter_CurrencyParameterMultiError, or nil if
+// none found.
+func (m *TemplateMessage_Component_Parameter_CurrencyParameter) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateMessage_Component_Parameter_CurrencyParameter) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for FallbackValue
 
@@ -1932,7 +3269,30 @@ func (m *TemplateMessage_Component_Parameter_CurrencyParameter) Validate() error
 
 	// no validation rules for Amount_1000
 
+	if len(errors) > 0 {
+		return TemplateMessage_Component_Parameter_CurrencyParameterMultiError(errors)
+	}
 	return nil
+}
+
+// TemplateMessage_Component_Parameter_CurrencyParameterMultiError is an error
+// wrapping multiple validation errors returned by
+// TemplateMessage_Component_Parameter_CurrencyParameter.ValidateAll() if the
+// designated constraints aren't met.
+type TemplateMessage_Component_Parameter_CurrencyParameterMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateMessage_Component_Parameter_CurrencyParameterMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateMessage_Component_Parameter_CurrencyParameterMultiError) AllErrors() []error {
+	return m
 }
 
 // TemplateMessage_Component_Parameter_CurrencyParameterValidationError is the
@@ -1962,7 +3322,9 @@ func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Ca
 }
 
 // Key function returns key value.
-func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Key() bool { return e.key }
+func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) Key() bool {
+	return e.key
+}
 
 // ErrorName returns error name.
 func (e TemplateMessage_Component_Parameter_CurrencyParameterValidationError) ErrorName() string {
@@ -2002,11 +3364,27 @@ var _ interface {
 // Validate checks the field values on
 // TemplateMessage_Component_Parameter_DateTimeParameter with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *TemplateMessage_Component_Parameter_DateTimeParameter) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// TemplateMessage_Component_Parameter_DateTimeParameter with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TemplateMessage_Component_Parameter_DateTimeParameterMultiError, or nil if
+// none found.
+func (m *TemplateMessage_Component_Parameter_DateTimeParameter) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateMessage_Component_Parameter_DateTimeParameter) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for FallbackValue
 
@@ -2026,7 +3404,30 @@ func (m *TemplateMessage_Component_Parameter_DateTimeParameter) Validate() error
 
 	// no validation rules for Calendar
 
+	if len(errors) > 0 {
+		return TemplateMessage_Component_Parameter_DateTimeParameterMultiError(errors)
+	}
 	return nil
+}
+
+// TemplateMessage_Component_Parameter_DateTimeParameterMultiError is an error
+// wrapping multiple validation errors returned by
+// TemplateMessage_Component_Parameter_DateTimeParameter.ValidateAll() if the
+// designated constraints aren't met.
+type TemplateMessage_Component_Parameter_DateTimeParameterMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateMessage_Component_Parameter_DateTimeParameterMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateMessage_Component_Parameter_DateTimeParameterMultiError) AllErrors() []error {
+	return m
 }
 
 // TemplateMessage_Component_Parameter_DateTimeParameterValidationError is the
@@ -2056,7 +3457,9 @@ func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Ca
 }
 
 // Key function returns key value.
-func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Key() bool { return e.key }
+func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) Key() bool {
+	return e.key
+}
 
 // ErrorName returns error name.
 func (e TemplateMessage_Component_Parameter_DateTimeParameterValidationError) ErrorName() string {
@@ -2095,22 +3498,60 @@ var _ interface {
 
 // Validate checks the field values on InteractiveMessage_HeaderParameter with
 // the rules defined in the proto definition for this message. If any rules
-// are violated, an error is returned.
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
 func (m *InteractiveMessage_HeaderParameter) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InteractiveMessage_HeaderParameter
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// InteractiveMessage_HeaderParameterMultiError, or nil if none found.
+func (m *InteractiveMessage_HeaderParameter) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage_HeaderParameter) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if _, ok := _InteractiveMessage_HeaderParameter_Type_InLookup[m.GetType()]; !ok {
-		return InteractiveMessage_HeaderParameterValidationError{
+		err := InteractiveMessage_HeaderParameterValidationError{
 			field:  "Type",
 			reason: "value must be in list [text video image document]",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Text
 
-	if v, ok := interface{}(m.GetImage()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetImage()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessage_HeaderParameterValidationError{
+					field:  "Image",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessage_HeaderParameterValidationError{
+					field:  "Image",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetImage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessage_HeaderParameterValidationError{
 				field:  "Image",
@@ -2120,7 +3561,26 @@ func (m *InteractiveMessage_HeaderParameter) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetDocument()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetDocument()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessage_HeaderParameterValidationError{
+					field:  "Document",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessage_HeaderParameterValidationError{
+					field:  "Document",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDocument()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessage_HeaderParameterValidationError{
 				field:  "Document",
@@ -2130,7 +3590,26 @@ func (m *InteractiveMessage_HeaderParameter) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetVideo()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetVideo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessage_HeaderParameterValidationError{
+					field:  "Video",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessage_HeaderParameterValidationError{
+					field:  "Video",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetVideo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessage_HeaderParameterValidationError{
 				field:  "Video",
@@ -2140,8 +3619,29 @@ func (m *InteractiveMessage_HeaderParameter) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return InteractiveMessage_HeaderParameterMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessage_HeaderParameterMultiError is an error wrapping multiple
+// validation errors returned by
+// InteractiveMessage_HeaderParameter.ValidateAll() if the designated
+// constraints aren't met.
+type InteractiveMessage_HeaderParameterMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessage_HeaderParameterMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessage_HeaderParameterMultiError) AllErrors() []error { return m }
 
 // InteractiveMessage_HeaderParameterValidationError is the validation error
 // returned by InteractiveMessage_HeaderParameter.Validate if the designated
@@ -2209,16 +3709,52 @@ var _InteractiveMessage_HeaderParameter_Type_InLookup = map[string]struct{}{
 
 // Validate checks the field values on InteractiveMessage_TextParameter with
 // the rules defined in the proto definition for this message. If any rules
-// are violated, an error is returned.
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
 func (m *InteractiveMessage_TextParameter) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InteractiveMessage_TextParameter with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// InteractiveMessage_TextParameterMultiError, or nil if none found.
+func (m *InteractiveMessage_TextParameter) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage_TextParameter) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Text
 
+	if len(errors) > 0 {
+		return InteractiveMessage_TextParameterMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessage_TextParameterMultiError is an error wrapping multiple
+// validation errors returned by
+// InteractiveMessage_TextParameter.ValidateAll() if the designated
+// constraints aren't met.
+type InteractiveMessage_TextParameterMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessage_TextParameterMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessage_TextParameterMultiError) AllErrors() []error { return m }
 
 // InteractiveMessage_TextParameterValidationError is the validation error
 // returned by InteractiveMessage_TextParameter.Validate if the designated
@@ -2279,18 +3815,51 @@ var _ interface {
 
 // Validate checks the field values on InteractiveMessage_Section with the
 // rules defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *InteractiveMessage_Section) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InteractiveMessage_Section with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InteractiveMessage_SectionMultiError, or nil if none found.
+func (m *InteractiveMessage_Section) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage_Section) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Title
 
 	for idx, item := range m.GetRows() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, InteractiveMessage_SectionValidationError{
+						field:  fmt.Sprintf("Rows[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, InteractiveMessage_SectionValidationError{
+						field:  fmt.Sprintf("Rows[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return InteractiveMessage_SectionValidationError{
 					field:  fmt.Sprintf("Rows[%v]", idx),
@@ -2302,8 +3871,28 @@ func (m *InteractiveMessage_Section) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return InteractiveMessage_SectionMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessage_SectionMultiError is an error wrapping multiple
+// validation errors returned by InteractiveMessage_Section.ValidateAll() if
+// the designated constraints aren't met.
+type InteractiveMessage_SectionMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessage_SectionMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessage_SectionMultiError) AllErrors() []error { return m }
 
 // InteractiveMessage_SectionValidationError is the validation error returned
 // by InteractiveMessage_Section.Validate if the designated constraints aren't met.
@@ -2363,20 +3952,58 @@ var _ interface {
 
 // Validate checks the field values on InteractiveMessage_ButtonsAction with
 // the rules defined in the proto definition for this message. If any rules
-// are violated, an error is returned.
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
 func (m *InteractiveMessage_ButtonsAction) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InteractiveMessage_ButtonsAction with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// InteractiveMessage_ButtonsActionMultiError, or nil if none found.
+func (m *InteractiveMessage_ButtonsAction) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage_ButtonsAction) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if m.GetType() != "reply" {
-		return InteractiveMessage_ButtonsActionValidationError{
+		err := InteractiveMessage_ButtonsActionValidationError{
 			field:  "Type",
 			reason: "value must equal reply",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
-	if v, ok := interface{}(m.GetReply()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetReply()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InteractiveMessage_ButtonsActionValidationError{
+					field:  "Reply",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InteractiveMessage_ButtonsActionValidationError{
+					field:  "Reply",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetReply()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InteractiveMessage_ButtonsActionValidationError{
 				field:  "Reply",
@@ -2386,8 +4013,29 @@ func (m *InteractiveMessage_ButtonsAction) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return InteractiveMessage_ButtonsActionMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessage_ButtonsActionMultiError is an error wrapping multiple
+// validation errors returned by
+// InteractiveMessage_ButtonsAction.ValidateAll() if the designated
+// constraints aren't met.
+type InteractiveMessage_ButtonsActionMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessage_ButtonsActionMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessage_ButtonsActionMultiError) AllErrors() []error { return m }
 
 // InteractiveMessage_ButtonsActionValidationError is the validation error
 // returned by InteractiveMessage_ButtonsAction.Validate if the designated
@@ -2448,18 +4096,52 @@ var _ interface {
 
 // Validate checks the field values on InteractiveMessage_ActionWrapper with
 // the rules defined in the proto definition for this message. If any rules
-// are violated, an error is returned.
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
 func (m *InteractiveMessage_ActionWrapper) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InteractiveMessage_ActionWrapper with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// InteractiveMessage_ActionWrapperMultiError, or nil if none found.
+func (m *InteractiveMessage_ActionWrapper) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage_ActionWrapper) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Button
 
 	for idx, item := range m.GetButtons() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, InteractiveMessage_ActionWrapperValidationError{
+						field:  fmt.Sprintf("Buttons[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, InteractiveMessage_ActionWrapperValidationError{
+						field:  fmt.Sprintf("Buttons[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return InteractiveMessage_ActionWrapperValidationError{
 					field:  fmt.Sprintf("Buttons[%v]", idx),
@@ -2474,7 +4156,26 @@ func (m *InteractiveMessage_ActionWrapper) Validate() error {
 	for idx, item := range m.GetSections() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, InteractiveMessage_ActionWrapperValidationError{
+						field:  fmt.Sprintf("Sections[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, InteractiveMessage_ActionWrapperValidationError{
+						field:  fmt.Sprintf("Sections[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return InteractiveMessage_ActionWrapperValidationError{
 					field:  fmt.Sprintf("Sections[%v]", idx),
@@ -2486,8 +4187,29 @@ func (m *InteractiveMessage_ActionWrapper) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return InteractiveMessage_ActionWrapperMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessage_ActionWrapperMultiError is an error wrapping multiple
+// validation errors returned by
+// InteractiveMessage_ActionWrapper.ValidateAll() if the designated
+// constraints aren't met.
+type InteractiveMessage_ActionWrapperMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessage_ActionWrapperMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessage_ActionWrapperMultiError) AllErrors() []error { return m }
 
 // InteractiveMessage_ActionWrapperValidationError is the validation error
 // returned by InteractiveMessage_ActionWrapper.Validate if the designated
@@ -2548,11 +4270,26 @@ var _ interface {
 
 // Validate checks the field values on InteractiveMessage_Section_SectionRow
 // with the rules defined in the proto definition for this message. If any
-// rules are violated, an error is returned.
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
 func (m *InteractiveMessage_Section_SectionRow) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InteractiveMessage_Section_SectionRow
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// InteractiveMessage_Section_SectionRowMultiError, or nil if none found.
+func (m *InteractiveMessage_Section_SectionRow) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage_Section_SectionRow) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Id
 
@@ -2560,8 +4297,29 @@ func (m *InteractiveMessage_Section_SectionRow) Validate() error {
 
 	// no validation rules for Description
 
+	if len(errors) > 0 {
+		return InteractiveMessage_Section_SectionRowMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessage_Section_SectionRowMultiError is an error wrapping
+// multiple validation errors returned by
+// InteractiveMessage_Section_SectionRow.ValidateAll() if the designated
+// constraints aren't met.
+type InteractiveMessage_Section_SectionRowMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessage_Section_SectionRowMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessage_Section_SectionRowMultiError) AllErrors() []error { return m }
 
 // InteractiveMessage_Section_SectionRowValidationError is the validation error
 // returned by InteractiveMessage_Section_SectionRow.Validate if the
@@ -2622,36 +4380,85 @@ var _ interface {
 
 // Validate checks the field values on
 // InteractiveMessage_ButtonsAction_ButtonsActionReply with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *InteractiveMessage_ButtonsAction_ButtonsActionReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// InteractiveMessage_ButtonsAction_ButtonsActionReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in
+// InteractiveMessage_ButtonsAction_ButtonsActionReplyMultiError, or nil if
+// none found.
+func (m *InteractiveMessage_ButtonsAction_ButtonsActionReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InteractiveMessage_ButtonsAction_ButtonsActionReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if l := utf8.RuneCountInString(m.GetId()); l < 1 || l > 256 {
-		return InteractiveMessage_ButtonsAction_ButtonsActionReplyValidationError{
+		err := InteractiveMessage_ButtonsAction_ButtonsActionReplyValidationError{
 			field:  "Id",
 			reason: "value length must be between 1 and 256 runes, inclusive",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if l := utf8.RuneCountInString(m.GetTitle()); l < 1 || l > 20 {
-		return InteractiveMessage_ButtonsAction_ButtonsActionReplyValidationError{
+		err := InteractiveMessage_ButtonsAction_ButtonsActionReplyValidationError{
 			field:  "Title",
 			reason: "value length must be between 1 and 20 runes, inclusive",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if !_InteractiveMessage_ButtonsAction_ButtonsActionReply_Title_Pattern.MatchString(m.GetTitle()) {
-		return InteractiveMessage_ButtonsAction_ButtonsActionReplyValidationError{
+		err := InteractiveMessage_ButtonsAction_ButtonsActionReplyValidationError{
 			field:  "Title",
 			reason: "value does not match regex pattern \"^[^\\\\x{1F600}-\\\\x{1F6FF}|[\\\\x{2600}-\\\\x{26FF}]*$\"",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
+	if len(errors) > 0 {
+		return InteractiveMessage_ButtonsAction_ButtonsActionReplyMultiError(errors)
+	}
 	return nil
 }
+
+// InteractiveMessage_ButtonsAction_ButtonsActionReplyMultiError is an error
+// wrapping multiple validation errors returned by
+// InteractiveMessage_ButtonsAction_ButtonsActionReply.ValidateAll() if the
+// designated constraints aren't met.
+type InteractiveMessage_ButtonsAction_ButtonsActionReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InteractiveMessage_ButtonsAction_ButtonsActionReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InteractiveMessage_ButtonsAction_ButtonsActionReplyMultiError) AllErrors() []error { return m }
 
 // InteractiveMessage_ButtonsAction_ButtonsActionReplyValidationError is the
 // validation error returned by

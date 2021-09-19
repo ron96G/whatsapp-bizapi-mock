@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,14 +32,29 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on Contact with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Contact) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Contact with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in ContactMultiError, or nil if none found.
+func (m *Contact) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Contact) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for WaId
 
@@ -46,7 +62,26 @@ func (m *Contact) Validate() error {
 
 	// no validation rules for Status
 
-	if v, ok := interface{}(m.GetProfile()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetProfile()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ContactValidationError{
+					field:  "Profile",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ContactValidationError{
+					field:  "Profile",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProfile()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ContactValidationError{
 				field:  "Profile",
@@ -56,8 +91,27 @@ func (m *Contact) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return ContactMultiError(errors)
+	}
 	return nil
 }
+
+// ContactMultiError is an error wrapping multiple validation errors returned
+// by Contact.ValidateAll() if the designated constraints aren't met.
+type ContactMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactMultiError) AllErrors() []error { return m }
 
 // ContactValidationError is the validation error returned by Contact.Validate
 // if the designated constraints aren't met.
@@ -114,19 +168,53 @@ var _ interface {
 } = ContactValidationError{}
 
 // Validate checks the field values on ContactRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *ContactRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ContactRequestMultiError,
+// or nil if none found.
+func (m *ContactRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Blocking
 
 	// no validation rules for ForceCheck
 
+	if len(errors) > 0 {
+		return ContactRequestMultiError(errors)
+	}
 	return nil
 }
+
+// ContactRequestMultiError is an error wrapping multiple validation errors
+// returned by ContactRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ContactRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactRequestMultiError) AllErrors() []error { return m }
 
 // ContactRequestValidationError is the validation error returned by
 // ContactRequest.Validate if the designated constraints aren't met.
@@ -183,17 +271,50 @@ var _ interface {
 } = ContactRequestValidationError{}
 
 // Validate checks the field values on ContactResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *ContactResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactResponseMultiError, or nil if none found.
+func (m *ContactResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	for idx, item := range m.GetContacts() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ContactResponseValidationError{
+						field:  fmt.Sprintf("Contacts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ContactResponseValidationError{
+						field:  fmt.Sprintf("Contacts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ContactResponseValidationError{
 					field:  fmt.Sprintf("Contacts[%v]", idx),
@@ -205,8 +326,28 @@ func (m *ContactResponse) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return ContactResponseMultiError(errors)
+	}
 	return nil
 }
+
+// ContactResponseMultiError is an error wrapping multiple validation errors
+// returned by ContactResponse.ValidateAll() if the designated constraints
+// aren't met.
+type ContactResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactResponseMultiError) AllErrors() []error { return m }
 
 // ContactResponseValidationError is the validation error returned by
 // ContactResponse.Validate if the designated constraints aren't met.
@@ -263,17 +404,51 @@ var _ interface {
 } = ContactResponseValidationError{}
 
 // Validate checks the field values on Contact_Profile with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *Contact_Profile) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Contact_Profile with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// Contact_ProfileMultiError, or nil if none found.
+func (m *Contact_Profile) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Contact_Profile) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Name
 
+	if len(errors) > 0 {
+		return Contact_ProfileMultiError(errors)
+	}
 	return nil
 }
+
+// Contact_ProfileMultiError is an error wrapping multiple validation errors
+// returned by Contact_Profile.ValidateAll() if the designated constraints
+// aren't met.
+type Contact_ProfileMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m Contact_ProfileMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m Contact_ProfileMultiError) AllErrors() []error { return m }
 
 // Contact_ProfileValidationError is the validation error returned by
 // Contact_Profile.Validate if the designated constraints aren't met.

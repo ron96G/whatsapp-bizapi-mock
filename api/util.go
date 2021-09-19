@@ -15,8 +15,8 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go/v4"
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
+	"github.com/gogo/protobuf/jsonpb"
+	"github.com/gogo/protobuf/proto"
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
 	"github.com/valyala/fasthttp"
 

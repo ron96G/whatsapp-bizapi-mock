@@ -4,10 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gogo/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/ron96G/whatsapp-bizapi-mock/model"
 	"github.com/valyala/fasthttp"
-	"google.golang.org/protobuf/proto"
 )
 
 func (a *API) SetProfileAbout(ctx *fasthttp.RequestCtx) {

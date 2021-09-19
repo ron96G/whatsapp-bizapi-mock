@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,27 +32,66 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on BackupRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *BackupRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BackupRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BackupRequestMultiError, or
+// nil if none found.
+func (m *BackupRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BackupRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if utf8.RuneCountInString(m.GetPassword()) < 8 {
-		return BackupRequestValidationError{
+		err := BackupRequestValidationError{
 			field:  "Password",
 			reason: "value length must be at least 8 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Data
 
+	if len(errors) > 0 {
+		return BackupRequestMultiError(errors)
+	}
 	return nil
 }
+
+// BackupRequestMultiError is an error wrapping multiple validation errors
+// returned by BackupRequest.ValidateAll() if the designated constraints
+// aren't met.
+type BackupRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BackupRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BackupRequestMultiError) AllErrors() []error { return m }
 
 // BackupRequestValidationError is the validation error returned by
 // BackupRequest.Validate if the designated constraints aren't met.
@@ -108,14 +148,47 @@ var _ interface {
 } = BackupRequestValidationError{}
 
 // Validate checks the field values on BackupResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *BackupResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BackupResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BackupResponseMultiError,
+// or nil if none found.
+func (m *BackupResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BackupResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetSettings()).(interface{ Validate() error }); ok {
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSettings()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, BackupResponseValidationError{
+					field:  "Settings",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, BackupResponseValidationError{
+					field:  "Settings",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return BackupResponseValidationError{
 				field:  "Settings",
@@ -125,8 +198,28 @@ func (m *BackupResponse) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return BackupResponseMultiError(errors)
+	}
 	return nil
 }
+
+// BackupResponseMultiError is an error wrapping multiple validation errors
+// returned by BackupResponse.ValidateAll() if the designated constraints
+// aren't met.
+type BackupResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BackupResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BackupResponseMultiError) AllErrors() []error { return m }
 
 // BackupResponseValidationError is the validation error returned by
 // BackupResponse.Validate if the designated constraints aren't met.
@@ -183,19 +276,53 @@ var _ interface {
 } = BackupResponseValidationError{}
 
 // Validate checks the field values on RestoreRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *RestoreRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RestoreRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in RestoreRequestMultiError,
+// or nil if none found.
+func (m *RestoreRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RestoreRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Password
 
 	// no validation rules for Data
 
+	if len(errors) > 0 {
+		return RestoreRequestMultiError(errors)
+	}
 	return nil
 }
+
+// RestoreRequestMultiError is an error wrapping multiple validation errors
+// returned by RestoreRequest.ValidateAll() if the designated constraints
+// aren't met.
+type RestoreRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RestoreRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RestoreRequestMultiError) AllErrors() []error { return m }
 
 // RestoreRequestValidationError is the validation error returned by
 // RestoreRequest.Validate if the designated constraints aren't met.
@@ -253,16 +380,50 @@ var _ interface {
 
 // Validate checks the field values on BackupResponse_SettingsData with the
 // rules defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *BackupResponse_SettingsData) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BackupResponse_SettingsData with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// BackupResponse_SettingsDataMultiError, or nil if none found.
+func (m *BackupResponse_SettingsData) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BackupResponse_SettingsData) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Data
 
+	if len(errors) > 0 {
+		return BackupResponse_SettingsDataMultiError(errors)
+	}
 	return nil
 }
+
+// BackupResponse_SettingsDataMultiError is an error wrapping multiple
+// validation errors returned by BackupResponse_SettingsData.ValidateAll() if
+// the designated constraints aren't met.
+type BackupResponse_SettingsDataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BackupResponse_SettingsDataMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BackupResponse_SettingsDataMultiError) AllErrors() []error { return m }
 
 // BackupResponse_SettingsDataValidationError is the validation error returned
 // by BackupResponse_SettingsData.Validate if the designated constraints

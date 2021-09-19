@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,14 +32,29 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on Error with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Error) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Error with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in ErrorMultiError, or nil if none found.
+func (m *Error) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Error) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Code
 
@@ -48,8 +64,27 @@ func (m *Error) Validate() error {
 
 	// no validation rules for Href
 
+	if len(errors) > 0 {
+		return ErrorMultiError(errors)
+	}
 	return nil
 }
+
+// ErrorMultiError is an error wrapping multiple validation errors returned by
+// Error.ValidateAll() if the designated constraints aren't met.
+type ErrorMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ErrorMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ErrorMultiError) AllErrors() []error { return m }
 
 // ErrorValidationError is the validation error returned by Error.Validate if
 // the designated constraints aren't met.
@@ -106,16 +141,49 @@ var _ interface {
 } = ErrorValidationError{}
 
 // Validate checks the field values on Id with the rules defined in the proto
-// definition for this message. If any rules are violated, an error is returned.
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
 func (m *Id) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Id with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in IdMultiError, or nil if none found.
+func (m *Id) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Id) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Id
 
+	if len(errors) > 0 {
+		return IdMultiError(errors)
+	}
 	return nil
 }
+
+// IdMultiError is an error wrapping multiple validation errors returned by
+// Id.ValidateAll() if the designated constraints aren't met.
+type IdMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m IdMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m IdMultiError) AllErrors() []error { return m }
 
 // IdValidationError is the validation error returned by Id.Validate if the
 // designated constraints aren't met.
@@ -172,16 +240,50 @@ var _ interface {
 } = IdValidationError{}
 
 // Validate checks the field values on IdResponse with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *IdResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on IdResponse with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in IdResponseMultiError, or
+// nil if none found.
+func (m *IdResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *IdResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	for idx, item := range m.GetMessages() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, IdResponseValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, IdResponseValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return IdResponseValidationError{
 					field:  fmt.Sprintf("Messages[%v]", idx),
@@ -196,7 +298,26 @@ func (m *IdResponse) Validate() error {
 	for idx, item := range m.GetMedia() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, IdResponseValidationError{
+						field:  fmt.Sprintf("Media[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, IdResponseValidationError{
+						field:  fmt.Sprintf("Media[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return IdResponseValidationError{
 					field:  fmt.Sprintf("Media[%v]", idx),
@@ -208,8 +329,27 @@ func (m *IdResponse) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return IdResponseMultiError(errors)
+	}
 	return nil
 }
+
+// IdResponseMultiError is an error wrapping multiple validation errors
+// returned by IdResponse.ValidateAll() if the designated constraints aren't met.
+type IdResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m IdResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m IdResponseMultiError) AllErrors() []error { return m }
 
 // IdResponseValidationError is the validation error returned by
 // IdResponse.Validate if the designated constraints aren't met.
@@ -266,14 +406,47 @@ var _ interface {
 } = IdResponseValidationError{}
 
 // Validate checks the field values on MetaResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *MetaResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MetaResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MetaResponseMultiError, or
+// nil if none found.
+func (m *MetaResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MetaResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetMeta()).(interface{ Validate() error }); ok {
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetMeta()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MetaResponseValidationError{
+					field:  "Meta",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MetaResponseValidationError{
+					field:  "Meta",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMeta()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetaResponseValidationError{
 				field:  "Meta",
@@ -283,8 +456,27 @@ func (m *MetaResponse) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return MetaResponseMultiError(errors)
+	}
 	return nil
 }
+
+// MetaResponseMultiError is an error wrapping multiple validation errors
+// returned by MetaResponse.ValidateAll() if the designated constraints aren't met.
+type MetaResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MetaResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MetaResponseMultiError) AllErrors() []error { return m }
 
 // MetaResponseValidationError is the validation error returned by
 // MetaResponse.Validate if the designated constraints aren't met.
@@ -341,14 +533,47 @@ var _ interface {
 } = MetaResponseValidationError{}
 
 // Validate checks the field values on ErrorResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *ErrorResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ErrorResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ErrorResponseMultiError, or
+// nil if none found.
+func (m *ErrorResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ErrorResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetMeta()).(interface{ Validate() error }); ok {
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetMeta()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ErrorResponseValidationError{
+					field:  "Meta",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ErrorResponseValidationError{
+					field:  "Meta",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMeta()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ErrorResponseValidationError{
 				field:  "Meta",
@@ -361,7 +586,26 @@ func (m *ErrorResponse) Validate() error {
 	for idx, item := range m.GetErrors() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ErrorResponseValidationError{
+						field:  fmt.Sprintf("Errors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ErrorResponseValidationError{
+						field:  fmt.Sprintf("Errors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ErrorResponseValidationError{
 					field:  fmt.Sprintf("Errors[%v]", idx),
@@ -373,8 +617,28 @@ func (m *ErrorResponse) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return ErrorResponseMultiError(errors)
+	}
 	return nil
 }
+
+// ErrorResponseMultiError is an error wrapping multiple validation errors
+// returned by ErrorResponse.ValidateAll() if the designated constraints
+// aren't met.
+type ErrorResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ErrorResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ErrorResponseMultiError) AllErrors() []error { return m }
 
 // ErrorResponseValidationError is the validation error returned by
 // ErrorResponse.Validate if the designated constraints aren't met.

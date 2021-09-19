@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,15 +32,30 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on RegistrationRequest with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *RegistrationRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RegistrationRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RegistrationRequestMultiError, or nil if none found.
+func (m *RegistrationRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RegistrationRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Cc
 
@@ -51,8 +67,28 @@ func (m *RegistrationRequest) Validate() error {
 
 	// no validation rules for Pin
 
+	if len(errors) > 0 {
+		return RegistrationRequestMultiError(errors)
+	}
 	return nil
 }
+
+// RegistrationRequestMultiError is an error wrapping multiple validation
+// errors returned by RegistrationRequest.ValidateAll() if the designated
+// constraints aren't met.
+type RegistrationRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RegistrationRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RegistrationRequestMultiError) AllErrors() []error { return m }
 
 // RegistrationRequestValidationError is the validation error returned by
 // RegistrationRequest.Validate if the designated constraints aren't met.
@@ -111,17 +147,51 @@ var _ interface {
 } = RegistrationRequestValidationError{}
 
 // Validate checks the field values on VerifyRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *VerifyRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on VerifyRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in VerifyRequestMultiError, or
+// nil if none found.
+func (m *VerifyRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *VerifyRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Code
 
+	if len(errors) > 0 {
+		return VerifyRequestMultiError(errors)
+	}
 	return nil
 }
+
+// VerifyRequestMultiError is an error wrapping multiple validation errors
+// returned by VerifyRequest.ValidateAll() if the designated constraints
+// aren't met.
+type VerifyRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m VerifyRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m VerifyRequestMultiError) AllErrors() []error { return m }
 
 // VerifyRequestValidationError is the validation error returned by
 // VerifyRequest.Validate if the designated constraints aren't met.
@@ -179,11 +249,25 @@ var _ interface {
 
 // Validate checks the field values on ApplicationSettings with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *ApplicationSettings) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ApplicationSettings with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ApplicationSettingsMultiError, or nil if none found.
+func (m *ApplicationSettings) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ApplicationSettings) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for CallbackBackoffDelayMs
 
@@ -191,7 +275,26 @@ func (m *ApplicationSettings) Validate() error {
 
 	// no validation rules for CallbackPersist
 
-	if v, ok := interface{}(m.GetMedia()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetMedia()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ApplicationSettingsValidationError{
+					field:  "Media",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ApplicationSettingsValidationError{
+					field:  "Media",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMedia()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ApplicationSettingsValidationError{
 				field:  "Media",
@@ -201,7 +304,26 @@ func (m *ApplicationSettings) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetWebhooks()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetWebhooks()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ApplicationSettingsValidationError{
+					field:  "Webhooks",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ApplicationSettingsValidationError{
+					field:  "Webhooks",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetWebhooks()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ApplicationSettingsValidationError{
 				field:  "Webhooks",
@@ -221,8 +343,28 @@ func (m *ApplicationSettings) Validate() error {
 
 	// no validation rules for ShowSecurityNotifications
 
+	if len(errors) > 0 {
+		return ApplicationSettingsMultiError(errors)
+	}
 	return nil
 }
+
+// ApplicationSettingsMultiError is an error wrapping multiple validation
+// errors returned by ApplicationSettings.ValidateAll() if the designated
+// constraints aren't met.
+type ApplicationSettingsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ApplicationSettingsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ApplicationSettingsMultiError) AllErrors() []error { return m }
 
 // ApplicationSettingsValidationError is the validation error returned by
 // ApplicationSettings.Validate if the designated constraints aren't met.
@@ -281,17 +423,50 @@ var _ interface {
 } = ApplicationSettingsValidationError{}
 
 // Validate checks the field values on ProfileAbout with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *ProfileAbout) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ProfileAbout with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ProfileAboutMultiError, or
+// nil if none found.
+func (m *ProfileAbout) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ProfileAbout) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Text
 
+	if len(errors) > 0 {
+		return ProfileAboutMultiError(errors)
+	}
 	return nil
 }
+
+// ProfileAboutMultiError is an error wrapping multiple validation errors
+// returned by ProfileAbout.ValidateAll() if the designated constraints aren't met.
+type ProfileAboutMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ProfileAboutMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ProfileAboutMultiError) AllErrors() []error { return m }
 
 // ProfileAboutValidationError is the validation error returned by
 // ProfileAbout.Validate if the designated constraints aren't met.
@@ -348,12 +523,26 @@ var _ interface {
 } = ProfileAboutValidationError{}
 
 // Validate checks the field values on BusinessProfile with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *BusinessProfile) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BusinessProfile with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// BusinessProfileMultiError, or nil if none found.
+func (m *BusinessProfile) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BusinessProfile) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Address
 
@@ -363,8 +552,28 @@ func (m *BusinessProfile) Validate() error {
 
 	// no validation rules for Vertical
 
+	if len(errors) > 0 {
+		return BusinessProfileMultiError(errors)
+	}
 	return nil
 }
+
+// BusinessProfileMultiError is an error wrapping multiple validation errors
+// returned by BusinessProfile.ValidateAll() if the designated constraints
+// aren't met.
+type BusinessProfileMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BusinessProfileMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BusinessProfileMultiError) AllErrors() []error { return m }
 
 // BusinessProfileValidationError is the validation error returned by
 // BusinessProfile.Validate if the designated constraints aren't met.
@@ -422,14 +631,48 @@ var _ interface {
 
 // Validate checks the field values on ApplicationSettings_Media with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *ApplicationSettings_Media) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ApplicationSettings_Media with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ApplicationSettings_MediaMultiError, or nil if none found.
+func (m *ApplicationSettings_Media) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ApplicationSettings_Media) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
+	if len(errors) > 0 {
+		return ApplicationSettings_MediaMultiError(errors)
+	}
 	return nil
 }
+
+// ApplicationSettings_MediaMultiError is an error wrapping multiple validation
+// errors returned by ApplicationSettings_Media.ValidateAll() if the
+// designated constraints aren't met.
+type ApplicationSettings_MediaMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ApplicationSettings_MediaMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ApplicationSettings_MediaMultiError) AllErrors() []error { return m }
 
 // ApplicationSettings_MediaValidationError is the validation error returned by
 // ApplicationSettings_Media.Validate if the designated constraints aren't met.
@@ -489,18 +732,52 @@ var _ interface {
 
 // Validate checks the field values on ApplicationSettings_Webhooks with the
 // rules defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *ApplicationSettings_Webhooks) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ApplicationSettings_Webhooks with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ApplicationSettings_WebhooksMultiError, or nil if none found.
+func (m *ApplicationSettings_Webhooks) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ApplicationSettings_Webhooks) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Url
 
 	// no validation rules for MaxConcurrentRequests
 
+	if len(errors) > 0 {
+		return ApplicationSettings_WebhooksMultiError(errors)
+	}
 	return nil
 }
+
+// ApplicationSettings_WebhooksMultiError is an error wrapping multiple
+// validation errors returned by ApplicationSettings_Webhooks.ValidateAll() if
+// the designated constraints aren't met.
+type ApplicationSettings_WebhooksMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ApplicationSettings_WebhooksMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ApplicationSettings_WebhooksMultiError) AllErrors() []error { return m }
 
 // ApplicationSettings_WebhooksValidationError is the validation error returned
 // by ApplicationSettings_Webhooks.Validate if the designated constraints

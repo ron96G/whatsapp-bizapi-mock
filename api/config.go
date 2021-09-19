@@ -54,6 +54,26 @@ var (
 )
 
 func InitConfig(r io.Reader) error {
-	Config = model.NewConfig()
+	Config = NewConfig()
 	return unmarsheler.Unmarshal(r, Config)
+}
+
+// NewConfig returns a new InternalConfig object which has some required default values set
+func NewConfig() *model.InternalConfig {
+	return &model.InternalConfig{
+		ApplicationSettings: &model.ApplicationSettings{
+			Media: &model.ApplicationSettings_Media{
+				AutoDownload: []string{},
+			},
+			Webhooks: &model.ApplicationSettings_Webhooks{
+				Url:                   "",
+				MaxConcurrentRequests: 8,
+			},
+		},
+		InboundMedia:    map[string]string{},
+		Contacts:        []*model.InternalContact{},
+		Users:           map[string]string{},
+		BusinessProfile: &model.BusinessProfile{},
+		ProfileAbout:    &model.ProfileAbout{},
+	}
 }

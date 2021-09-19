@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,21 +32,55 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on Meta with the rules defined in the proto
-// definition for this message. If any rules are violated, an error is returned.
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
 func (m *Meta) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Meta with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in MetaMultiError, or nil if none found.
+func (m *Meta) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Meta) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Version
 
 	// no validation rules for ApiStatus
 
+	if len(errors) > 0 {
+		return MetaMultiError(errors)
+	}
 	return nil
 }
+
+// MetaMultiError is an error wrapping multiple validation errors returned by
+// Meta.ValidateAll() if the designated constraints aren't met.
+type MetaMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MetaMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MetaMultiError) AllErrors() []error { return m }
 
 // MetaValidationError is the validation error returned by Meta.Validate if the
 // designated constraints aren't met.
