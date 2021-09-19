@@ -3,7 +3,8 @@ import encoding from 'k6/encoding';
 import { check } from 'k6';
 
 const username = 'admin';
-const password = 'topsecret123!';
+const password = 'secret';
+const new_password = 'secret_new_pwd123!'
 const baseUrl = 'https://localhost:9090/v1'
 const credentials = `${username}:${password}`;
 const encodedCredentials = encoding.b64encode(credentials);
@@ -16,7 +17,7 @@ const params = {
 
 
 export function setup() {
-  let res = http.post(baseUrl+'/users/login', {}, params);
+  let res = http.post(baseUrl+'/users/login', JSON.stringify({"new_password": new_password}), params);
 
   check(res, {
     'status is 200': (r) => r.status === 200

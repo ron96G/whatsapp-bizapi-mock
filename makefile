@@ -27,7 +27,7 @@ build-protoc: ## Build the protocol buffer model
 ## Build:
 build: ## Build your project and put the output binary in out/bin/
 	mkdir -p out/bin
-	GO111MODULE=on $(GOCMD) build -mod vendor -o out/bin/$(BINARY_NAME) .
+	GO111MODULE=off $(GOCMD) build -mod vendor -o out/bin/$(BINARY_NAME) .
 
 swag: ## Generate swagger docs using github.com/swaggo/swag
 	swag init -g server.go -d api --parseDependency --parseInternal
