@@ -10,24 +10,6 @@ stages:
   - build
   - container_scan_stage
 
-cache:
-  key: ${CI_COMMIT_SHORT_SHA}
-  paths:
-    - "model"
-
-.pre_build_protoc: &pre_build_protoc
-  image: $PROTOC_BUILDER_IMAGE
-  tags:
-    - run_docker
-  artifacts:
-    paths:
-      - $PWD/model
-    expire_in: 1 hour
-  script:
-    - 'protoc -I /go/src -I /go/src/github.com/envoyproxy/protoc-gen-validate
-        --proto_path=protobuf --gogofast_out=":./" --validate_out="lang=go:."
-        meta.proto general.proto contacts.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
-
 .pre_build_test: &pre_build_test
   image: golang
   tags:
@@ -46,10 +28,6 @@ cache:
 
     - docker push $MTR_URL/$IMAGE_NAME:$TAG
     - docker image rm $MTR_URL/$IMAGE_NAME:$TAG
-
-build protoc:
-  stage: pre_build
-  <<: *pre_build_protoc
 
 unit test:
   allow_failure: true
