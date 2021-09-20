@@ -118,8 +118,9 @@ func (a *API) SetConnID(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 		} else {
 			ctx.Response.Header.SetBytesV(requestIDHeader, reqID)
 		}
-
-		LoggerToCtx(ctx, a.Log.New("id", string(reqID)))
+		logger := a.LoggerFromCtx(ctx).New("id", string(reqID))
+		logger.Info("Setup context logger")
+		LoggerToCtx(ctx, logger)
 		h(ctx)
 	})
 }

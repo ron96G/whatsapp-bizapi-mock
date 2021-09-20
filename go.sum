@@ -380,8 +380,8 @@ github.com/prometheus/procfs v0.6.0/go.mod h1:cz+aTbrPOrUb4q7XlbU9ygM+/jj0fzG6c1
 github.com/rogpeppe/go-internal v1.1.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.2.2/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-github.com/ron96G/go-common-utils v0.1.7 h1:v6WKXWlbsG2+rhjQO34kvDr2wygIwfC2loNj8V70P6Q=
-github.com/ron96G/go-common-utils v0.1.7/go.mod h1:AezmvQmhEYb2ff3ccdY9aSJofJkQpPC7I3tiif3Mpr8=
+github.com/ron96G/go-common-utils v0.1.10 h1:VVt1a3VFHVwzXwTMaJE9UlzMgnVvKmcv7hD2b30KV7o=
+github.com/ron96G/go-common-utils v0.1.10/go.mod h1:AezmvQmhEYb2ff3ccdY9aSJofJkQpPC7I3tiif3Mpr8=
 github.com/ron96G/go-fasthttp-swagger v0.0.0-20210713131343-ea0c9423e54f h1:XZrcYr1bUMzUcaO/K8USC1Sbl0EskFBcUjKNLXaYXU8=
 github.com/ron96G/go-fasthttp-swagger v0.0.0-20210713131343-ea0c9423e54f/go.mod h1:3azCsB7zAarK6faQuXQHjsBtPlglysL01oqIC7S/LYY=
 github.com/ron96G/log15 v2.15.6+incompatible h1:+kIofiaz4VdQ0vPVOnwPOceoGAVb/ejVmFPIx2XQjRg=
