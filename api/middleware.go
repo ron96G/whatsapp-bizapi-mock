@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -92,28 +91,6 @@ func AuthorizeStaticToken(h fasthttp.RequestHandler, staticToken string) fasthtt
 
 		logger.Info("Successfully authorized user with apikey")
 		h(ctx)
-	})
-}
-
-// TODO replace this with a actual access logger TBD
-func Log(h fasthttp.RequestHandler) fasthttp.RequestHandler {
-	accessLogger := log.New("access_logger")
-	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		start := ctx.Time()
-		h(ctx)
-		reqLen, _ := strconv.Atoi(string(ctx.Request.Header.Peek("Content-Length")))
-
-		accessLogger.Warn("",
-			"type", "access",
-			"remote_ip", ctx.RemoteAddr().String(),
-			"method", string(ctx.Method()),
-			"path", string(ctx.RequestURI()),
-			"id", string(ctx.Response.Header.Peek(requestIDHeader)),
-			"user_agent", string(ctx.Request.Header.UserAgent()),
-			"status_code", ctx.Response.StatusCode(),
-			"elapsed_time", float64(time.Since(start))/float64(time.Second),
-			"request_length", reqLen,
-		)
 	})
 }
 

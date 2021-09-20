@@ -1,6 +1,7 @@
 package api
 
 import (
+	"os"
 	"time"
 
 	"github.com/fasthttp/router"
@@ -13,6 +14,7 @@ import (
 	swagger "github.com/ron96G/go-fasthttp-swagger"
 	_ "github.com/ron96G/whatsapp-bizapi-mock/docs"
 
+	fh_mw "github.com/ron96G/go-common-utils/fasthttp"
 	log "github.com/ron96G/go-common-utils/log"
 )
 
@@ -124,7 +126,14 @@ func (a *API) NewServer(apiPrefix string, staticApiToken string) {
 		handler = Tracer(handler)
 	}
 	if EnableAccessLog {
-		handler = Log(handler)
+		handler = fh_mw.LoggerWithConfig(handler, fh_mw.LoggerConfig{
+			Output:     os.Stdout,
+			TimeFormat: log.TimeFormat,
+			Format: `{"time":"${time}","hostname":"${env:HOSTNAME}","type":"access","pod_node":"${env:POD_NODE}","id":"${id}",` +
+				`"remote_ip":"${remote_ip}","method":"${method}","user_agent":"${user_agent}",` +
+				`"status_code":${status},"elapsed_time":${latency},"elapsed_time_human":"${latency_human}"` +
+				`,"request_length":${bytes_in}}` + "\n",
+		})
 	}
 
 	server := &fasthttp.Server{

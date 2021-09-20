@@ -15,12 +15,12 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.29.0
-	github.com/ron96G/go-common-utils v0.1.6
+	github.com/ron96G/go-common-utils v0.1.7
 	github.com/ron96G/go-fasthttp-swagger v0.0.0-20210713131343-ea0c9423e54f
 	github.com/swaggo/swag v1.7.0
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
-	github.com/valyala/fasthttp v1.28.0
+	github.com/valyala/fasthttp v1.30.0
 	go.uber.org/atomic v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/mod v0.5.0 // indirect
