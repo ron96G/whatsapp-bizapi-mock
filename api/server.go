@@ -31,7 +31,7 @@ var (
 		Output:     os.Stdout,
 		TimeFormat: log.TimeFormat,
 		Format: `{"time":"${time}","hostname":"${env:HOSTNAME}","type":"access","pod_node":"${env:POD_NODE}","id":"${id}",` +
-			`"remote_ip":"${remote_ip}","method":"${method}","user_agent":"${user_agent}",` +
+			`"remote_ip":"${remote_ip}","method":"${method}","path":"${path}","user_agent":"${user_agent}",` +
 			`"status_code":${status},"elapsed_time":${latency},"elapsed_time_human":"${latency_human}"` +
 			`,"request_length":${bytes_in}}` + "\n",
 	}
