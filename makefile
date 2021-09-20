@@ -6,6 +6,7 @@ VERSION?=0.1.0
 SERVICE_PORT?=8080
 DOCKER_REGISTRY?=rgummich/#if set it should finished by /
 EXPORT_RESULT?=true# for CI please set EXPORT_RESULT to true
+PROTOC_BUILDER_IMAGE?=
 
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
@@ -13,13 +14,17 @@ WHITE  := $(shell tput -Txterm setaf 7)
 CYAN   := $(shell tput -Txterm setaf 6)
 RESET  := $(shell tput -Txterm sgr0)
 
+ifndef PROTOC_BUILDER_IMAGE
+override PROTOC_BUILDER_IMAGE = rgummich/protoc-builder
+endif
+
 .PHONY: all test build vendor
 
 all: help
 
 build-protoc: ## Build the protocol buffer model
 	mkdir -p model
-	docker run --rm -v $(shell pwd):/app -w /app rgummich/protoc-builder:latest \
+	docker run --rm -v $(shell pwd):/app -w /app $(PROTOC_BUILDER_IMAGE) \
 		-I /go/src -I /go/src/github.com/envoyproxy/protoc-gen-validate \
 		--proto_path=protobuf --gogofast_out=":./" --validate_out="lang=go:." \
 		meta.proto general.proto contacts.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto

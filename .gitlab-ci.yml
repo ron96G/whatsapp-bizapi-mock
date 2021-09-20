@@ -2,6 +2,7 @@ variables:
   VERSION: "2.35"
   IMAGE_NAME: "wabizapi-mock"
   TAG: "dev"
+  PROTOC_BUILDER_IMAGE: mtr.external.otc.telekomcloud.com/digitalmedia-connector/protoc-builder
 
 stages:
   - pre_build
@@ -14,9 +15,8 @@ cache:
   paths:
     - "model"
 
-image: golang:latest
-
 .pre_build_protoc: &pre_build_protoc
+  image: docker
   tags:
     - run_docker
   artifacts:
@@ -24,42 +24,15 @@ image: golang:latest
       - $PWD/model
     expire_in: 1 hour
   script:
-    - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
-    - export GO111MODULE=off
-    - apt-get update && apt-get install -y protobuf-compiler
-
-    - go get google.golang.org/protobuf/cmd/protoc-gen-go
-    - go get github.com/envoyproxy/protoc-gen-validate
-
-    - 'protoc
-        -I .
-        -I ${GOPATH}/src
-        -I ${GOPATH}/src/github.com/envoyproxy/protoc-gen-validate
-        --proto_path="./protobuf"
-        --go_out=":./"
-        --validate_out="lang=go:."
-        meta.proto general.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto'
-
-    -  chmod 777 -R model
-
-.pre_build_scan: &pre_build_scan
-  tags:
-    - run_docker
-  script:
-    - go get -u github.com/securego/gosec/v2/cmd/gosec
-    - GOPATH=$(go env GOPATH); export PATH=$PATH:${GOPATH}/bin
-    - gosec -exclude G104,G404,G307,G402 -severity high ./...
+    - apk add make
+    - make build-protoc PROTOC_BUILDER_IMAGE=${PROTOC_BUILDER_IMAGE}
 
 .pre_build_test: &pre_build_test
+  image: golang
   tags:
     - run_docker
   script:
-    - pwd
-    - mkdir -p uploads
-    - cp media/* uploads
-    - ls -la uploads
-    - go test ./... || true
-    - rm -rf uploads
+    - go test ./...
 
 .build_template: &build_image
   tags:
@@ -72,25 +45,6 @@ image: golang:latest
 
     - docker push $MTR_URL/$IMAGE_NAME:$TAG
     - docker image rm $MTR_URL/$IMAGE_NAME:$TAG
-
-
-# Telekom DevSecOps: Container Scanner
-include: 'https://codeshare.workbench.telekom.de/gitlab/teamdevsecops/container-scanning-service/raw/master/container-scan.yml'
-
-.scan_container: &scan_container
-  stage: container_scan_stage
-  tags:
-    - run_docker
-  before_script:
-    - echo $MTR_PWD | docker login -u $MTR_USER --password-stdin $MTR_URL
-  artifacts:
-    paths:
-      - anchore-reports/*.json
-    expire_in: 1 hour
-  variables:
-    IMAGE_TAG_CONTAINER_SCAN: "$MTR_URL/$IMAGE_NAME:$TAG"
-  extends: .container_scan
-
 
 build protoc:
   stage: pre_build
