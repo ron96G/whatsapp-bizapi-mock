@@ -25,6 +25,7 @@ cache:
     expire_in: 1 hour
   script:
     - apk add make
+    - echo $MTR_PWD | docker login $MTR_URL --username $MTR_USER --password-stdin
     - make build-protoc PROTOC_BUILDER_IMAGE=${PROTOC_BUILDER_IMAGE}
 
 .pre_build_test: &pre_build_test
