@@ -6,17 +6,13 @@ VERSION?=0.1.0
 SERVICE_PORT?=8080
 DOCKER_REGISTRY?=rgummich/#if set it should finished by /
 EXPORT_RESULT?=true# for CI please set EXPORT_RESULT to true
-PROTOC_BUILDER_IMAGE?=
+PROTOC_BUILDER_IMAGE?=rgummich/protoc-builder
 
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 WHITE  := $(shell tput -Txterm setaf 7)
 CYAN   := $(shell tput -Txterm setaf 6)
 RESET  := $(shell tput -Txterm sgr0)
-
-ifndef PROTOC_BUILDER_IMAGE
-override PROTOC_BUILDER_IMAGE = rgummich/protoc-builder
-endif
 
 .PHONY: all test build vendor
 
