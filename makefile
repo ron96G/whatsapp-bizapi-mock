@@ -18,17 +18,17 @@ RESET  := $(shell tput -Txterm sgr0)
 
 all: help
 
+## Build:
+build: ## Build your project and put the output binary in out/bin/
+	mkdir -p out/bin
+	$(GOCMD) build -o out/bin/$(BINARY_NAME) cmd/main.go
+
 build-protoc: ## Build the protocol buffer model
 	mkdir -p model
 	docker run --rm -v $(shell pwd):/app -w /app $(PROTOC_BUILDER_IMAGE) \
 		-I /go/src -I /go/src/github.com/envoyproxy/protoc-gen-validate \
 		--proto_path=protobuf --gogofast_out=":./" --validate_out="lang=go:." \
 		meta.proto general.proto contacts.proto settings.proto status.proto messages.proto users.proto backup.proto internal.proto
-
-## Build:
-build: ## Build your project and put the output binary in out/bin/
-	mkdir -p out/bin
-	GO111MODULE=off $(GOCMD) build -mod vendor -o out/bin/$(BINARY_NAME) .
 
 swag: ## Generate swagger docs using github.com/swaggo/swag
 	swag init -g server.go -d api --parseDependency --parseInternal

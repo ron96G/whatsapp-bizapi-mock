@@ -8,7 +8,7 @@ const new_password = 'secret_new_pwd123!'
 const baseUrl = 'https://localhost:9090/v1'
 const credentials = `${username}:${password}`;
 const encodedCredentials = encoding.b64encode(credentials);
-const params = {
+var params = {
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Basic ${encodedCredentials}`
@@ -16,8 +16,19 @@ const params = {
 };
 
 
+export let options = {
+  vus: 300,
+  duration: '10s',
+};
+
+
 export function setup() {
   let res = http.post(baseUrl+'/users/login', JSON.stringify({"new_password": new_password}), params);
+
+  if (res.status !== 200) {
+    params.headers.Authorization = encoding.b64encode(`${username}:${new_password}`)
+    res = http.post(baseUrl+'/users/login', "{}", params);
+  }
 
   check(res, {
     'status is 200': (r) => r.status === 200

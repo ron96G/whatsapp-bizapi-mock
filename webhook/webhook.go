@@ -43,7 +43,6 @@ type Webhook struct {
 	URL                       string
 	Generators                *model.Generators
 	StatusQueue               []*model.Status
-	MessageQueue              []*model.Message
 	Queue                     chan *model.WebhookRequest
 	Log                       log.Logger
 	WaitInterval              time.Duration
@@ -60,9 +59,9 @@ func NewWebhook(url, version string, g *model.Generators) *Webhook {
 		URL:                       url,
 		Generators:                g,
 		Queue:                     make(chan *model.WebhookRequest, 100),
-		Log:                       log.New("webhook_logger", "component", "webhook"),
+		Log:                       log.New("webhook_logger"),
 		userAgent:                 "WhatsappMockserver/" + version,
-		StatusQueue:               []*model.Status{},
+		StatusQueue:               make([]*model.Status, 0),
 		WaitInterval:              0 * time.Second,
 		Compress:                  false,
 		CompressMinsize:           2048,
@@ -146,7 +145,8 @@ func (w *Webhook) getStati() []*model.Status {
 
 	t := make([]*model.Status, curLen)
 	copy(t, w.StatusQueue[:curLen])
-	w.StatusQueue = w.StatusQueue[:0]
+	// w.StatusQueue = w.StatusQueue[:0]
+	w.StatusQueue = make([]*model.Status, 0)
 	return t
 }
 

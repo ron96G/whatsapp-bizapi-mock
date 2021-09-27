@@ -22,7 +22,6 @@ require (
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/valyala/fasthttp v1.30.0
 	go.uber.org/atomic v1.8.0 // indirect
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/mod v0.5.0 // indirect
 	golang.org/x/net v0.0.0-20210903162142-ad29c8ab022f // indirect
 	golang.org/x/sys v0.0.0-20210903071746-97244b99971b // indirect

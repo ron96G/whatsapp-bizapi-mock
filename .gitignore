@@ -1,5 +1,6 @@
 uploads/
 tmp/
+out/
 __pycache__
 *.exe
 app

@@ -14,4 +14,21 @@ message Status {
     StatusEnum status = 2;
     string recipient_id = 3;
     int64 timestamp = 4;
+    Conversation conversation = 5;
+    Pricing pricing = 6;
+}
+
+message Conversation {
+    string id = 1;
+}
+
+message Pricing {
+    enum PricingModel {
+        unknown = 0;
+        CBP = 1;
+        NBP = 2;
+    }
+
+    PricingModel pricing_model = 1;
+    bool billable = 2;
 }

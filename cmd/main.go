@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509/pkix"
 	"net"
 	"net/http"
 	"os"
@@ -20,6 +21,7 @@ import (
 	"github.com/ron96G/whatsapp-bizapi-mock/util"
 	"github.com/ron96G/whatsapp-bizapi-mock/webhook"
 
+	cert "github.com/ron96G/go-common-utils/certificate"
 	log "github.com/ron96G/go-common-utils/log"
 )
 
@@ -145,7 +147,14 @@ func main() {
 
 	if !*disableTLS {
 		mainLogger.Debug("Creating new Server TLS config as TLS is enabled")
-		tlsCfg, err := util.GenerateServerTLS()
+		tlsCfg, err := cert.GenerateServerTLS(cert.Options{
+			Subject: pkix.Name{
+				Organization: []string{"WhatsApp Mockserver Fake Certificate"},
+				Country:      []string{"DE"},
+				Province:     []string{"NRW"},
+				Locality:     []string{"Bonn"},
+			},
+		})
 		if err != nil {
 			mainLogger.Crit("Unable to generate Server TLS config", "error", err)
 			os.Exit(1)

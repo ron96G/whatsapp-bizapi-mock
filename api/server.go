@@ -144,15 +144,18 @@ func (a *API) NewServer(apiPrefix string, staticApiToken string) {
 		Handler:                       handler,
 		Name:                          Servername,
 		Concurrency:                   256 * 1024,
-		DisableKeepalive:              false,
 		ReadTimeout:                   5 * time.Second,
 		WriteTimeout:                  5 * time.Second,
 		IdleTimeout:                   15 * time.Second,
 		MaxConnsPerIP:                 0,
 		MaxRequestsPerConn:            0,
+		DisableKeepalive:              false,
 		TCPKeepalive:                  false,
 		DisableHeaderNamesNormalizing: false,
 		NoDefaultServerHeader:         false,
+		ReduceMemoryUsage:             false,
+		DisablePreParseMultipartForm:  true,
+		StreamRequestBody:             false,
 	}
 
 	a.Server = server

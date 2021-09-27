@@ -64,6 +64,64 @@ func (m *Status) validate(all bool) error {
 
 	// no validation rules for Timestamp
 
+	if all {
+		switch v := interface{}(m.GetConversation()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StatusValidationError{
+					field:  "Conversation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StatusValidationError{
+					field:  "Conversation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConversation()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StatusValidationError{
+				field:  "Conversation",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetPricing()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StatusValidationError{
+					field:  "Pricing",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StatusValidationError{
+					field:  "Pricing",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPricing()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StatusValidationError{
+				field:  "Pricing",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return StatusMultiError(errors)
 	}
@@ -139,3 +197,204 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = StatusValidationError{}
+
+// Validate checks the field values on Conversation with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Conversation) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Conversation with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ConversationMultiError, or
+// nil if none found.
+func (m *Conversation) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Conversation) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return ConversationMultiError(errors)
+	}
+	return nil
+}
+
+// ConversationMultiError is an error wrapping multiple validation errors
+// returned by Conversation.ValidateAll() if the designated constraints aren't met.
+type ConversationMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ConversationMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ConversationMultiError) AllErrors() []error { return m }
+
+// ConversationValidationError is the validation error returned by
+// Conversation.Validate if the designated constraints aren't met.
+type ConversationValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ConversationValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ConversationValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ConversationValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ConversationValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ConversationValidationError) ErrorName() string { return "ConversationValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ConversationValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConversation.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ConversationValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ConversationValidationError{}
+
+// Validate checks the field values on Pricing with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Pricing) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Pricing with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in PricingMultiError, or nil if none found.
+func (m *Pricing) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Pricing) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for PricingModel
+
+	// no validation rules for Billable
+
+	if len(errors) > 0 {
+		return PricingMultiError(errors)
+	}
+	return nil
+}
+
+// PricingMultiError is an error wrapping multiple validation errors returned
+// by Pricing.ValidateAll() if the designated constraints aren't met.
+type PricingMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PricingMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PricingMultiError) AllErrors() []error { return m }
+
+// PricingValidationError is the validation error returned by Pricing.Validate
+// if the designated constraints aren't met.
+type PricingValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PricingValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PricingValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PricingValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PricingValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PricingValidationError) ErrorName() string { return "PricingValidationError" }
+
+// Error satisfies the builtin error interface
+func (e PricingValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPricing.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PricingValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PricingValidationError{}
