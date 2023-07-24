@@ -13,7 +13,7 @@ require (
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.16.0
 	github.com/opentracing/opentracing-go v1.2.0
-	github.com/prometheus/client_golang v1.11.0
+	github.com/prometheus/client_golang v1.11.1
 	github.com/prometheus/common v0.29.0
 	github.com/ron96G/go-common-utils v0.1.10
 	github.com/ron96G/go-fasthttp-swagger v0.0.0-20210713131343-ea0c9423e54f
